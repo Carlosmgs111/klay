@@ -7,6 +7,11 @@ export class AstroRouter {
     this.fileManagerUseCases = fileManagerUseCases;
   }
 
+  GET = async ({ request }: APIContext) => {
+    const files = await this.fileManagerUseCases.getFiles();
+    return new Response(JSON.stringify(files), { status: 200 });
+  };
+
   POST = async ({ request }: APIContext) => {
     const formData = await request.formData();
     const file = formData.get("file") as File;

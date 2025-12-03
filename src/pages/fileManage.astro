@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <h1>File Manage</h1>
+</Layout>
+
+<script>
+    const files = await fetch("/api/file").then((res) => res.json());
+    console.log(files);
+</script>

@@ -1,0 +1,296 @@
+---
+import Layout from "../layouts/Layout.astro";
+// Dashboard.astro - Component para gestión de archivos y mapas mentales
+const files = [
+  { id: 1, name: "Proyecto Q1 2024.md", type: "mindmap", size: "2.4 KB", date: "2024-11-28", status: "completed" },
+  { id: 2, name: "Estrategia Marketing.md", type: "mindmap", size: "3.1 KB", date: "2024-11-27", status: "completed" },
+  { id: 3, name: "Arquitectura Software.md", type: "mindmap", size: "1.8 KB", date: "2024-11-26", status: "draft" },
+  { id: 4, name: "Reunión Equipo.md", type: "mindmap", size: "950 B", date: "2024-11-25", status: "completed" },
+];
+
+const stats = {
+  totalFiles: 24,
+  totalMindmaps: 18,
+  storageUsed: 45.2,
+  storageTotal: 100
+};
+---
+
+<Layout>
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+  <!-- Sidebar -->
+  <aside class="fixed left-0 top-0 h-full w-64 bg-slate-800/50 backdrop-blur-xl border-r border-slate-700/50 p-6">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
+      </div>
+      <h1 class="text-xl font-bold text-white">MindMapper</h1>
+    </div>
+
+    <nav class="space-y-2">
+      <a href="#" class="flex items-center gap-3 px-4 py-3 bg-gray-700/50 text-gray-200 rounded-lg transition-all hover:bg-gray-700/70">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Dashboard
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 rounded-lg transition-all hover:bg-slate-700/50 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Archivos
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 rounded-lg transition-all hover:bg-slate-700/50 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+        </svg>
+        Mapas Mentales
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 rounded-lg transition-all hover:bg-slate-700/50 hover:text-white">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        Configuración
+      </a>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <div class="bg-slate-700/50 rounded-lg p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center text-white font-bold">
+            U
+          </div>
+          <div>
+            <p class="text-white font-medium text-sm">Usuario</p>
+            <p class="text-slate-400 text-xs">usuario@email.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ml-64 p-8">
+    <!-- Header -->
+    <header class="mb-8">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-3xl font-bold text-white">Dashboard</h2>
+        <button class="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-gray-900/50 transition-all flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Nuevo Mapa Mental
+        </button>
+      </div>
+      <p class="text-slate-400">Gestiona tus archivos y mapas mentales</p>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 hover:border-gray-500/50 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gray-600/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-slate-400 text-sm font-medium mb-1">Total Archivos</h3>
+        <p class="text-3xl font-bold text-white">{stats.totalFiles}</p>
+      </div>
+
+      <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 hover:border-gray-500/50 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-slate-400 text-sm font-medium mb-1">Mapas Mentales</h3>
+        <p class="text-3xl font-bold text-white">{stats.totalMindmaps}</p>
+      </div>
+
+      <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 hover:border-gray-500/50 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gray-400/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-slate-400 text-sm font-medium mb-1">Almacenamiento</h3>
+        <p class="text-3xl font-bold text-white">{stats.storageUsed}<span class="text-lg text-slate-400">/{stats.storageTotal} GB</span></p>
+      </div>
+
+      <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 hover:border-gray-500/50 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gray-300/20 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+        </div>
+        <h3 class="text-slate-400 text-sm font-medium mb-1">Actividad Hoy</h3>
+        <p class="text-3xl font-bold text-white">8</p>
+      </div>
+    </div>
+
+    <!-- Files Section -->
+    <div class="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-white">Archivos Recientes</h3>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <input 
+              type="text" 
+              placeholder="Buscar archivos..." 
+              class="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 pl-10 text-white placeholder-slate-400 focus:outline-none focus:border-gray-400 transition-all"
+            />
+            <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <button class="px-4 py-2 bg-slate-700/50 border border-slate-600 text-white rounded-lg hover:bg-slate-700 transition-all flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+            Filtrar
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-slate-700">
+              <th class="text-left py-3 px-4 text-slate-400 font-medium text-sm">Nombre</th>
+              <th class="text-left py-3 px-4 text-slate-400 font-medium text-sm">Tipo</th>
+              <th class="text-left py-3 px-4 text-slate-400 font-medium text-sm">Tamaño</th>
+              <th class="text-left py-3 px-4 text-slate-400 font-medium text-sm">Fecha</th>
+              <th class="text-left py-3 px-4 text-slate-400 font-medium text-sm">Estado</th>
+              <th class="text-right py-3 px-4 text-slate-400 font-medium text-sm">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {files.map((file) => (
+              <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 transition-all cursor-pointer" data-file-id={file.id}>
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                    </div>
+                    <span class="text-white font-medium">{file.name}</span>
+                  </div>
+                </td>
+                <td class="py-4 px-4">
+                  <span class="px-3 py-1 bg-gray-600/30 text-gray-300 rounded-full text-sm">Mapa Mental</span>
+                </td>
+                <td class="py-4 px-4 text-slate-300">{file.size}</td>
+                <td class="py-4 px-4 text-slate-300">{file.date}</td>
+                <td class="py-4 px-4">
+                  {file.status === 'completed' ? (
+                    <span class="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm flex items-center gap-1 w-fit">
+                      <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                      Completado
+                    </span>
+                  ) : (
+                    <span class="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-sm flex items-center gap-1 w-fit">
+                      <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                      Borrador
+                    </span>
+                  )}
+                </td>
+                <td class="py-4 px-4">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="p-2 hover:bg-slate-700 rounded-lg transition-all" title="Ver">
+                      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </button>
+                    <button class="p-2 hover:bg-slate-700 rounded-lg transition-all" title="Editar">
+                      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button class="p-2 hover:bg-slate-700 rounded-lg transition-all" title="Descargar">
+                      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                      </svg>
+                    </button>
+                    <button class="p-2 hover:bg-red-500/20 rounded-lg transition-all" title="Eliminar">
+                      <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</Layout>
+
+<script>
+  // Event listeners para las filas de la tabla
+  document.querySelectorAll('tr[data-file-id]').forEach((row) => {
+    row.addEventListener('click', (e) => {
+      // Evitar que el click en botones dispare el evento de la fila
+      if ((e.target as HTMLElement).closest('button')) return;
+      
+      const fileId = row.getAttribute('data-file-id');
+      console.log('Archivo seleccionado:', fileId);
+      // Aquí puedes agregar la lógica para abrir el archivo
+    });
+  });
+
+  // Event listeners para los botones de acción
+  document.querySelectorAll('button[title="Ver"]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const row = (e.currentTarget as HTMLElement).closest('tr');
+      const fileId = row?.getAttribute('data-file-id');
+      console.log('Ver archivo:', fileId);
+    });
+  });
+
+  document.querySelectorAll('button[title="Editar"]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const row = (e.currentTarget as HTMLElement).closest('tr');
+      const fileId = row?.getAttribute('data-file-id');
+      console.log('Editar archivo:', fileId);
+    });
+  });
+
+  document.querySelectorAll('button[title="Descargar"]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const row = (e.currentTarget as HTMLElement).closest('tr');
+      const fileId = row?.getAttribute('data-file-id');
+      console.log('Descargar archivo:', fileId);
+    });
+  });
+
+  document.querySelectorAll('button[title="Eliminar"]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const row = (e.currentTarget as HTMLElement).closest('tr');
+      const fileId = row?.getAttribute('data-file-id');
+      if (confirm('¿Estás seguro de que deseas eliminar este archivo?')) {
+        console.log('Eliminar archivo:', fileId);
+        // Aquí puedes agregar la lógica para eliminar el archivo
+      }
+    });
+  });
+</script>

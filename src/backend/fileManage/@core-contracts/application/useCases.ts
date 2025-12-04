@@ -1,4 +1,4 @@
-import type { IDatabase } from "../domain/database";
+import type { IRepository } from "../domain/repository";
 import type { IStorage } from "../domain/storage";
 
 type File = {
@@ -9,7 +9,7 @@ type File = {
 
 export interface IFileManagerUseCases {
     storage: IStorage;
-    database: IDatabase;
+    repository: IRepository;
     getFiles(): Promise<File[]>;
     uploadFile(file: Buffer, fileName: string): Promise<string>;
     deleteFile(fileUrl: string): Promise<void>;

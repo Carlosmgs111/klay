@@ -3,7 +3,7 @@ type File = {
     name: string;
     path: string;
 }
-export interface IDatabase {
+export interface IRepository {
     
     saveFile(file: File): Promise<void>;
     getPathById(id: string): Promise<string | undefined>;

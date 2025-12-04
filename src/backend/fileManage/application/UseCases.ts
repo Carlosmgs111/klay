@@ -1,20 +1,20 @@
 import type { IFileManagerUseCases } from "../@core-contracts/application/useCases";
 import type { IStorage } from "../@core-contracts/domain/storage";
-import type { IDatabase } from "../@core-contracts/domain/database";
+import type { IRepository } from "../@core-contracts/domain/repository";
 
 export class FileManagerUseCases implements IFileManagerUseCases {
     storage: IStorage;
-    database: IDatabase;
+    repository: IRepository;
     constructor(
         storage: IStorage,
-        database: IDatabase
+        repository: IRepository
     ) {
         this.storage = storage;
-        this.database = database;
+        this.repository = repository;
     }
 
     getFiles = async() => {
-        const files = await this.database.getFiles();
+        const files = await this.repository.getFiles();
         return files;
     }
 
@@ -28,12 +28,12 @@ export class FileManagerUseCases implements IFileManagerUseCases {
             name: fileName,
             path: fileUrl
         }
-        await this.database.saveFile(fileEntity);
+        await this.repository.saveFile(fileEntity);
         return fileUrl;
     }
 
     deleteFile = async(fileId: string) => {
-        const filePath = await this.database.getPathById(fileId);
+        const filePath = await this.repository.getPathById(fileId);
         if (!filePath) {
             throw new Error("File not found");
         }
@@ -41,7 +41,7 @@ export class FileManagerUseCases implements IFileManagerUseCases {
         if(!deleted) {
             throw new Error("File not deleted");
         }
-        const deletedDb = await this.database.deleteFile(fileId);
+        const deletedDb = await this.repository.deleteFile(fileId);
         if(!deletedDb) {
             throw new Error("File not deleted in database");
         }

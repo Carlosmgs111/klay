@@ -1,7 +1,7 @@
 import type { IStorage } from "../../@core-contracts/domain/storage";
 import fs from "fs";
 
-export class LocalStorage implements IStorage {
+export class LocalFsStorage implements IStorage {
   constructor() {
     if (!fs.existsSync("./uploads")) {
       fs.mkdirSync("./uploads");

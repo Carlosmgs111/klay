@@ -1,8 +1,10 @@
 import { FileManagerUseCases } from "./application/UseCases";
-import { LocalStorage } from "./infrastructure/storage/LocalStorage";
+import { LocalFsStorage } from "./infrastructure/storage/LocalFsStorage";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";
-import { LocalCsvDatabase } from "./infrastructure/database/LocalCsvDatabase";
+import { LocalCsvRepository } from "./infrastructure/repository/LocalCsvRepository";
 
-export const fileManagerUseCases = new FileManagerUseCases(new LocalStorage(), new LocalCsvDatabase());
+const storage = new LocalFsStorage();
+const repository = new LocalCsvRepository();
+export const fileManagerUseCases = new FileManagerUseCases(storage, repository);
 
 export const fileManagerRouter = new AstroRouter(fileManagerUseCases);

@@ -6,25 +6,65 @@ console.log(files);
 ---
 
 <Layout>
-  <h1>File Manage</h1>
-  <form>
-    <input id="fileInput" class="bg-gray-500 p-2" type="file" multiple name="file" />
-    <button id="uploadButton" class="bg-gray-500 p-2" type="submit"
-      >Upload</button
+  <div class="flex flex-col gap-6 max-w-6xl mx-auto">
+    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+      <span class="block text-gray-200 mb-2 font-bold text-lg px-2 pb-2 w-full border-b border-gray-700"
+        >Subir Archivo</span
+      >
+      <form class="flex gap-2 items-center text-gray-200">
+        <input
+          class="hidden"
+          id="fileInput"
+          type="file"
+          name="file"
+          accept=".pdf"
+        />
+        <label
+          id="fileLabel"
+          class="w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap"
+          for="fileInput">Seleccionar Archivo</label
+        >
+        <button
+          class="bg-gray-700 hover:bg-gray-700/80 p-4 rounded-lg whitespace-nowrap"
+          id="uploadButton"
+          type="submit"
+          ><i class="bx bx-folder-up-arrow mr-2 align-middle text-xl"></i>Subir
+          Archivo</button
+        >
+      </form>
+    </div>
+    <div
+      class="text-gray-200 flex flex-col gap-2 p-6 bg-gray-800 border border-gray-700 rounded-lg"
     >
-  </form>
-  <ul id="files">
-    {
-      files.map((file: any) => (
-        <li class="text-white flex gap-2">
-          <span class="p-2">{file.name}</span>
-          <button id={file.id} name="delete" class="bg-red-500 p-2">
-            BORRAR
-          </button>
-        </li>
-      ))
-    }
-  </ul>
+      <div class="flex px-2 font-bold text-lg border-b border-gray-700 pb-2"><span>Nombre</span></div>
+      <ul class="w-full flex flex-wrap" id="files">
+        {
+          files.map((file: any) => (
+            <li class="border-gray-700 border-b flex gap-2 w-full py-4 px-2 hover:bg-gray-700/50 transition-all">
+              <span class="p-2 w-full font-[500] overflow-hidden text-ellipsis">
+                {file.name}
+              </span>
+              <span class="p-2">tamaño</span>
+              <div class="flex gap-2 text-lg">
+                <button
+                  class="h-fit rounded-lg bx bx-edit text-gray-500 p-2 hover:bg-gray-500/50 transition-all"
+                  name="edit"
+                  id={file.id}
+                  title="Cambiar Nombre"
+                />
+                <button
+                  id={file.id}
+                  name="delete"
+                  class="h-fit bx bx-trash text-red-500 p-2 rounded-lg hover:bg-red-500/50 transition-all"
+                  title="Eliminar"
+                />
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
 </Layout>
 
 <script>
@@ -32,10 +72,16 @@ console.log(files);
     "fileInput"
   ) as HTMLInputElement | null;
   const uploadButton = document.getElementById("uploadButton");
+  const fileLabel = document.getElementById("fileLabel");
+
   const uploadFile = async (e: Event) => {
     e.preventDefault();
     const formData = new FormData();
     if (!fileInput || !fileInput.files) {
+      return;
+    }
+    if (fileInput.files.length === 0) {
+      window.alert("No se selecciono ningun archivo");
       return;
     }
     Array.from(fileInput.files).forEach((file) => {
@@ -49,8 +95,17 @@ console.log(files);
       window.location.reload();
     }
   };
+
   if (fileInput && uploadButton) {
     uploadButton.addEventListener("click", uploadFile);
+    fileInput.addEventListener("change", () => {
+      if (fileLabel && fileInput.files) {
+        const fileLabelContent = Array.from(fileInput.files).map(
+          (file) => file.name
+        );
+        fileLabel.textContent = fileLabelContent.join(", ");
+      }
+    });
   }
   const deleteFile = async (id: string) => {
     const res = await fetch(`/api/file`, {
@@ -72,7 +127,12 @@ console.log(files);
   });
   document.querySelectorAll("button[name='delete']").forEach((button) => {
     button.addEventListener("click", (e) => {
-      deleteFile((e.target as HTMLButtonElement).id);
+      const result = window.confirm(
+        "Esta a punto de eliminar el archivo, esta seguro de continuar?"
+      );
+      if (result) {
+        deleteFile((e.target as HTMLButtonElement).id);
+      }
     });
   });
 </script>

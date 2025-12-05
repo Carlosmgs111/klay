@@ -1,0 +1,15 @@
+---
+import { sc } from "../../utils/sc";
+const { isActive, href, label, classIcon, title } = Astro.props;
+---
+
+<li
+  class={sc(
+    "px-4 py-2 bg-gray-700/50 rounded-lg hover:bg-gray-700/90",
+    "transition-all font-semibold text-md cursor-pointer",
+    isActive && "bg-gray-700/80"
+  )}
+  title={title}
+>
+  <a href={href}><i class={sc("mr-4 align-middle", classIcon)}></i>{label}</a>
+</li>

@@ -1,0 +1,39 @@
+---
+import Item from "./Item.astro";
+import { sc } from "../../utils/sc";
+const currentPath = Astro.url.pathname;
+
+const items = [
+  {
+    href: "/documents",
+    label: "Documentos",
+    classIcon: "bx bx-file-detail",
+    isActive: currentPath.includes("documents"),
+    title: "Gestion de documentos",
+  },
+  {
+    href: "/files",
+    label: "Archivos",
+    classIcon: "bx bx-archive",
+    isActive: currentPath.includes("files"),
+    title: "Gestion de archivos",
+  },
+];
+---
+
+<div
+  class={sc(
+    "h-screen flex flex-col gap-6 bg-gray-800 p-4 text-gray-200 border-r border-gray-700"
+  )}
+>
+  <div class="flex items-center text-xl font-bold mt-4">
+    <a class="text-center" href="/">
+      <i class="bx bx-sitemap mr-4 p-2 bg-gray-700/80 rounded-lg"></i> mindmap AI</a
+    >
+  </div>
+  <div>
+    <ul class={sc("flex flex-col gap-2")}>
+      {items.map((item) => <Item key={item.href} {...item} />)}
+    </ul>
+  </div>
+</div>

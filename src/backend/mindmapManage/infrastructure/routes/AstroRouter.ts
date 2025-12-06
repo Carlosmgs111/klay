@@ -2,13 +2,13 @@ import type { APIContext } from "astro";
 
 export class AstroRouter {
   constructor(private mindmapUseCases: any) {}
-  GET = async ({ params }: APIContext) => {
+  getText = async ({ params }: APIContext) => {
     const { fileId } = params;
     console.log({ fileId });
     const text = await this.mindmapUseCases.getText(fileId);
     return new Response(text?.content, { status: 200 });
   };
-  POST = async ({ params }: APIContext) => {
+  generateNewMindmap = async ({ params }: APIContext) => {
     const { fileId } = params;
     console.log({ fileId });
     const text = await this.mindmapUseCases.generateNewMindmap(fileId);

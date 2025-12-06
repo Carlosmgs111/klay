@@ -3,14 +3,13 @@ import Layout from "../layouts/Layout.astro";
 import DashBoardLayout from "../layouts/DashboardLayout.astro";
 import TimeAgo from "javascript-time-ago";
 import es from "javascript-time-ago/locale/es";
-TimeAgo.addDefaultLocale(es);
+TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo("es-ES");
 const res = await fetch(new URL("/api/file", Astro.url));
 const files = await res.json();
-console.log(files);
 ---
 
-<Layout>
+<Layout title="Archivos | MindMapAI">
   <DashBoardLayout>
     <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
       <span class="block text-gray-200 mb-2 font-bold text-lg px-4 pb-2 w-full"
@@ -61,7 +60,7 @@ console.log(files);
               <span class="p-4 whitespace-nowrap table-cell">Acciones</span>
             </li>,
             ...files.map((file: any) => (
-              <li class="hover:bg-gray-700/50 transition-all table-row border">
+              <li class="hover:bg-gray-700/50 transition-all table-row border rounded-lg">
                 <span class="p-4 w-full font-[500] overflow-hidden text-ellipsis table-cell">
                   {file.name}
                 </span>
@@ -74,7 +73,7 @@ console.log(files);
                     unit: "kilobyte",
                   }).format(Math.round(file.size / 1024))}
                 </span>
-                <div class="flex gap-1 text-lg  pt-4 px-4">
+                <div class="flex gap-1 text-lg p-4">
                   <button
                     class="h-fit rounded-lg bx bx-file-detail text-gray-500 p-2 hover:bg-gray-500/50 transition-all"
                     name="detail"
@@ -90,7 +89,7 @@ console.log(files);
                   <button
                     id={file.id}
                     name="delete"
-                    class="h-fit bx bx-trash text-red-500 p-2 rounded-lg hover:bg-red-500/50 transition-all"
+                    class="h-fit bx bx-trash text-red-500 p-2 rounded-lg hover:bg-red-500/50 transition-all table-cell"
                     title="Eliminar"
                   />
                 </div>

@@ -8,18 +8,18 @@ export class AstroRouter {
     this.fileManagerUseCases = fileManagerUseCases;
   }
 
-  GET = async ({}: APIContext) => {
+  getAllFiles = async ({}: APIContext) => {
     const files = await this.fileManagerUseCases.getFiles();
     return new Response(JSON.stringify(files), { status: 200 });
   };
 
-  GET_BY_ID = async ({ params }: APIContext) => {
+  getFileById = async ({ params }: APIContext) => {
     const { id } = params;
     const file = await this.fileManagerUseCases.getFileById(id as string);
     return new Response(JSON.stringify(file), { status: 200 });
   };
 
-  POST = async ({ request, params }: APIContext) => {
+  uploadFile = async ({ request, params }: APIContext) => {
     const { id } = params;
     const formData = await request.formData();
     const file = formData.get("file") as File;
@@ -41,7 +41,7 @@ export class AstroRouter {
     return new Response(fileUrl, { status: 200 });
   };
 
-  DELETE = async ({ request, params }: APIContext) => {
+  deleteFile = async ({ params }: APIContext) => {
     const { id } = params;
     console.log({ id });
     if (!id) {

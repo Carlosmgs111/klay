@@ -22,6 +22,7 @@ export interface IFileManagerUseCases {
   storage: IStorage;
   repository: IRepository;
   getFiles(): Promise<File[]>;
+  getFileById(id: string): Promise<File>;
   getFileBuffer(fileId: string): Promise<Buffer>;
   uploadFile(file: fileUploadParams): Promise<string>;
   deleteFile(fileUrl: string): Promise<void>;

@@ -13,6 +13,14 @@ export class FileManagerUseCases implements IFileManagerUseCases {
     this.repository = repository;
   }
 
+  getFileById = async (id: string) => {
+    const file = await this.repository.getFileById(id);
+    if (!file) {
+      throw new Error("File not found");
+    }
+    return file;
+  };
+
   getFiles = async () => {
     const files = await this.repository.getFiles();
     return files;

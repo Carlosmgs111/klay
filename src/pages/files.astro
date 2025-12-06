@@ -47,7 +47,7 @@ console.log(files);
     <div
       class="text-gray-200 p-6 bg-gray-800 border border-gray-700 rounded-lg"
     >
-      <ul class="w-full flex flex-wrap table " id="files">
+      <ul class="w-full flex flex-wrap table" id="files">
         {
           [
             <li class=" font-bold text-xl table-row ">
@@ -74,7 +74,13 @@ console.log(files);
                     unit: "kilobyte",
                   }).format(Math.round(file.size / 1024))}
                 </span>
-                <div class="flex gap-2 text-lg table-cell pt-4 pl-4">
+                <div class="flex gap-1 text-lg  pt-4 px-4">
+                  <button
+                    class="h-fit rounded-lg bx bx-file-detail text-gray-500 p-2 hover:bg-gray-500/50 transition-all"
+                    name="detail"
+                    id={file.id}
+                    title="Ver Detalles"
+                  />
                   <button
                     class="h-fit rounded-lg bx bx-edit text-gray-500 p-2 hover:bg-gray-500/50 transition-all"
                     name="edit"
@@ -117,7 +123,7 @@ console.log(files);
     Array.from(fileInput.files).forEach((file) => {
       formData.append("file", file);
     });
-    const res = await fetch(`/api/file`, {
+    const res = await fetch(`/api/file/${crypto.randomUUID()}`, {
       method: "POST",
       body: formData,
     });
@@ -138,12 +144,8 @@ console.log(files);
     });
   }
   const deleteFile = async (id: string) => {
-    const res = await fetch(`/api/file`, {
+    const res = await fetch(`/api/file/${id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: id }),
     });
     if (res.ok) {
       window.location.reload();
@@ -163,6 +165,18 @@ console.log(files);
       if (result) {
         deleteFile((e.target as HTMLButtonElement).id);
       }
+    });
+  });
+  const detailFile = async (id: string) => {
+    const res = await fetch(`/api/file/${id}`, {
+      method: "GET",
+    });
+    const file = await res.json();
+    console.log({ file });
+  };
+  document.querySelectorAll("button[name='detail'").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      detailFile((e.target as HTMLButtonElement).id);
     });
   });
 </script>

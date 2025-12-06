@@ -2,7 +2,6 @@ import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 import { PDFTextExtractor } from "./infrastructure/extraction/PDFTextExtractor";
 import { fileManagerUseCases } from "../fileManage";
 import { MindmapUseCases } from "./application/UseCases";
-import { LocalBsonRepository } from "./infrastructure/repository/LocalBsonRepository";
 import {LocalLevelRepository} from "./infrastructure/repository/LocalLevelRepository";
 
 const pdfTextExtractor = new PDFTextExtractor();

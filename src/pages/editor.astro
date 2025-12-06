@@ -5,6 +5,79 @@ import DashBoardLayout from "../layouts/DashboardLayout.astro";
 
 <Layout title="Editor | MindMapAI">
   <DashBoardLayout>
-        
+    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+      <span class="block text-gray-200 mb-2 font-bold text-lg px-4 pb-2 w-full"
+        >Generar nuevo MindMap</span
+      >
+      <span
+        class="block text-gray-200 mb-2 font-semibold text-sm px-4 pb-2 w-full border-b border-gray-700"
+        >Selecciona un archivo PDF para extraer el texto</span
+      >
+      <form class="flex gap-2 items-center text-gray-200">
+        <input
+          class="hidden"
+          id="fileInput"
+          type="file"
+          name="file"
+          accept=".pdf"
+        />
+        <label
+          id="fileLabel"
+          class="w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap"
+          for="fileInput"
+          ><i class="bx bx-file-detail mr-2 align-middle text-xl"
+          ></i>Seleccionar Archivo PDF</label
+        >
+        <button
+          class="bg-gray-700 hover:bg-gray-700/80 p-4 rounded-lg whitespace-nowrap"
+          id="uploadButton"
+          type="submit"
+          ><i class="bx bx-folder-up-arrow mr-2 align-middle text-xl"></i>Subir
+          Archivo</button
+        >
+      </form>
+    </div>
   </DashBoardLayout>
 </Layout>
+
+<script>
+  const fileInput = document.getElementById(
+    "fileInput"
+  ) as HTMLInputElement | null;
+  const uploadButton = document.getElementById("uploadButton");
+  const fileLabel = document.getElementById("fileLabel");
+
+  const uploadFile = async (e: Event) => {
+    e.preventDefault();
+    const formData = new FormData();
+    if (!fileInput || !fileInput.files) {
+      return;
+    }
+    if (fileInput.files.length === 0) {
+      window.alert("No se selecciono ningun archivo");
+      return;
+    }
+    Array.from(fileInput.files).forEach((file) => {
+      formData.append("file", file);
+    });
+    const res = await fetch(`/api/mindmap/${crypto.randomUUID()}`, {
+      method: "POST",
+      body: formData,
+    });
+    if (res.ok) {
+      window.location.reload();
+    }
+  };
+
+  if (fileInput && uploadButton) {
+    uploadButton.addEventListener("click", uploadFile);
+    fileInput.addEventListener("change", () => {
+      if (fileLabel && fileInput.files) {
+        const fileLabelContent = Array.from(fileInput.files).map(
+          (file) => file.name
+        );
+        fileLabel.textContent = fileLabelContent.join(", ");
+      }
+    });
+  }
+</script>

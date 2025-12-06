@@ -12,6 +12,7 @@ export class LocalLevelRepository implements IRepository {
   saveText = async (index: string, text: string) => {
     try {
       await this.db.put(index, JSON.stringify({ content: text }));
+      console.log("Text saved successfully!");
     } catch (error) {
       console.log({ error });
     }

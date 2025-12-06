@@ -32,7 +32,7 @@ export class FileManagerUseCases implements IFileManagerUseCases {
       throw new Error("File not uploaded");
     }
     const fileEntity = {
-      id: crypto.randomUUID(),
+      id: file.id,
       name: file.name,
       type: file.type,
       size: file.size,

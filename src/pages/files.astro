@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import DashBoardLayout from "../layouts/DashboardLayout.astro";
+import { sc } from "../utils/sc";
 import TimeAgo from "javascript-time-ago";
 import es from "javascript-time-ago/locale/es";
 TimeAgo.addLocale(es);
@@ -44,7 +45,10 @@ const files = await res.json();
       </form>
     </div>
     <div
-      class="text-gray-200 p-6 bg-gray-800 border border-gray-700 rounded-lg"
+      class={sc(
+        "text-gray-200 p-6 bg-gray-800 border border-gray-700 rounded-lg",
+        files.length === 0 && "hidden"
+      )}
     >
       <ul class="w-full flex flex-wrap table" id="files">
         {
@@ -99,6 +103,12 @@ const files = await res.json();
         }
       </ul>
     </div>
+    <span
+      class={sc(
+        "block text-gray-200 font-semibold text-2xl px-4 w-full mt-6 text-center",
+        files.length > 0 && "hidden"
+      )}>Aun no tienes ningun archivo.</span
+    >
   </DashBoardLayout>
 </Layout>
 

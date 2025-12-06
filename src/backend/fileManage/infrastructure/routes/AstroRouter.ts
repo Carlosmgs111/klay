@@ -21,6 +21,7 @@ export class AstroRouter {
 
   uploadFile = async ({ request, params }: APIContext) => {
     const { id } = params;
+    console.log({ id });
     const formData = await request.formData();
     const file = formData.get("file") as File;
 

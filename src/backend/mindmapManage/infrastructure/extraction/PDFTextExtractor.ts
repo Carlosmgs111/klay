@@ -1,6 +1,8 @@
+import type { TextExtractor } from "../../@core-contracts/domain/services";
+
 import pdfExtraction from "pdf-extraction";
 
-export class PDFTextExtractor {
+export class PDFTextExtractor implements TextExtractor {
   extractTextFromPDF = async (
     content: Buffer
   ): Promise<{

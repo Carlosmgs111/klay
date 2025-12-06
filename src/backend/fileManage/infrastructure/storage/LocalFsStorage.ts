@@ -21,7 +21,17 @@ export class LocalFsStorage implements IStorage {
       });
     });
   };
-  loadFileBuffer = async () => {};
+  loadFileBuffer = async (fileName: string): Promise<Buffer> => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(this.storagePath + "/" + fileName, (err, data) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        }
+        resolve(data);
+      });
+    });
+  };
   deleteFile = async (fileName: string): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       fs.unlink(this.storagePath + "/" + fileName, (err) => {

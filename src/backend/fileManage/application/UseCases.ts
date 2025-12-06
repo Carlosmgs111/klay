@@ -1,4 +1,7 @@
-import type { IFileManagerUseCases, fileUploadParams } from "../@core-contracts/application/useCases";
+import type {
+  IFileManagerUseCases,
+  fileUploadParams,
+} from "../@core-contracts/application/useCases";
 import type { IStorage } from "../@core-contracts/domain/storage";
 import type { IRepository } from "../@core-contracts/domain/repository";
 
@@ -29,6 +32,15 @@ export class FileManagerUseCases implements IFileManagerUseCases {
     };
     await this.repository.saveFile(fileEntity);
     return fileUrl;
+  };
+
+  getFileBuffer = async (fileId: string) => {
+    const file = await this.repository.getFileById(fileId);
+    if (!file) {
+      throw new Error("File not found");
+    }
+    const fileBuffer = await this.storage.loadFileBuffer(file.name);
+    return fileBuffer;
   };
 
   deleteFile = async (fileId: string) => {

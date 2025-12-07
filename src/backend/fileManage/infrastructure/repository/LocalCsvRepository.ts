@@ -1,44 +1,52 @@
-import type { IRepository } from "../../@core-contracts/domain/repository";
+import type { Repository } from "../../@core-contracts/repository";
+import type { FileDTO } from "../../@core-contracts/dtos";
 import fs from "fs";
 
-type File = {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  lastModified: number;
-};
-
-export class LocalCsvRepository implements IRepository {
+export class LocalCsvRepository implements Repository {
   private repositoryPath: string = "./database/";
   constructor() {
     if (!fs.existsSync(this.repositoryPath)) {
       fs.mkdirSync(this.repositoryPath);
     }
   }
-  saveFile = async (file: File) => {
+  saveFile = async (file: FileDTO) => {
     const { size } = fs.statSync(this.repositoryPath + "files.csv");
     fs.appendFileSync(
       this.repositoryPath + "files.csv",
-      (!size ? "" : "\n") + file.id + "," + file.name + "," + file.type + "," + file.size + "," + file.lastModified
+      (!size ? "" : "\n") +
+        file.id +
+        "," +
+        file.name +
+        "," +
+        file.type +
+        "," +
+        file.size +
+        "," +
+        file.lastModified
     );
   };
-  getFileById = async (id: string): Promise<File | undefined> => {
+  getFileById = async (id: string): Promise<FileDTO | undefined> => {
     const files = await this.getFiles();
     return files.find((file) => file.id === id);
   };
   getFiles = async () => {
-    return new Promise<File[]>((resolve, reject) => {
+    return new Promise<FileDTO[]>((resolve, reject) => {
       fs.readFile(this.repositoryPath + "files.csv", "utf-8", (err, data) => {
         if (err) {
           console.error(err);
           reject(err);
         }
-        if(!data) resolve([])
+        if (!data) resolve([]);
         resolve(
           data.split("\n").map((file: string) => {
             const [id, name, type, size, lastModified] = file.split(",");
-            return { id, name, type, size: Number(size), lastModified: Number(lastModified) };
+            return {
+              id,
+              name,
+              type,
+              size: Number(size),
+              lastModified: Number(lastModified),
+            };
           })
         );
       });
@@ -52,7 +60,19 @@ export class LocalCsvRepository implements IRepository {
     const newFiles = files.filter((file) => file.id !== id);
     console.log({ newFiles });
     const fileToWrite = newFiles
-      .map((file, index) => (!index ? "" : "\n") + file.id + "," + file.name + "," + file.type + "," + file.size + "," + file.lastModified)
+      .map(
+        (file, index) =>
+          (!index ? "" : "\n") +
+          file.id +
+          "," +
+          file.name +
+          "," +
+          file.type +
+          "," +
+          file.size +
+          "," +
+          file.lastModified
+      )
       .join("");
     return new Promise<boolean>((resolve, reject) => {
       fs.writeFile("./database/files.csv", fileToWrite, (err) => {

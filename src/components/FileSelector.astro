@@ -25,53 +25,55 @@ const { uploadEndpoint } = Astro.props;
   >
 </form>
 
-<script>
-  const fileInput = document.getElementById(
-    "fileInput"
-  ) as HTMLInputElement | null;
-  const uploadButton = document.getElementById("uploadButton");
-  const fileLabel = document.getElementById("fileLabel");
+<script >
+  document.addEventListener("astro:page-load", () => {
+    const fileInput = document.getElementById(
+      "fileInput"
+    ) as HTMLInputElement | null;
+    const uploadButton = document.getElementById("uploadButton");
+    const fileLabel = document.getElementById("fileLabel");
 
-  const uploadFile = async (e: Event) => {
-    e.preventDefault();
-    const formData = new FormData();
-    if (!fileInput || !fileInput.files) {
-      return;
-    }
-    if (fileInput.files.length === 0) {
-      window.alert("No se selecciono ningun archivo");
-      return;
-    }
-    const target = e.target as HTMLFormElement;
-    const uploadEndpoint = target.dataset.endpoint;
-    if (!uploadEndpoint) {
-      window.alert("No se proporciono un endpoint");
-      return;
-    }
-    Array.from(fileInput.files).forEach((file) => {
-      formData.append("file", file);
-    });
-    const res = await fetch(`${uploadEndpoint}/${crypto.randomUUID()}`, {
-      method: "POST",
-      body: formData,
-    });
-    if (res.ok) {
-      window.location.reload();
-    }
-  };
+    const uploadFile = async (e: Event) => {
+      e.preventDefault();
+      const formData = new FormData();
+      if (!fileInput || !fileInput.files) {
+        return;
+      }
+      if (fileInput.files.length === 0) {
+        window.alert("No se selecciono ningun archivo");
+        return;
+      }
+      const target = e.target as HTMLFormElement;
+      const uploadEndpoint = target.dataset.endpoint;
+      if (!uploadEndpoint) {
+        window.alert("No se proporciono un endpoint");
+        return;
+      }
+      Array.from(fileInput.files).forEach((file) => {
+        formData.append("file", file);
+      });
+      const res = await fetch(`${uploadEndpoint}/${crypto.randomUUID()}`, {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        window.location.reload();
+      }
+    };
 
-  const handleFileChange = (e: Event) => {
-    e.preventDefault();
-    if (fileLabel && fileInput?.files) {
-      const fileLabelContent = Array.from(fileInput.files).map(
-        (file) => file.name
-      );
-      fileLabel.textContent = fileLabelContent.join(", ");
-    }
-  };
+    const handleFileChange = (e: Event) => {
+      e.preventDefault();
+      if (fileLabel && fileInput?.files) {
+        const fileLabelContent = Array.from(fileInput.files).map(
+          (file) => file.name
+        );
+        fileLabel.textContent = fileLabelContent.join(", ");
+      }
+    };
 
-  if (fileInput && uploadButton) {
-    uploadButton.addEventListener("click", uploadFile);
-    fileInput.addEventListener("change", handleFileChange);
-  }
+    if (fileInput && uploadButton) {
+      uploadButton.addEventListener("click", uploadFile);
+      fileInput.addEventListener("change", handleFileChange);
+    }
+  });
 </script>

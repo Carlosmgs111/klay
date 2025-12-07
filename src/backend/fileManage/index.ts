@@ -1,13 +1,12 @@
-import { type IFileManagerUseCases } from "./@core-contracts/application/useCases";
-import { type IStorage } from "./@core-contracts/domain/storage";
-import { type IRepository } from "./@core-contracts/domain/repository";
-import { FileManagerUseCases } from "./application/UseCases";
+import type { Storage } from "./@core-contracts/storage";
+import type { Repository } from "./@core-contracts/repository";
+import { FileManageUseCases } from "./application/UseCases";
 import { LocalFsStorage } from "./infrastructure/storage/LocalFsStorage";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 import { LocalCsvRepository } from "./infrastructure/repository/LocalCsvRepository";
 
-const storage: IStorage = new LocalFsStorage();
-const repository: IRepository = new LocalCsvRepository();
-export const fileManagerUseCases: IFileManagerUseCases = new FileManagerUseCases(storage, repository);
+const storage:Storage = new LocalFsStorage();
+const repository: Repository = new LocalCsvRepository();
+export const fileManagerUseCases = new FileManageUseCases(storage, repository);
 
 export const fileManagerRouter = new AstroRouter(fileManagerUseCases);

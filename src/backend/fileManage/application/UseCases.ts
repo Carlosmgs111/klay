@@ -1,14 +1,10 @@
-import type {
-  IFileManagerUseCases,
-  fileUploadParams,
-} from "../@core-contracts/application/useCases";
-import type { IStorage } from "../@core-contracts/domain/storage";
-import type { IRepository } from "../@core-contracts/domain/repository";
+import type { Storage } from "../@core-contracts/storage";
+import type { Repository } from "../@core-contracts/repository";
 
-export class FileManagerUseCases implements IFileManagerUseCases {
-  storage: IStorage;
-  repository: IRepository;
-  constructor(storage: IStorage, repository: IRepository) {
+export class FileManageUseCases {
+  storage: Storage;
+  repository: Repository;
+  constructor(storage: Storage, repository: Repository) {
     this.storage = storage;
     this.repository = repository;
   }
@@ -26,7 +22,7 @@ export class FileManagerUseCases implements IFileManagerUseCases {
     return files;
   };
 
-  uploadFile = async (file: fileUploadParams) => {
+  uploadFile = async (file: any) => {
     const fileUrl = await this.storage.uploadFile(file.buffer, file.name);
     if (!fileUrl) {
       throw new Error("File not uploaded");

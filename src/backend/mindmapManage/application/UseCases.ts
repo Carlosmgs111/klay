@@ -1,23 +1,22 @@
-import type { IFileManagerUseCases } from "../../fileManage/@core-contracts/application/useCases";
-import type { IMindmapUseCases } from "../@core-contracts/application/useCases";
-import type { TextExtractor } from "../@core-contracts/domain/services";
-import type { IRepository } from "../@core-contracts/domain/repository";
-import type { fileUploadParams } from "../../fileManage/@core-contracts/application/useCases";
+import type { FileManageUseCases } from "../../fileManage/application/UseCases";
+import type { TextExtractor } from "../@core-contracts/services";
+import type { Repository } from "../@core-contracts/repository";
+import type { FileUploadDTO } from "../../fileManage/@core-contracts/dtos";
 
 export class MindmapUseCases {
-  private fileManagerUseCases: IFileManagerUseCases;
+  private fileManagerUseCases: FileManageUseCases;
   private textExtractor: TextExtractor;
-  private repository: IRepository;
+  private repository: Repository;
   constructor(
-    fileManagerUseCases: IFileManagerUseCases,
+    fileManagerUseCases: FileManageUseCases,
     textExtractor: TextExtractor,
-    repository: IRepository
+    repository: Repository
   ) {
     this.fileManagerUseCases = fileManagerUseCases;
     this.textExtractor = textExtractor;
     this.repository = repository;
   }
-  uploadFileAndGenerateMindmap = async (fileParams: fileUploadParams) => {
+  uploadFileAndGenerateMindmap = async (fileParams: FileUploadDTO) => {
     const { buffer } = fileParams;
     this.fileManagerUseCases.uploadFile(fileParams);
     const text = await this.textExtractor.extractTextFromPDF(buffer);

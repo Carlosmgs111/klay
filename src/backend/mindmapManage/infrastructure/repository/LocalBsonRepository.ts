@@ -1,4 +1,4 @@
-import type { IRepository } from "../../@core-contracts/domain/repository";
+import type { IRepository } from "../../@core-contracts/repository";
 import fs from "fs";
 import { BSON, ObjectId } from "bson";
 

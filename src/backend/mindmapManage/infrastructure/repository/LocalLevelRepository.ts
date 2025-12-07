@@ -1,4 +1,4 @@
-import type { IRepository } from "../../@core-contracts/domain/repository";
+import type { IRepository } from "../../@core-contracts/repository";
 import { getDB } from "../../../shared/repositories";
 import { Level } from "level";
 

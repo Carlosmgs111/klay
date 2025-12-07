@@ -1,4 +1,4 @@
-import type { TextExtractor } from "../../@core-contracts/domain/services";
+import type { TextExtractor } from "../../@core-contracts/services";
 
 import pdfExtraction from "pdf-extraction";
 

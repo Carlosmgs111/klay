@@ -1,10 +1,10 @@
 import type { APIContext } from "astro";
-import type { IFileManagerUseCases } from "../../@core-contracts/application/useCases";
-import type { fileUploadParams } from "../../@core-contracts/application/useCases";
+import type { FileManageUseCases } from "../../application/UseCases";
+import type { FileUploadDTO } from "../../@core-contracts/dtos";
 
 export class AstroRouter {
-  private fileManagerUseCases: IFileManagerUseCases;
-  constructor(fileManagerUseCases: IFileManagerUseCases) {
+  private fileManagerUseCases: FileManageUseCases;
+  constructor(fileManagerUseCases: FileManageUseCases) {
     this.fileManagerUseCases = fileManagerUseCases;
   }
 
@@ -30,7 +30,7 @@ export class AstroRouter {
     }
     console.log({ file });
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileParams: fileUploadParams = {
+    const fileParams: FileUploadDTO = {
       id,
       name: file.name,
       buffer,

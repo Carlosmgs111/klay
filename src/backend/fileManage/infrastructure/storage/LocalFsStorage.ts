@@ -1,7 +1,7 @@
-import type { IStorage } from "../../@core-contracts/domain/storage";
+import type { Storage } from "../../@core-contracts/storage";
 import fs from "fs";
 
-export class LocalFsStorage implements IStorage {
+export class LocalFsStorage implements Storage {
   private storagePath: string = "./uploads";
   constructor() {
     if (!fs.existsSync(this.storagePath)) {

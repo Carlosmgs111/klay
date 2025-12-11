@@ -4,6 +4,8 @@ import DashBoardLayout from "../layouts/DashboardLayout.astro";
 import FileSelector from "../components/FileSelector.astro";
 import FlowStep from "../components/FlowStep.astro";
 import { sc } from "../utils/sc";
+const fileId = Astro.url.searchParams.get("fileId");
+const fileName = Astro.url.searchParams.get("fileName");
 
 const stylesOptions = [
   {
@@ -34,19 +36,25 @@ const stylesOptions = [
         <div class="flex flex-col gap-4 border-l-4 border-gray-600 pl-5 mt-8">
           <FlowStep title="📄 Selecciona un PDF">
             <div class="">
-              <form id="file-options" class="flex gap-2 mb-2 text-sm">
+              <form
+                data-file-id={fileId}
+                id="file-options"
+                class="flex gap-2 mb-2 text-sm"
+              >
                 <label class="w-full">
                   <input
                     type="radio"
                     name="file:options"
                     value="upload"
                     class="hidden peer"
-                    checked
+                    checked={fileId === null}
                   />
                   <span
                     class="block p-2 text-center border border-gray-700 peer-checked:border-gray-700/80 hover:bg-gray-700 rounded-lg peer-checked:bg-gray-600"
                   >
-                   <i class="bx bx-arrow-from-bottom-stroke mr-2 my-auto align-middle" /> Cargar PDF
+                    <i
+                      class="bx bx-arrow-from-bottom-stroke mr-2 my-auto align-middle"
+                    ></i> Cargar PDF
                   </span>
                 </label>
                 <label class="w-full">
@@ -55,21 +63,34 @@ const stylesOptions = [
                     name="file:options"
                     value="library"
                     class="hidden peer"
+                    checked={fileId !== null}
                   />
                   <span
                     class="block p-2 text-center border border-gray-700 peer-checked:border-gray-700/80 hover:bg-gray-700 rounded-lg peer-checked:bg-gray-600"
                   >
-                    <i class="bx bx-arrow-from-top-stroke mr-2 my-auto align-middle" />Seleccionar PDF de
-                    la biblioteca
+                    <i
+                      class="bx bx-arrow-from-top-stroke mr-2 my-auto align-middle"
+                    ></i>Seleccionar PDF de la biblioteca
                   </span>
                 </label>
               </form>
               <div>
-                <FileSelector id="option:upload" />
-                <span
+                <FileSelector
+                  id="option:upload"
+                  class={sc(fileId ? "hidden" : "")}
+                />
+                <a
                   id="option:library"
-                  class="block w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer"
-                  >Archivo seleccionado de la biblioteca</span
+                  href="/files?mode=select"
+                  class={sc(
+                    "block w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer ",
+                    fileId ? "" : "hidden"
+                  )}
+                  ><i class="bx bx-book-library mr-2 my-auto align-middle"></i>{
+                    fileId !== null
+                      ? fileName
+                      : "Seleccionar PDF de la biblioteca"
+                  }</a
                 >
               </div>
             </div>
@@ -129,7 +150,7 @@ const stylesOptions = [
     const optionLibrary = document.getElementById(
       "option:library"
     ) as HTMLFormElement;
-    optionLibrary.classList.add("hidden");
+
     const onChange = (e: Event) => {
       const target = e.currentTarget as HTMLFormElement;
       const fileOption = target.querySelector(
@@ -147,7 +168,7 @@ const stylesOptions = [
     const generateMindmap = async () => {
       const formData = new FormData();
       const fileIndex: IndexFile = fileStore.get();
-      const file = fileIndex.files[fileIndex.indexes[0]];
+      const file = fileIndex.files[fileIndex.indexes[0]] as File;
       if (!file) {
         window.alert("No se selecciono ningun archivo");
         return;

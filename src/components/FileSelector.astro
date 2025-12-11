@@ -1,9 +1,9 @@
 ---
 import { sc } from "../utils/sc";
-const { uploadEndpoint, id } = Astro.props;
+const { uploadEndpoint, id  , class:className } = Astro.props;
 ---
 
-<form id={id} class={sc("flex gap-2 items-center text-gray-200")}>
+<form id={id} class={sc("flex gap-2 items-center text-gray-200", className)}>
   <input class="hidden" id="fileInput" type="file" name="file" accept=".pdf" />
   <label
     id="fileLabel"
@@ -44,9 +44,14 @@ const { uploadEndpoint, id } = Astro.props;
     };
 
     // Restaurar archivo del estado
-    if (fileStored.indexes[0]) {
+    if (
+      fileStored.stagedIndexes[0] &&
+      fileStored.files[fileStored.stagedIndexes[0]] instanceof File
+    ) {
       const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(fileStored.files[fileStored.indexes[0]] as File);
+      dataTransfer.items.add(
+        fileStored.files[fileStored.stagedIndexes[0]] as File
+      );
       fileInput.files = dataTransfer.files;
       updateLabel(); // Actualizar el label después de restaurar
     }
@@ -97,6 +102,7 @@ const { uploadEndpoint, id } = Astro.props;
             const files = { ...fileStore.get().files, [fileId]: file };
             fileStore.set({
               indexes: fileIndexes,
+              stagedIndexes: [...fileStore.get().stagedIndexes, fileId],
               files,
             });
             return file.name;

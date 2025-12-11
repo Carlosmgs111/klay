@@ -3,16 +3,16 @@ import Layout from "../layouts/Layout.astro";
 import DashBoardLayout from "../layouts/DashboardLayout.astro";
 import FileSelector from "../components/FileSelector.astro";
 import Switch from "../components/Switch.astro";
+import LibraryFileSelector from "../components/LibraryFileSelector.astro";
 import { sc } from "../utils/sc";
 import TimeAgo from "javascript-time-ago";
 import es from "javascript-time-ago/locale/es";
-import { selectionMode } from "../stores/selectionMode";
-import { fileSelected } from "../stores/fileSelected";
 
 TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo("es-ES");
 const res = await fetch(new URL("/api/file", Astro.url));
 const files = await res.json();
+const mode = Astro.url.searchParams.get("mode");
 ---
 
 <Layout title="Archivos | MindMapAI">
@@ -43,29 +43,14 @@ const files = await res.json();
       <div
         class="px-4 py-2 border-b border-gray-700 flex flex-wrap gap-2 sticky top-0 z-10 bg-gray-800"
       >
-        <div class="flex gap-2 w-full items-center">
-          <div class="w-full">
-            <Switch id="mode-select" label="Activar seleccion de archivo" />
-          </div>
-          <button
-            id="mode-select:add-file"
-            class={sc(
-              "bg-gray-700/50 text-sm hover:bg-gray-700 py-2 px-4 rounded-lg whitespace-nowrap",
-              selectionMode.get() && !Boolean(fileSelected.get()) && "disabled:opacity-50 disabled:cursor-not-allowed",
-              !selectionMode.get() && Boolean(fileSelected.get()) && "opacity-0 pointer-events-none"
-            )}
-          >
-            <i class="bx bx-arrow-to-right-stroke mr-2 align-middle text-xl"
-            ></i> Continuar
-          </button>
-        </div>
-        <span class="text-xs w-full"
-          >Activa el modo de seleccion para agregar un archivo de la biblioteca
-          al contexto</span
-        >
+        <LibraryFileSelector />
       </div>
       <div class="overflow-auto">
-        <ul class="w-full flex flex-wrap table" id="files">
+        <ul
+          data-files={JSON.stringify(files)}
+          class="w-full flex flex-wrap table"
+          id="files"
+        >
           {
             [
               <li class=" font-bold text-lg table-row ">
@@ -82,11 +67,8 @@ const files = await res.json();
                   data-id={file.id}
                   class="hover:bg-gray-700/30 transition-all table-row border rounded-lg whitespace-nowrap !max-w-[50px]"
                 >
-                  <span class="p-4 w-full font-[500]table-cell flex justify-between gap-2">
-                    <label
-                      class={sc(!selectionMode.get() && "hidden")}
-                      id="file-is-selected"
-                    >
+                  <span class="p-4 w-full font-[500] table-cell flex justify-between gap-2">
+                    <label class="hidden" id="file-is-selected">
                       🔲
                     </label>
                     <label class=" w-full">{file.name}</label>
@@ -134,94 +116,72 @@ const files = await res.json();
       >
     </div>
   </DashBoardLayout>
+</Layout>
 
-  <script>
-    import { selectionMode } from "../stores/selectionMode";
-    import { fileSelected } from "../stores/fileSelected";
-    import { navigate } from "astro:transitions/client";
+<script>
+  import { selectionMode } from "../stores/selectionMode";
+  import { setFiles } from "../stores/files";
+  const files = JSON.parse(
+    (document.querySelector("#files") as HTMLInputElement)?.dataset.files ||
+      "[]"
+  );
+  const indexes: string[] = [];
+  const indexedFiles: { [key: string]: any } = {};
+  files.forEach((file: any) => {
+    indexedFiles[file.id] = file;
+    indexes.push(file.id);
+  });
+  console.log({ indexedFiles });
+  setFiles(indexedFiles);
+  // Variable para almacenar las funciones de limpieza
+  let cleanupFunctions: (() => void)[] = [];
 
-    document.addEventListener("astro:page-load", () => {
-      const fileIndexes = document.querySelectorAll("#file-index");
-      const labels = document.querySelectorAll("#file-is-selected");
-      const selectButton = document.getElementById(
-        "mode-select:add-file"
-      ) as HTMLButtonElement;
-
-      fileIndexes.forEach((li) => {
-        li.addEventListener("click", () => {
-          if (!selectionMode.get()) return;
-          if (fileSelected.get() === (li as HTMLElement).dataset.id) {
-            fileSelected.set(null);
-            return;
-          }
-          fileSelected.set((li as HTMLElement).dataset.id as string);
-        });
-      });
-
-      fileSelected.subscribe((value) => {
-        selectButton.disabled = Boolean(!value);
-        fileIndexes.forEach((li) => {
-          const label = li.querySelector("#file-is-selected");
-          if ((li as HTMLElement).dataset.id === value) {
-            li.classList.add("bg-gray-700/50");
-            if (label) label.textContent = "✅";
-            return;
-          }
-          li.classList.remove("bg-gray-700/50");
-          if (label) label.textContent = "🔲";
-        });
-      });
-      selectionMode.subscribe((value) => {
-        selectButton?.classList.toggle("opacity-0", !value);
-        selectButton?.classList.toggle("disabled:opacity-50", value);
-        selectButton?.classList.toggle("disabled:cursor-not-allowed", value);
-        selectButton?.classList.toggle("pointer-events-none", !value);
-        fileSelected.set(null);
-        labels.forEach((label) => {
-          label.classList.toggle("hidden", !value);
-        });
-      });
-
-      selectButton.addEventListener("click", () => {
-        navigate(`/generator`);
-      });
-    });
-
-    const deleteFile = async (id: string) => {
+  const handleDelete = async (id: string) => {
+    const result = window.confirm(
+      "Esta a punto de eliminar el archivo, esta seguro de continuar?"
+    );
+    if (result) {
       const res = await fetch(`/api/file/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
         window.location.reload();
       }
-    };
+    }
+  };
 
-    document.addEventListener("click", (e) => {
-      if ((e.target as HTMLButtonElement).name === "delete") {
-        deleteFile((e.target as HTMLButtonElement).id);
-      }
+  const handleDetail = async (id: string) => {
+    const res = await fetch(`/api/file/${id}`, {
+      method: "GET",
     });
+    const file = await res.json();
+    console.log({ file });
+  };
+
+  const setupActionButtons = () => {
     document.querySelectorAll("button[name='delete']").forEach((button) => {
       button.addEventListener("click", (e) => {
-        const result = window.confirm(
-          "Esta a punto de eliminar el archivo, esta seguro de continuar?"
-        );
-        if (result) {
-          deleteFile((e.target as HTMLButtonElement).id);
-        }
+        handleDelete((e.target as HTMLButtonElement).id);
       });
     });
-    const detailFile = async (id: string) => {
-      const res = await fetch(`/api/file/${id}`, {
-        method: "GET",
-      });
-      const file = await res.json();
-      console.log({ file });
-    };
-    document.querySelectorAll("button[name='detail'").forEach((button) => {
+
+    document.querySelectorAll("button[name='detail']").forEach((button) => {
       button.addEventListener("click", (e) => {
-        detailFile((e.target as HTMLButtonElement).id);
+        handleDetail((e.target as HTMLButtonElement).id);
       });
     });
-  </script>
-</Layout>
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    const mode = (
+      document.querySelector("#mode-select-container") as HTMLInputElement
+    ).dataset.mode;
+    selectionMode.set(mode === "select");
+    setupActionButtons();
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    cleanupFunctions.forEach((cleanup) => cleanup());
+    cleanupFunctions = [];
+  });
+</script>

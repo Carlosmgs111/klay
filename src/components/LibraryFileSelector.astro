@@ -1,0 +1,151 @@
+---
+import Switch from "./Switch.astro";
+const mode = Astro.url.searchParams.get("mode");
+---
+
+<div
+  id="mode-select-container"
+  data-mode={mode}
+  class="flex gap-2 w-full items-center"
+>
+  <div class="w-full">
+    <Switch id="mode-select" label="Activar seleccion de archivo" />
+  </div>
+  <button
+    id="mode-select:add-file"
+    class="bg-gray-700/50 text-sm hover:bg-gray-700 py-2 px-4 rounded-lg whitespace-nowrap transition-all"
+  >
+    <i class="bx bx-arrow-to-right-stroke mr-2 align-middle text-xl"></i> Continuar
+  </button>
+</div>
+<span class="text-xs w-full"
+  >Activa el modo de seleccion para agregar un archivo de la biblioteca al
+  contexto
+</span>
+
+<script>
+  import { selectionMode } from "../stores/selectionMode";
+  import { fileStore, setStagedFiles } from "../stores/files";
+  import { navigate } from "astro/virtual-modules/transitions-router.js";
+
+  const updateSelectButtonState = (
+    button: HTMLButtonElement,
+    modeActive: boolean,
+    fileId: string | null
+  ) => {
+    console.log({ fileId });
+    button.disabled = !Boolean(fileId);
+    button.classList.toggle("opacity-0", !modeActive);
+    button.classList.toggle("pointer-events-none", !modeActive);
+    button.classList.toggle("disabled:opacity-50", modeActive && !fileId);
+    button.classList.toggle(
+      "disabled:cursor-not-allowed",
+      modeActive && !fileId
+    );
+  }
+
+  const updateFileSelection = (
+    fileIndexes: NodeListOf<Element>,
+    selectedId: string | null
+  ) => {
+    fileIndexes.forEach((li) => {
+      const label = li.querySelector("#file-is-selected");
+      const isSelected = (li as HTMLElement).dataset.id === selectedId;
+
+      li.classList.toggle("bg-gray-700/50", isSelected);
+      if (label) {
+        label.textContent = isSelected ? "✅" : "🔲";
+      }
+    });
+  }
+
+  const updateLabelsVisibility = (
+    labels: NodeListOf<Element>,
+    modeActive: boolean
+  ) => {
+    labels.forEach((label) => {
+      label.classList.toggle("hidden", !modeActive);
+    });
+  }
+
+  let cleanupFunctions: (() => void)[] = [];
+  const initializeHandlers = () => {
+    cleanupFunctions.forEach((cleanup) => cleanup());
+    cleanupFunctions = [];
+    const selectButton = document.getElementById(
+      "mode-select:add-file"
+    ) as HTMLButtonElement;
+    const fileIndexes = document.querySelectorAll("#file-index");
+    const labels = document.querySelectorAll("#file-is-selected");
+    if (!selectButton) return;
+
+    // Aplicar estado inicial desde los stores
+    updateSelectButtonState(
+      selectButton,
+      selectionMode.get(),
+      fileStore.get().stagedIndexes[0]
+    );
+    updateLabelsVisibility(labels, selectionMode.get());
+    updateFileSelection(fileIndexes, fileStore.get().stagedIndexes[0]);
+
+    const fileClickHandlers = new Map<Element, EventListener>();
+    fileIndexes.forEach((li) => {
+      const handler = () => {
+        console.log("click");
+        console.log(selectionMode.get());
+        if (!selectionMode.get()) return;
+        const currentId = (li as HTMLElement).dataset.id as string;
+        console.log(currentId);
+        if (fileStore.get().stagedIndexes.includes(currentId)) {
+          setStagedFiles(fileStore.get().stagedIndexes.filter((id) => id !== currentId));
+          return;
+        }
+        setStagedFiles([currentId]);
+      };
+      fileClickHandlers.set(li, handler);
+      li.addEventListener("click", handler);
+    });
+
+    const unsubscribeFileSelected = fileStore.subscribe((value) => {
+      updateSelectButtonState(
+        selectButton,
+        selectionMode.get(),
+        value.stagedIndexes[0]
+      );
+      updateFileSelection(fileIndexes, value.stagedIndexes[0]);
+    });
+
+    // Suscripción a selectionMode
+    const unsubscribeSelectionMode = selectionMode.subscribe((value) => {
+      updateSelectButtonState(selectButton, value, fileStore.get().stagedIndexes[0]);
+      updateLabelsVisibility(labels, value);
+      if (!value) {
+        setStagedFiles([]);
+      }
+    });
+
+    const selectButtonHandler = () => {
+      const fileId = fileStore.get().stagedIndexes[0];
+      console.log({ fileId }, fileStore.get());
+      if (!fileId) return;
+      const file = fileStore.get().files[fileId];
+      console.log({ file });
+      if (!file) return;
+      navigate(`/generator?fileId=${fileId}&fileName=${file.name}`);
+    };
+    selectButton.addEventListener("click", selectButtonHandler);
+    cleanupFunctions.push(
+      () => unsubscribeFileSelected(),
+      () => unsubscribeSelectionMode(),
+      () => selectButton.removeEventListener("click", selectButtonHandler),
+      ...Array.from(fileClickHandlers.entries()).map(
+        ([el, handler]) =>
+          () =>
+            el.removeEventListener("click", handler)
+      )
+    );
+  };
+  document.addEventListener("astro:page-load", () => {
+    initializeHandlers();
+  });
+</script>

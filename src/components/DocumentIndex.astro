@@ -1,5 +1,5 @@
 ---
-const id = Astro.props.id;
+const id = Astro.props.id satisfies string;
 ---
 
 <span class="p-4 w-full font-[500] overflow-hidden text-ellipsis table-cell"
@@ -8,17 +8,14 @@ const id = Astro.props.id;
 <div class="flex gap-1 p-4 justify-end">
   <button
     class={`p-2 rounded-lg bx bx-trash text-red-500 hover:bg-red-500/50 transition-all`}
-    id="delete-button"
-    data-id={id}
+    id={`delete-button-${id}`}
     title="Eliminar"></button>
 </div>
 
-<script>
-  const deleteButton = document.querySelector(
-    "#delete-button"
-  ) as HTMLButtonElement;
+<script define:vars={{ id }}>
+  const deleteButton = document.querySelector("#delete-button-" + id);
 
-  const deleteDocument = async (e: Event) => {
+  const deleteDocument = async (e) => {
     e.preventDefault();
     const result = window.confirm(
       "Esta a punto de eliminar el archivo, esta seguro de continuar?"
@@ -26,8 +23,7 @@ const id = Astro.props.id;
     if (!result) {
       return;
     }
-    const document = (e.target as HTMLButtonElement).dataset.id;
-    const res = await fetch(`/api/mindmap/${document}`, {
+    const res = await fetch(`/api/mindmap/${id}`, {
       method: "DELETE",
     });
     if (res.ok) {

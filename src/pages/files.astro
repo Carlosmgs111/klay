@@ -2,7 +2,6 @@
 import Layout from "../layouts/Layout.astro";
 import DashBoardLayout from "../layouts/DashboardLayout.astro";
 import FileSelector from "../components/FileSelector.astro";
-import Switch from "../components/Switch.astro";
 import LibraryFileSelector from "../components/LibraryFileSelector.astro";
 import { sc } from "../utils/sc";
 import TimeAgo from "javascript-time-ago";
@@ -12,7 +11,6 @@ TimeAgo.addLocale(es);
 const timeAgo = new TimeAgo("es-ES");
 const res = await fetch(new URL("/api/file", Astro.url));
 const files = await res.json();
-const mode = Astro.url.searchParams.get("mode");
 ---
 
 <Layout title="Archivos | MindMapAI">
@@ -40,15 +38,19 @@ const mode = Astro.url.searchParams.get("mode");
         class="block text-gray-200 mb-2 font-semibold text-sm px-4 pb-2 w-full border-b border-gray-700"
         >Archivos guardados en la biblioteca</span
       >
-      <div
-        class="px-4 py-2 border-b border-gray-700 flex flex-wrap gap-2 sticky top-0 z-10 bg-gray-800"
-      >
+     
         <LibraryFileSelector />
-      </div>
-      <div class="overflow-auto">
+      <div
+        class={sc(
+          "overflow-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-full ",
+          "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:w-2",
+          "[&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700",
+          "dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500"
+        )}
+      >
         <ul
           data-files={JSON.stringify(files)}
-          class="w-full flex flex-wrap table"
+          class="w-full flex flex-wrap table mb-2"
           id="files"
         >
           {

@@ -9,7 +9,7 @@ const { uploadEndpoint, id  , class:className } = Astro.props;
     id="fileLabel"
     class="w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer"
     for="fileInput"
-    ><i class="bx bx-file-detail mr-2 align-middle text-xl"></i>Haz clic para
+    ><i class="bx bx-folder-open mr-2 align-middle text-xl"></i>Haz clic para
     seleccionar archivo</label
   >
   <button
@@ -39,7 +39,7 @@ const { uploadEndpoint, id  , class:className } = Astro.props;
         const fileNames = Array.from(fileInput.files)
           .map((file: File) => file.name)
           .join(", ");
-        fileLabel.innerHTML = `<i class="bx bx-file-detail mr-2 align-middle text-xl"></i>${fileNames}`;
+        fileLabel.innerHTML = `<i class="bx bx-folder-open mr-2 align-middle text-xl"></i>${fileNames}`;
       }
     };
 
@@ -104,7 +104,7 @@ const { uploadEndpoint, id  , class:className } = Astro.props;
             return file.name;
           }
         );
-        fileLabel.innerHTML = `<i class="bx bx-file-detail mr-2 align-middle text-xl"></i>${fileLabelContent.join(", ")}`;
+        fileLabel.innerHTML = `<i class="bx bx-folder-open mr-2 align-middle text-xl"></i>${fileLabelContent.join(", ")}`;
       }
     };
 

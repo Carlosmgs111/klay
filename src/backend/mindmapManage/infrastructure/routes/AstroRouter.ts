@@ -23,29 +23,33 @@ export class AstroRouter {
     await this.mindmapUseCases.removeMindmap(fileId);
     return new Response("OK", { status: 200 });
   };
-  uploadFileAndGenerateMindmap = async ({ request, params }: APIContext) => {
+  generateMindmapFromFile = async ({ request, params }: APIContext) => {
     const { fileId } = params;
-    const formData = await request.formData();
-    const file = formData.get("file") as File;
-
-    if (!file || !fileId) {
-      return new Response("No file uploaded", { status: 400 });
+    const contentType = request.headers.get("content-type");
+    if (contentType?.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const file = formData.get("file") as File;
+      if (!file || !fileId) {
+        return new Response("No file uploaded", { status: 400 });
+      }
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileParams: FileUploadDTO = {
+        id: fileId,
+        name: file.name,
+        buffer,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified,
+      };
+      const fileUrl = await this.mindmapUseCases.uploadFileAndGenerateMindmap(
+        fileParams
+      );
+      return new Response(fileUrl.text, { status: 200 });
     }
-    console.log({ file });
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileParams: FileUploadDTO = {
-      id: fileId,
-      name: file.name,
-      buffer,
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified,
-    };
-    const fileUrl = await this.mindmapUseCases.uploadFileAndGenerateMindmap(
-      fileParams
+    const file = await this.mindmapUseCases.selectFileAndGenerateMindmap(
+      fileId as string
     );
-    console.log({ fileUrl });
-    return new Response(fileUrl.text, { status: 200 });
+    return new Response(file.text, { status: 200 });
   };
   generateNewMindmapFromStoredFile = async ({ params }: APIContext) => {
     const fileId = params.fileId as string;

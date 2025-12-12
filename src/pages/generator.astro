@@ -134,8 +134,21 @@ const stylesOptions = [
 </Layout>
 
 <script>
-  import { fileStore } from "../stores/files";
+  import { fileStore, setFiles, setStagedFiles } from "../stores/files";
   import type { IndexFile } from "../stores/files";
+  const params = new URLSearchParams(window.location.search);
+  const fileId = params.get("fileId");
+  const fileName = params.get("fileName");
+
+  if (fileId && fileName) {
+    setFiles({
+      [fileId]: {
+        id: fileId,
+        name: fileName,
+      },
+    });
+    setStagedFiles([fileId]);
+  }
 
   document.addEventListener("astro:page-load", () => {
     const fileOptions = document.getElementById(
@@ -152,6 +165,7 @@ const stylesOptions = [
     ) as HTMLFormElement;
 
     const onChange = (e: Event) => {
+      // TODO:  The right file index must be selected between upload and library
       const target = e.currentTarget as HTMLFormElement;
       const fileOption = target.querySelector(
         'input[name="file:options"]:checked'
@@ -168,15 +182,23 @@ const stylesOptions = [
     const generateMindmap = async () => {
       const formData = new FormData();
       const fileIndex: IndexFile = fileStore.get();
-      const file = fileIndex.files[fileIndex.stagedIndexes[0]] as File;
+      console.log(fileIndex);
+      let body: any;
+      let headers: any = { "Content-Type": "application/json" };
+      const file = fileIndex.files[fileIndex.stagedIndexes[0]];
       if (!file) {
         window.alert("No se selecciono ningun archivo");
         return;
       }
-      formData.append("file", file);
+      if (file instanceof File) {
+        formData.append("file", file);
+        body = formData;
+        headers = {};
+      }
       const res = await fetch(`/api/mindmap/${fileIndex.stagedIndexes[0]}`, {
         method: "POST",
-        body: formData,
+        body,
+        headers,
       });
       console.log(res);
       if (res.ok) {

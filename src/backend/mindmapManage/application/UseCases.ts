@@ -26,6 +26,14 @@ export class MindmapUseCases {
     await this.repository.saveTextById(fileParams.id, text.text);
     return text;
   };
+  selectFileAndGenerateMindmap = async (fileId: string) => {
+    const text = await this.extractText(fileId);
+    if (!text) {
+      throw new Error("Text not extracted");
+    }
+    await this.repository.saveTextById(fileId, text.text);
+    return text;
+  };
   removeMindmap = async (id: string) => {
     await this.repository.deleteTextById(id);
     // await this.fileManagerUseCases.deleteFile(id);

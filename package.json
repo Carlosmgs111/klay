@@ -9,8 +9,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@ai-sdk/cohere": "^2.0.21",
+    "@ai-sdk/huggingface": "^0.0.12",
     "@tailwindcss/vite": "^4.1.17",
     "@types/multer": "^2.0.0",
+    "ai": "^5.0.112",
     "astro": "^5.16.3",
     "bson": "^7.0.0",
     "javascript-time-ago": "^2.5.12",

@@ -51,13 +51,4 @@ export class AstroRouter {
     );
     return new Response(file.text, { status: 200 });
   };
-  generateNewMindmapFromStoredFile = async ({ params }: APIContext) => {
-    const fileId = params.fileId as string;
-    console.log({ fileId });
-    const text = await this.mindmapUseCases.generateNewMindmapFromStoredFile(
-      fileId
-    );
-    console.log({ text });
-    return new Response(text?.text, { status: 200 });
-  };
 }

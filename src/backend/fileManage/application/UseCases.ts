@@ -11,10 +11,11 @@ export class FileManageUseCases {
 
   getFileById = async (id: string) => {
     const file = await this.repository.getFileById(id);
+    const fileBuffer = await this.getFileBuffer(id);
     if (!file) {
       throw new Error("File not found");
     }
-    return file;
+    return { file, fileBuffer };
   };
 
   getFiles = async () => {

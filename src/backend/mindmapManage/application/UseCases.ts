@@ -1,29 +1,32 @@
-import type { FileManageUseCases } from "../../fileManage/application/UseCases";
+import type { FileManagePort } from "../../fileManage/@core-contracts/fileManagePort";
 import type { TextExtractor } from "../@core-contracts/services";
 import type { Repository } from "../@core-contracts/repository";
 import type { FileUploadDTO } from "../../fileManage/@core-contracts/dtos";
+import type { MindmapServices } from "./MindmapServices";
 
 export class MindmapUseCases {
-  private fileManagerUseCases: FileManageUseCases;
+  private fileManagerUseCases: FileManagePort;
   private textExtractor: TextExtractor;
-  private repository: Repository;
+  private textRepository: Repository;
+  private mindmapServices: MindmapServices;
   constructor(
-    fileManagerUseCases: FileManageUseCases,
+    fileManagerUseCases: FileManagePort,
     textExtractor: TextExtractor,
-    repository: Repository
+    textRepository: Repository,
+    mindmapServices: MindmapServices,
   ) {
     this.fileManagerUseCases = fileManagerUseCases;
     this.textExtractor = textExtractor;
-    this.repository = repository;
+    this.textRepository = textRepository;
+    this.mindmapServices = mindmapServices;
   }
   uploadFileAndGenerateMindmap = async (fileParams: FileUploadDTO) => {
     const { buffer } = fileParams;
     this.fileManagerUseCases.uploadFile(fileParams);
-    const text = await this.textExtractor.extractTextFromPDF(buffer);
-    if (!text) {
-      throw new Error("Text not extracted");
-    }
-    await this.repository.saveTextById(fileParams.id, text.text);
+    const text = await this.mindmapServices.generateNewMindmapFromUploadedFile(
+      {},
+      { buffer, id: fileParams.id }
+    );
     return text;
   };
   selectFileAndGenerateMindmap = async (fileId: string) => {
@@ -31,37 +34,32 @@ export class MindmapUseCases {
     if (!text) {
       throw new Error("Text not extracted");
     }
-    await this.repository.saveTextById(fileId, text.text);
+    await this.textRepository.saveTextById(fileId, text.text);
     return text;
   };
   removeMindmap = async (id: string) => {
-    await this.repository.deleteTextById(id);
+    await this.textRepository.deleteTextById(id);
     // await this.fileManagerUseCases.deleteFile(id);
     return true;
   };
-  generateNewMindmapFromStoredFile = async (fileId: string) => {
-    const text = await this.extractText(fileId);
-    if (!text) {
-      throw new Error("Text not extracted");
-    }
-    await this.repository.saveTextById(fileId, text.text);
-    return text;
-  };
   extractText = async (fileId: string) => {
-    const fileBuffer = await this.fileManagerUseCases.getFileBuffer(fileId);
+    const fileBuffer = await this.fileManagerUseCases.getFileById(fileId);
+    if (!fileBuffer) {
+      throw new Error("File not found");
+    }
     const text = await this.textExtractor.extractTextFromPDF(fileBuffer);
     return text;
   };
   getText = async (fileId: string) => {
-    const text = await this.repository.getTextById(fileId);
+    const text = await this.textRepository.getTextById(fileId);
     return text;
   };
   getAllTexts = async () => {
-    const texts = await this.repository.getAllTexts();
+    const texts = await this.textRepository.getAllTexts();
     return texts;
   };
   getAllIndexes = async () => {
-    const indexes = await this.repository.getAllIndexes();
+    const indexes = await this.textRepository.getAllIndexes();
     return indexes;
   };
 }

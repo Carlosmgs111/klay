@@ -1,4 +1,4 @@
-import { fileManagerRouter } from "../../../backend/fileManage";
+import { fileManagerRouter } from "../../../backend/files";
 
 export const GET = fileManagerRouter.getFileById;
 export const DELETE = fileManagerRouter.deleteFile;

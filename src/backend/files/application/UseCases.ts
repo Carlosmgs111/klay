@@ -1,7 +1,8 @@
 import type { Storage } from "../@core-contracts/storage";
 import type { Repository } from "../@core-contracts/repository";
+import type { FileUploadDTO } from "../@core-contracts/dtos";
 
-export class FileManageUseCases {
+export class FilesUseCases {
   storage: Storage;
   repository: Repository;
   constructor(storage: Storage, repository: Repository) {
@@ -15,7 +16,7 @@ export class FileManageUseCases {
     if (!file) {
       throw new Error("File not found");
     }
-    return { file, fileBuffer };
+    return { file, buffer: fileBuffer };
   };
 
   getFiles = async () => {
@@ -23,7 +24,7 @@ export class FileManageUseCases {
     return files;
   };
 
-  uploadFile = async (file: any) => {
+  uploadFile = async (file: FileUploadDTO) => {
     const fileUrl = await this.storage.uploadFile(file.buffer, file.name);
     if (!fileUrl) {
       throw new Error("File not uploaded");

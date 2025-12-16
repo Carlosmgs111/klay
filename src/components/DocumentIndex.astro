@@ -13,17 +13,17 @@ const id = Astro.props.id satisfies string;
 </div>
 
 <script define:vars={{ id }}>
-  const deleteButton = document.querySelector("#delete-button-" + id);
-
-  const deleteDocument = async (e) => {
-    e.preventDefault();
-    const result = window.confirm(
+  document.addEventListener("astro:page-load", () => {
+    const deleteButton = document.querySelector("#delete-button-" + id);
+    const deleteDocument = async (e) => {
+      e.preventDefault();
+      const result = window.confirm(
       "Esta a punto de eliminar el archivo, esta seguro de continuar?"
     );
     if (!result) {
       return;
     }
-    const res = await fetch(`/api/mindmap/${id}`, {
+    const res = await fetch(`/api/texts/${id}`, {
       method: "DELETE",
     });
     if (res.ok) {
@@ -31,4 +31,5 @@ const id = Astro.props.id satisfies string;
     }
   };
   deleteButton.addEventListener("click", deleteDocument);
+  });
 </script>

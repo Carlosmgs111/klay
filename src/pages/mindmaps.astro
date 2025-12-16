@@ -4,11 +4,11 @@ import Layout from "../layouts/Layout.astro";
 import DashBoardLayout from "../layouts/DashboardLayout.astro";
 import DocumentIndex from "../components/DocumentIndex.astro";
 const documentsIndexes: string[] = await fetch(
-  new URL("/api/mindmap", Astro.url)
+  new URL("/api/texts", Astro.url)
 ).then((res) => res.json());
 ---
 
-<Layout title="Documentos | MindMapAI">
+<Layout title="Mindmaps | MindMapAI">
   <DashBoardLayout>
     <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
       <ul class="w-full flex flex-wrap table text-gray-200">

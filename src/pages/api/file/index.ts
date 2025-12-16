@@ -1,3 +1,3 @@
-import { fileManagerRouter } from "../../../backend/files";
+import { filesRouter } from "../../../backend/files";
 
-export const GET = fileManagerRouter.getAllFiles;
+export const GET = filesRouter.getAllFiles;

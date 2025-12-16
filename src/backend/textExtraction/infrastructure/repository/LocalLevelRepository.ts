@@ -1,4 +1,5 @@
 import type { Repository } from "../../@core-contracts/repository";
+import type { TextDTO } from "../../@core-contracts/dtos";
 import { getDB } from "../../../shared/config/repositories";
 import { Level } from "level";
 
@@ -8,9 +9,9 @@ export class LocalLevelRepository implements Repository {
     console.log("LocalLevelRepository constructor");
     this.db = getDB();
   }
-  saveTextById = async (index: string, text: string) => {
+  saveTextById = async (index: string, text: TextDTO) => {
     try {
-      await this.db.put(index, JSON.stringify({ content: text }));
+      await this.db.put(index, JSON.stringify(text));
       console.log("Text saved successfully!");
     } catch (error) {
       console.log({ error });
@@ -35,7 +36,7 @@ export class LocalLevelRepository implements Repository {
       console.log({ error });
       return [];
     }
-  }
+  };
   getAllTexts = async () => {
     try {
       const texts = [];

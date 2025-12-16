@@ -1,8 +1,6 @@
-export interface TextDTO {
-    content: string;
-    fileId: string;
-}
+import type { FileUploadDTO } from "../../files/@core-contracts/dtos";
 
-export interface TextExtractorParams {
-    buffer: Buffer;
+export interface GenerateMindmapParams {
+  id: string;
+  file: FileUploadDTO;
 }

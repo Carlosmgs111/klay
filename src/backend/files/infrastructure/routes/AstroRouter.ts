@@ -1,10 +1,10 @@
 import type { APIContext } from "astro";
-import type { FileManagePort } from "../../@core-contracts/fileManagePort";
+import type { FilesApi } from "../../@core-contracts/filesApi";
 import type { FileUploadDTO } from "../../@core-contracts/dtos";
 
 export class AstroRouter {
-  private fileManagerUseCases: FileManagePort;
-  constructor(fileManagerUseCases: FileManagePort) {
+  private fileManagerUseCases: FilesApi;
+  constructor(fileManagerUseCases: FilesApi) {
     this.fileManagerUseCases = fileManagerUseCases;
   }
 

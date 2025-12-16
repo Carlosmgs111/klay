@@ -1,22 +1,21 @@
 import type { TextExtractor } from "../../@core-contracts/services";
+import type { TextExtractDTO } from "../../@core-contracts/dtos";
 
 import pdfExtraction from "pdf-extraction";
 
 export class PDFTextExtractor implements TextExtractor {
   extractTextFromPDF = async (
     content: Buffer
-  ): Promise<{
-    text: string;
-    metadata: { author: string; title: string };
-  } | null> => {
+  ): Promise<TextExtractDTO | null> => {
     try {
       const {
         text,
-        numpages,
-        info: { Author, Title },
-        ...rest
+        info: { Author, Title, numpages },
       } = await pdfExtraction(content);
-      return { text, metadata: { author: Author, title: Title } };
+      return {
+        text,
+        metadata: { author: Author, title: Title, numpages },
+      };
     } catch (error) {
       console.error("Error al extraer el texto del PDF:", error);
       return null;

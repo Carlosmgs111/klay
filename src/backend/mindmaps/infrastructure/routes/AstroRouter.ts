@@ -1,54 +1,45 @@
-import { type MindmapUseCases } from "../../application/UseCases";
+import { type UseCases } from "../../application/UseCases";
 import { type APIContext } from "astro";
-import { type FileUploadDTO } from "../../../files/@core-contracts/dtos";
+import { type GenerateMindmapParams } from "../../@core-contracts/dtos";
 
 export class AstroRouter {
-  constructor(private mindmapUseCases: MindmapUseCases) {}
-  getText = async ({ params }: APIContext) => {
-    const fileId = params.fileId as string;
-    console.log({ fileId });
-    const text = await this.mindmapUseCases.getText(fileId);
-    return new Response(text?.content, { status: 200 });
-  };
-  getAllTexts = async () => {
-    const texts = await this.mindmapUseCases.getAllTexts();
-    return new Response(JSON.stringify(texts), { status: 200 });
-  };
-  getAllIndexes = async () => {
-    const indexes = await this.mindmapUseCases.getAllIndexes();
-    return new Response(JSON.stringify(indexes), { status: 200 });
-  };
-  removeMindmap = async ({ params }: APIContext) => {
-    const fileId = params.fileId as string;
-    await this.mindmapUseCases.removeMindmap(fileId);
-    return new Response("OK", { status: 200 });
-  };
+  constructor(private mindmapUseCases: UseCases) {}
   generateMindmapFromFile = async ({ request, params }: APIContext) => {
-    const { fileId } = params;
+    const { id } = params;
     const contentType = request.headers.get("content-type");
     if (contentType?.includes("multipart/form-data")) {
       const formData = await request.formData();
       const file = formData.get("file") as File;
+      const fileId = formData.get("id") as string;
       if (!file || !fileId) {
         return new Response("No file uploaded", { status: 400 });
       }
       const buffer = Buffer.from(await file.arrayBuffer());
-      const fileParams: FileUploadDTO = {
+      const fileParams: GenerateMindmapParams = {
         id: fileId,
-        name: file.name,
-        buffer,
-        type: file.type,
-        size: file.size,
-        lastModified: file.lastModified,
+        file: {
+          id: fileId,
+          name: file.name,
+          buffer,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+        },
       };
       const fileUrl = await this.mindmapUseCases.uploadFileAndGenerateMindmap(
         fileParams
       );
       return new Response(fileUrl.text, { status: 200 });
     }
+    const body = await request.json();
+    const fileId = body.fileId;
+    if (!fileId) {
+      return new Response("No file id provided", { status: 400 });
+    }
     const file = await this.mindmapUseCases.selectFileAndGenerateMindmap(
+      id as string,
       fileId as string
     );
-    return new Response(file.text, { status: 200 });
+    return new Response(file, { status: 200 });
   };
 }

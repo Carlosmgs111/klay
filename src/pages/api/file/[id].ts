@@ -1,5 +1,5 @@
-import { fileManagerRouter } from "../../../backend/files";
+import { filesRouter } from "../../../backend/files";
 
-export const GET = fileManagerRouter.getFileById;
-export const DELETE = fileManagerRouter.deleteFile;
-export const POST = fileManagerRouter.uploadFile;
+export const GET = filesRouter.getFileById;
+export const DELETE = filesRouter.deleteFile;
+export const POST = filesRouter.uploadFile;

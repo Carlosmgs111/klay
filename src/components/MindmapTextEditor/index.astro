@@ -1,25 +1,49 @@
----
-
----
-
 <div id="editor"></div>
 
 <script>
   import { currentMindmap } from "../../stores/currentMindmap";
   import { basicSetup } from "codemirror";
   import { EditorView } from "@codemirror/view";
+
   document.addEventListener("astro:page-load", () => {
-    let currentContent = "";
+    const editorElement = document.getElementById("editor");
+    if (!editorElement) return;
+
+    let isUpdatingFromStore = false;
+
     const updateListener = EditorView.updateListener.of((update: any) => {
-      if (update.docChanged) {
-        currentContent = update.state.doc.toString();
-        currentMindmap.set(currentContent);
+      if (update.docChanged && !isUpdatingFromStore) {
+        const newContent = update.state.doc.toString();
+        currentMindmap.set(newContent);
       }
     });
+
     const view = new EditorView({
-      parent: document.getElementById("editor"),
+      parent: editorElement,
       extensions: [basicSetup, updateListener],
     });
-    console.log(view.state.doc.toString());
+    const unsubscribe = currentMindmap.subscribe((content) => {
+      const currentContent = view.state.doc.toString();
+      if (content !== currentContent) {
+        isUpdatingFromStore = true;
+
+        view.dispatch({
+          changes: {
+            from: 0,
+            to: currentContent.length,
+            insert: content,
+          },
+        });
+        isUpdatingFromStore = false;
+      }
+    });
+    document.addEventListener(
+      "astro:before-preparation",
+      () => {
+        unsubscribe();
+        view.destroy();
+      },
+      { once: true }
+    );
   });
 </script>

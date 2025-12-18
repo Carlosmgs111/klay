@@ -119,13 +119,14 @@ const stylesOptions = [
             </form>
           </FlowStep>
           <FlowStep>
-            <button
+            <a
               id="generate"
-              class="bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg whitespace-nowrap"
+              href="/editor?start-stream=true"
+              class="bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg whitespace-nowrap text-center"
             >
               <i class="bx bx-sparkles-alt mr-2 align-middle text-xl"></i> Generar
               MindMap
-            </button>
+            </a>
           </FlowStep>
         </div>
       </div>
@@ -235,7 +236,7 @@ const stylesOptions = [
       }
     };
 
-    generateBtn.addEventListener("click", generateMindmapStream);
+    // generateBtn.addEventListener("click", generateMindmapStream);
     fileOptions.addEventListener("change", onChange);
   });
 </script>

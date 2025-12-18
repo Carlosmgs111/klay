@@ -26,4 +26,46 @@ import MarkmapView from "../components/MarkmapView/index.astro";
   </div>
 </Layout>
 
-<script></script>
+<script>
+  import { currentMindmap, appendToCurrentMindmap } from "../stores/currentMindmap";
+  import { fileStore } from "../stores/files";
+  import type { IndexFile } from "../stores/files";
+
+  document.addEventListener("astro:page-load", () => {
+    const params = new URLSearchParams(window.location.search);
+    const startStream = params.get("start-stream");
+    console.log({ startStream });
+    const generateMindmapStream = async () => {
+      const fileIndex: IndexFile = fileStore.get();
+      let body: any = JSON.stringify({ fileId: fileIndex.stagedIndexes[0] });
+      let headers: any = { "Content-Type": "application/json" };
+      const response = await fetch(
+        `/api/mindmaps/stream/${crypto.randomUUID()}`,
+        {
+          method: "POST",
+          headers,
+          body,
+        }
+      );
+      if (!response.body) {
+        return;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      if (response.ok) {
+        for(let run = true; run; ) {
+          const { done, value } = await reader.read();
+          run = !done;
+          const data = decoder.decode(value, { stream: true });
+          appendToCurrentMindmap(data);
+          console.log(data);
+        }
+      }
+    };
+    if (startStream) {
+      generateMindmapStream();
+      params.delete("start-stream");
+      window.history.replaceState(null, "", `?${params.toString()}`);
+    }
+  });
+</script>

@@ -3,6 +3,46 @@ import type { TextExtractorApi } from "../../textExtraction/@core-contracts/text
 import type { AIApi } from "../../AI/@core-contracts/aiApi";
 import type { GenerateMindmapParams } from "../@core-contracts/dtos";
 
+const markmapExample = `
+# Title
+
+## Explanation
+- This is a large paragraph dedicated to explain something long and big, use this to add precise explanations.
+
+## Links
+- [Website](https://markmap.js.org/)
+- [GitHub](https://github.com/gera2ld/markmap)
+
+## Related Projects
+
+- [coc-markmap](https://github.com/gera2ld/coc-markmap) for Neovim
+- [markmap-vscode](https://marketplace.visualstudio.com/items?itemName=gera2ld.markmap-vscode) for VSCode
+- [eaf-markmap](https://github.com/emacs-eaf/eaf-markmap) for Emacs
+
+## Features
+
+### Lists
+
+- **strong** ~~del~~ *italic* ==highlight==
+- \`inline code\`
+- [x] checkbox
+- Katex: $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$ <!-- markmap: fold -->
+  - [More Katex Examples](#?d=gist:af76a4c245b302206b16aec503dbe07b:katex.md)
+- Now we can wrap very very very very long text based on \`maxWidth\` option
+
+### Blocks
+
+\`\`\`js
+console.log('hello, JavaScript')
+\`\`\`
+
+| Products | Price |
+|-|-|
+| Apple | 4 |
+| Banana | 2 |
+
+![](/favicon.png)`;
+
 export class UseCases {
   constructor(
     private filesApi: FilesApi,
@@ -44,8 +84,25 @@ export class UseCases {
     if (!text) {
       throw new Error("Text not extracted");
     }
+    const systemPrompt = `
+  - Eres un experto analista que identifica y extrae la informacion mas relevante 
+  e importante y la condensa en formato MARKDOWN y MINDMAP.
+  - Sigue el siguiente ejemplo escrito en MARKDOWN para saber como estructurar la respuesta, ten en
+  cuenta las anotaciones, asi sabras que hace cada conjunto de caracteres:
+  <template>
+  ${markmapExample}
+  </template>
+  - Devuelve solo el mindmap en formato MARKDOWN.
+  - La informacion esta dentro de las etiquetas <data> y </data>.
+  `;
+    const userPrompt = `
+    <data>
+    ${text.text}
+    </data>
+    `;
     for await (const chunk of this.aiApi.streamCompletion({
-      userPrompt: text.text,
+      systemPrompt,
+      userPrompt,
     })) {
       yield chunk;
     }

@@ -5,19 +5,21 @@
 <div id="editor"></div>
 
 <script>
-  import {currentMindmap} from "../../stores/currentMindmap";
+  import { currentMindmap } from "../../stores/currentMindmap";
   import { basicSetup } from "codemirror";
   import { EditorView } from "@codemirror/view";
-  let currentContent = "";
-  const updateListener = EditorView.updateListener.of((update: any) => {
-    if (update.docChanged) {
-      currentContent = update.state.doc.toString();
-      currentMindmap.set(currentContent);
-    }
+  document.addEventListener("astro:page-load", () => {
+    let currentContent = "";
+    const updateListener = EditorView.updateListener.of((update: any) => {
+      if (update.docChanged) {
+        currentContent = update.state.doc.toString();
+        currentMindmap.set(currentContent);
+      }
+    });
+    const view = new EditorView({
+      parent: document.getElementById("editor"),
+      extensions: [basicSetup, updateListener],
+    });
+    console.log(view.state.doc.toString());
   });
-  const view = new EditorView({
-    parent: document.getElementById("editor"),
-    extensions: [basicSetup, updateListener],
-  });
-  console.log(view.state.doc.toString());
 </script>

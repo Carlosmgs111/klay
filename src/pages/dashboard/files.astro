@@ -1,9 +1,9 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import DashBoardLayout from "../layouts/DashboardLayout.astro";
-import LoadedFileSelector from "../components/LoadedFileSelector.astro";
-import LibraryFileSelector from "../components/LibraryFileSelector.astro";
-import { sc } from "../utils/sc";
+import Layout from "../../layouts/Layout.astro";
+import DashBoardLayout from "../../layouts/DashboardLayout.astro";
+import LoadedFileSelector from "../../components/LoadedFileSelector.astro";
+import LibraryFileSelector from "../../components/LibraryFileSelector.astro";
+import { sc } from "../../utils/sc";
 import TimeAgo from "javascript-time-ago";
 import es from "javascript-time-ago/locale/es";
 
@@ -121,8 +121,8 @@ const files = await res.json();
 </Layout>
 
 <script>
-  import { selectionMode } from "../stores/selectionMode";
-  import { setFiles } from "../stores/files";
+  import { selectionMode } from "../../stores/selectionMode";
+  import { setFiles } from "../../stores/files";
   const files = JSON.parse(
     (document.querySelector("#files") as HTMLInputElement)?.dataset.files ||
       "[]"

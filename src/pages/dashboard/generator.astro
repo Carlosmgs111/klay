@@ -1,9 +1,9 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import DashBoardLayout from "../layouts/DashboardLayout.astro";
-import LoadedFileSelector from "../components/LoadedFileSelector.astro";
-import FlowStep from "../components/FlowStep.astro";
-import { sc } from "../utils/sc";
+import Layout from "../../layouts/Layout.astro";
+import DashBoardLayout from "../../layouts/DashboardLayout.astro";
+import LoadedFileSelector from "../../components/LoadedFileSelector.astro";
+import FlowStep from "../../components/FlowStep.astro";
+import { sc } from "../../utils/sc";
 const fileId = Astro.url.searchParams.get("fileId");
 const fileName = Astro.url.searchParams.get("fileName");
 
@@ -81,7 +81,7 @@ const stylesOptions = [
                 />
                 <a
                   id="option:library"
-                  href="/files?mode=select"
+                  href="/dashboard/files?mode=select"
                   class={sc(
                     "block w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer ",
                     fileId ? "" : "hidden"
@@ -134,8 +134,8 @@ const stylesOptions = [
 </Layout>
 
 <script>
-  import { fileStore, setFiles, setStagedFiles } from "../stores/files";
-  import type { IndexFile } from "../stores/files";
+  import { fileStore, setFiles, setStagedFiles } from "../../stores/files";
+  import type { IndexFile } from "../../stores/files";
   const params = new URLSearchParams(window.location.search);
   const fileId = params.get("fileId");
   const fileName = params.get("fileName");
@@ -211,11 +211,14 @@ const stylesOptions = [
       const fileIndex: IndexFile = fileStore.get();
       let body: any = JSON.stringify({ fileId: fileIndex.stagedIndexes[0] });
       let headers: any = { "Content-Type": "application/json" };
-      const response = await fetch(`/api/mindmaps/stream/${crypto.randomUUID()}`, {
-        method: "POST",
-        headers,
-        body,
-      });
+      const response = await fetch(
+        `/api/mindmaps/stream/${crypto.randomUUID()}`,
+        {
+          method: "POST",
+          headers,
+          body,
+        }
+      );
       if (!response.body) {
         return;
       }

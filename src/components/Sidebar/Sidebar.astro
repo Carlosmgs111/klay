@@ -5,21 +5,21 @@ const currentPath = Astro.url.pathname;
 
 const items = [
   {
-    href: "/generator",
+    href: "/dashboard/generator",
     label: "Generador",
     classIcon: "bx bx-pencil-sparkles",
     isActive: currentPath.includes("generator"),
     title: "Generador de mindmap",
   },
   {
-    href: "/mindmaps",
+    href: "/dashboard/mindmaps",
     label: "Mindmaps",
     classIcon: "bx bx-intellect",
     isActive: currentPath.includes("mindmaps"),
     title: "Gestion de mindmaps",
   },
   {
-    href: "/files",
+    href: "/dashboard/files",
     label: "Archivos",
     classIcon: "bx bx-archive",
     isActive: currentPath.includes("files"),

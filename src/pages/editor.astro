@@ -1,0 +1,29 @@
+---
+import Layout from "../layouts/Layout.astro";
+import MindmapTextEditor from "../components/MindmapTextEditor/index.astro";
+import MarkmapView from "../components/MarkmapView/index.astro";
+---
+
+<Layout title="Editor | MindMapAI">
+  <div class="w-full h-screen flex gap-4 p-4">
+    <div
+      class="flex-shrink-0 border border-gray-700 rounded-lg p-4 text-gray-200"
+    >
+      <a
+        href="/dashboard/mindmaps"
+        class="block text-gray-200 font-semibold text-sm px-2 w-full mt-2 text-center bg-gray-700/50 hover:bg-gray-700 p-2 rounded-lg border border-gray-600"
+        ><i class="bx bx-reply mr-2 align-middle"></i>Regresar</a
+      >
+    </div>
+    <div
+      class="flex-1 h-full border border-gray-700 rounded-lg text-gray-200 overflow-y-auto"
+    >
+      <MindmapTextEditor />
+    </div>
+    <div class="flex-1 h-full border border-gray-700 rounded-lg text-gray-200">
+      <MarkmapView />
+    </div>
+  </div>
+</Layout>
+
+<script></script>

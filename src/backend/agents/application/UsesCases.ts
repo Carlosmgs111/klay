@@ -12,8 +12,6 @@ export class AIUsesCases {
 
   async *streamCompletion(agentId: string, command: AICompletionDTO) {
     const { systemPrompt, userPrompt } = command;
-    // const chunks = await this.textChunker.chunkText(userPrompt);
-    // const prompt = await this.promptBuilder.buildPrompt(chunks);
     for await (const chunk of this.aiProvider.streamCompletion(command)) {
       yield chunk;
     }

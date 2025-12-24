@@ -17,3 +17,12 @@ export function getPromptsDB() {
   }
   return promptsDB;
 }
+
+let embeddingsDB: Level;
+
+export function getEmbeddingsDB() {
+  if (!embeddingsDB) {
+    embeddingsDB = new Level("./database/level/embeddings", { valueEncoding: "json" });
+  }
+  return embeddingsDB;
+}

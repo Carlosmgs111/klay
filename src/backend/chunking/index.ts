@@ -7,5 +7,4 @@ import { AstroRouter } from "./infrastructure/AstroRouter";
 const chunkerFactory = new ChunkerFactory(embeddingAPI);
 
 export const chunkingApi: ChunkingApi = new UseCases(chunkerFactory);
-console.log({ chunkingApi });
 export const chunkingRouter = new AstroRouter(chunkingApi);

@@ -132,14 +132,22 @@ const stylesOptions = [
             />
           </FlowStep>
           <FlowStep>
-            <a
+            <!-- <a
               id="generate"
               href="/editor?start-stream=true"
               class="bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg whitespace-nowrap text-center"
             >
               <i class="bx bx-sparkles-alt mr-2 align-middle text-xl"></i> Generar
               MindMap
-            </a>
+            </a> -->
+
+            <button
+              id="generate"
+              class="bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg whitespace-nowrap text-center"
+            >
+              <i class="bx bx-sparkles-alt mr-2 align-middle text-xl"></i> Generar
+              MindMap
+            </button>
           </FlowStep>
         </div>
       </div>
@@ -221,33 +229,35 @@ const stylesOptions = [
     queryStore.subscribe((value) => {
       console.log(value);
     });
-    // const generateMindmap = async () => {
-    //   const formData = new FormData();
-    //   const fileIndex: IndexFile = fileStore.get();
-    //   console.log(fileIndex);
-    //   let body: any = JSON.stringify({ fileId: fileIndex.stagedIndexes[0] });
-    //   let headers: any = { "Content-Type": "application/json" };
-    //   const file = fileIndex.files[fileIndex.stagedIndexes[0]];
-    //   if (!file) {
-    //     window.alert("No se selecciono ningun archivo");
-    //     return;
-    //   }
-    //   if (file instanceof File) {
-    //     formData.append("file", file);
-    //     formData.append("id", fileIndex.stagedIndexes[0]);
-    //     body = formData;
-    //     headers = {};
-    //   }
-    //   const res = await fetch(`/api/mindmaps/${crypto.randomUUID()}`, {
-    //     method: "POST",
-    //     body,
-    //     headers,
-    //   });
-    //   console.log(res);
-    //   if (res.ok) {
-    //     window.location.reload();
-    //   }
-    // };
+    const generateMindmap = async () => {
+      const formData = new FormData();
+      const fileIndex: IndexFile = fileStore.get();
+      console.log(fileIndex);
+      let body: any = JSON.stringify({ fileId: fileIndex.stagedIndexes[0] });
+      let headers: any = { "Content-Type": "application/json" };
+      const file = fileIndex.files[fileIndex.stagedIndexes[0]];
+      if (!file) {
+        window.alert("No se selecciono ningun archivo");
+        return;
+      }
+      if (file instanceof File) {
+        formData.append("file", file);
+        formData.append("id", fileIndex.stagedIndexes[0]);
+        formData.append("chunkingStrategy", "fixed");
+        body = formData;
+        headers = {};
+      }
+      const res = await fetch(`/api/knowledge/${crypto.randomUUID()}`, {
+        method: "POST",
+        body,
+        headers,
+      });
+      const data = await res.json();
+      console.log({ data });
+      if (res.ok) {
+        // window.location.reload();
+      }
+    };
 
     // const generateMindmapStream = async () => {
     //   const fileIndex: IndexFile = fileStore.get();
@@ -277,7 +287,7 @@ const stylesOptions = [
     //   }
     // };
 
-    // generateBtn.addEventListener("click", generateMindmapStream);
+    generateBtn.addEventListener("click", generateMindmap);
     fileOptions && fileOptions.addEventListener("change", onChangeFileOptions);
     styleOptions &&
       styleOptions.addEventListener("change", onChangeStyleOptions);

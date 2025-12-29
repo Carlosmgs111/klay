@@ -15,6 +15,7 @@ export class UseCases {
     const startTime = Date.now();
     const documentId = crypto.randomUUID();
 
+    console.log({ config });
     const chunker = this.chunkerFactory.create(config);
 
     let chunks: Chunk[];

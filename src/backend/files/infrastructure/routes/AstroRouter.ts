@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import type { FilesApi } from "../../@core-contracts/filesApi";
+import type { FilesApi } from "../../@core-contracts/api";
 import type { FileUploadDTO } from "../../@core-contracts/dtos";
 
 export class AstroRouter {

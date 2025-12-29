@@ -77,6 +77,10 @@ export class AstroRouter {
               for await (const chunk of mindmapUseCases.uploadFileAndGenerateMindmapStream(
                 id as string,
                 fileParams,
+                {
+                  message: query,
+                  style,
+                }
               )) {
                 controller.enqueue(encoder.encode(chunk));
               }

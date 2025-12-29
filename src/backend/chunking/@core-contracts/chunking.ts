@@ -18,8 +18,10 @@ export interface ChunkingStrategy {
   chunk(text: string, metadata?: Partial<ChunkMetadata>): Chunk[] | Promise<Chunk[]>;
 }
 
+export type ChunkingStrategyType = "fixed" | "sentence" | "paragraph" | "semantic" | "recursive";
+
 export interface ChunkingConfig {
-  strategy: "fixed" | "sentence" | "paragraph" | "semantic" | "recursive";
+  strategy: ChunkingStrategyType;
   chunkSize?: number;
   chunkOverlap?: number;
   separators?: string[];

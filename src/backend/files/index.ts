@@ -1,4 +1,4 @@
-import type { FilesApi } from "./@core-contracts/filesApi";
+import type { FilesApi } from "./@core-contracts/api";
 import type { Storage } from "./@core-contracts/storage";
 import type { Repository } from "./@core-contracts/repository";
 // import { Api } from "./application/Api";

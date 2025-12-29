@@ -21,9 +21,7 @@ export class UseCases {
     if (!extractedText) {
       throw new Error("Text not extracted");
     }
-    console.log({ extractedText });
     const cleanedText = TextCleanerService.cleanAll(extractedText.text);
-    console.log({ cleanedText });
     const text = new Text(id, source.id, cleanedText, extractedText.metadata);
     await this.textRepository.saveTextById(id, text.toDTO());
     return text;

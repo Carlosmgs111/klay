@@ -9,17 +9,17 @@ export class EmbeddingUseCases {
     private vectorRepository: VectorRepository
   ) {}
 
-  async generateEmbeddings(texts: string[]): Promise<number[][]> {
+  async generateEmbeddings(texts: string[]): Promise<VectorDocument[]> {
     const embeddings = await this.embeddingProvider.generateEmbeddings(texts);
-    await this.vectorRepository.addDocuments(
-      texts.map((text, index) => ({
-        id: index.toString(),
-        content: text,
-        embedding: embeddings[index],
-        metadata: {},
-      }))
-    );
-    return embeddings;
+    const documents = texts.map((text, index) => ({
+      id: index.toString(),
+      content: text,
+      embedding: embeddings[index],
+      metadata: {},
+      timestamp: Date.now(),
+    }));
+    await this.vectorRepository.addDocuments(documents);
+    return documents;
   }
   async search(text: string, topK: number): Promise<SearchResult[]> {
     const queryEmbedding = await this.embeddingProvider.generateEmbedding(text);

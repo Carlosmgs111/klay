@@ -26,3 +26,12 @@ export function getEmbeddingsDB() {
   }
   return embeddingsDB;
 }
+
+let knowledgeAssetsDB: Level;
+
+export function getKnowledgeAssetsDB() {
+  if (!knowledgeAssetsDB) {
+    knowledgeAssetsDB = new Level("./database/level/knowledgeAssets", { valueEncoding: "json" });
+  }
+  return knowledgeAssetsDB;
+}

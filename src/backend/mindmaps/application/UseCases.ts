@@ -1,4 +1,4 @@
-import type { FilesApi } from "../../files/@core-contracts/filesApi";
+import type { FilesApi } from "../../files/@core-contracts/api";
 import type { TextExtractorApi } from "../../text-extraction/@core-contracts/textExtractorApi";
 import type { AIApi } from "../../agents/@core-contracts/aiApi";
 import type { GenerateMindmapParams } from "../@core-contracts/dtos";
@@ -109,7 +109,11 @@ export class UseCases {
   }
   async *uploadFileAndGenerateMindmapStream(
     id: string,
-    file: GenerateMindmapParams){
+    file: GenerateMindmapParams,
+    query?: {
+      message: string;
+      style: string;
+    },){
     
       
 

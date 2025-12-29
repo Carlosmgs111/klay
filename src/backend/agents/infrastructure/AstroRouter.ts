@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import type { AIApi } from "../@core-contracts/aiApi";
+import type { AIApi } from "../@core-contracts/api";
 
 export class AstroRouter {
   constructor(private aiApi: AIApi) {}

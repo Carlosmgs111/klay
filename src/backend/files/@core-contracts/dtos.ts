@@ -1,17 +1,6 @@
-export interface FileDTO {
-    id: string;
-    name: string;
-    type: string;
-    size: number;
-    lastModified: number;
-}
+import type { File } from "./entities";
 
-export interface FileUploadDTO {
-    id: string;
-    name: string;
+export interface FileUploadDTO extends File {
     buffer: Buffer;
-    type: string;
-    size: number;
-    lastModified: number;
 }
     

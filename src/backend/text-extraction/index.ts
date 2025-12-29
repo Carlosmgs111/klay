@@ -1,12 +1,10 @@
-/*  //TODO textExtraction -> document-ingestion
-    * this is module will process the documents and extract the text from them
-    * - Process file buffer
-      * - Extract text from buffer
-      * - Clean the text
-      * - Save the text in database
-    * - Chunking text
+/*
+ * This is module will process the documents and extract the text from them
+ * - Extract text from buffer
+ * - Clean extracted text
+ * - Manage cleaned text in database
  */
-import type { TextExtractorApi } from "./@core-contracts/textExtractorApi";
+import type { TextExtractorApi } from "./@core-contracts/api";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 import { PDFTextExtractor } from "./infrastructure/extraction/PDFTextExtractor";
 import { UseCases } from "./application/UseCases";

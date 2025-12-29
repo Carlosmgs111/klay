@@ -1,5 +1,5 @@
-import type { SearchResult } from "./vectorRepository";
-import type { VectorDocument } from "./vectorRepository";
+import type { SearchResult } from "./repositories";
+import type { VectorDocument } from "./repositories";
 
 export interface EmbeddingAPI {
     generateEmbeddings(texts: string[]): Promise<VectorDocument[]>;

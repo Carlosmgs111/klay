@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import type { TextExtractorApi } from "../../@core-contracts/textExtractorApi";
+import type { TextExtractorApi } from "../../@core-contracts/api";
 
 export class AstroRouter {
   constructor(private textExtractorApi: TextExtractorApi) {}

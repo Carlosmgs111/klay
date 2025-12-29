@@ -1,6 +1,5 @@
-
 export interface EmbeddingProvider {
-    generateEmbedding(text: string): Promise<number[]>;
-    generateEmbeddings(texts: string[]): Promise<number[][]>;
-    getDimensions(): number;
-  }
+  generateEmbedding(text: string): Promise<number[]>;
+  generateEmbeddings(texts: string[]): Promise<number[][]>;
+  getDimensions(): number;
+}

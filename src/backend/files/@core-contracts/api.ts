@@ -1,8 +1,8 @@
-import type { FileDTO, FileUploadDTO } from "./dtos";
+import type { FileUploadDTO } from "./dtos";
 
 export interface FilesApi {
-  uploadFile(file: FileUploadDTO): Promise<FileDTO >;
-  getFileById(id: string): Promise<FileDTO & { buffer: Buffer }>;
-  getFiles(): Promise<FileDTO[]>;
+  uploadFile(file: FileUploadDTO): Promise<File >;
+  getFileById(id: string): Promise<File & { buffer: Buffer }>;
+  getFiles(): Promise<File[]>;
   deleteFile(id: string): Promise<void>;
 }

@@ -1,7 +1,7 @@
 import type { TextExtractor } from "../@core-contracts/services";
-import type { Repository } from "../@core-contracts/repository";
+import type { Repository } from "../@core-contracts/repositories";
 import type { TextExtractParams } from "../@core-contracts/dtos";
-import { Text } from "../Domain/Text";
+import { Text } from "../domain/Text";
 import { TextCleanerService } from "./TextCleanerService";
 
 export class UseCases {

@@ -1,7 +1,7 @@
 // src/lib/chunking/ParagraphChunker.ts
 
 import { BaseChunker } from './BaseChunker';
-import type { Chunk, ChunkMetadata } from '../../@core-contracts/chunking';
+import type { Chunk, ChunkMetadata } from '../../@core-contracts/entities';
 
 export class ParagraphChunker extends BaseChunker {
   private maxChunkSize: number;

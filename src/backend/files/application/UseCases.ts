@@ -1,5 +1,5 @@
 import type { Storage } from "../@core-contracts/storage";
-import type { Repository } from "../@core-contracts/repository";
+import type { Repository } from "../@core-contracts/repositories";
 import type { FileUploadDTO } from "../@core-contracts/dtos";
 import type { FileDTO } from "../@core-contracts/dtos";
 
@@ -41,15 +41,6 @@ export class FilesUseCases {
     return fileEntity;
   };
 
-  getFileBuffer = async (fileId: string): Promise<Buffer> => {
-    const file = await this.repository.getFileById(fileId);
-    if (!file) {
-      throw new Error("File not found");
-    }
-    const fileBuffer = await this.storage.loadFileBuffer(file.name);
-    return fileBuffer;
-  };
-
   deleteFile = async (fileId: string) => {
     const file = await this.repository.getFileById(fileId);
     if (!file) {
@@ -63,5 +54,14 @@ export class FilesUseCases {
     if (!deletedDb) {
       throw new Error("File not deleted in database");
     }
+  };
+
+  private getFileBuffer = async (fileId: string): Promise<Buffer> => {
+    const file = await this.repository.getFileById(fileId);
+    if (!file) {
+      throw new Error("File not found");
+    }
+    const fileBuffer = await this.storage.loadFileBuffer(file.name);
+    return fileBuffer;
   };
 }

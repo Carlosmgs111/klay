@@ -1,8 +1,8 @@
 // src/lib/chunking/SemanticChunker.ts
 
-import { BaseChunker } from './BaseChunker';
-import type { Chunk, ChunkMetadata } from '../../@core-contracts/chunking';
-import type { EmbeddingAPI } from '@/modules/embeddings/@core-contracts/api';
+import { BaseChunker } from "./BaseChunker";
+import type { Chunk, ChunkMetadata } from "../../@core-contracts/entities";
+import type { EmbeddingAPI } from "@/modules/embeddings/@core-contracts/api";
 
 export class SemanticChunker extends BaseChunker {
   private embeddingProvider: EmbeddingAPI;
@@ -20,7 +20,10 @@ export class SemanticChunker extends BaseChunker {
     this.similarityThreshold = similarityThreshold;
   }
 
-  async chunk(text: string, metadata?: Partial<ChunkMetadata>): Promise<Chunk[]> {
+  async chunk(
+    text: string,
+    metadata?: Partial<ChunkMetadata>
+  ): Promise<Chunk[]> {
     // Dividir en oraciones
     const sentences = this.splitIntoSentences(text);
 
@@ -28,13 +31,16 @@ export class SemanticChunker extends BaseChunker {
 
     // Generar embeddings para cada oración
     const embeddings = await Promise.all(
-      sentences.map(s => this.embeddingProvider.generateEmbeddings([s]))
+      sentences.map((s) => this.embeddingProvider.generateEmbeddings([s]))
     );
 
     // Calcular similitudes entre oraciones consecutivas
     const similarities: number[] = [];
     for (let i = 0; i < embeddings.length - 1; i++) {
-      const similarity = this.cosineSimilarity(embeddings[i][0], embeddings[i + 1][0]);
+      const similarity = this.cosineSimilarity(
+        embeddings[i][0].embedding,
+        embeddings[i + 1][0].embedding
+      );
       similarities.push(similarity);
     }
 
@@ -56,7 +62,7 @@ export class SemanticChunker extends BaseChunker {
       const start = breakpoints[i];
       const end = breakpoints[i + 1];
       const chunkSentences = sentences.slice(start, end);
-      let content = chunkSentences.join(' ');
+      let content = chunkSentences.join(" ");
 
       // Si el chunk es muy grande, dividirlo
       if (content.length > this.maxChunkSize) {
@@ -64,11 +70,18 @@ export class SemanticChunker extends BaseChunker {
         for (const subContent of subChunks) {
           const endPos = startPos + subContent.length;
           chunks.push(
-            await this.createChunk(subContent, chunkIndex, 0, startPos, endPos, {
-              ...metadata,
-              tokens: this.estimateTokens(subContent),
-              semantic: true,
-            })
+            await this.createChunk(
+              subContent,
+              chunkIndex,
+              0,
+              startPos,
+              endPos,
+              {
+                ...metadata,
+                tokens: this.estimateTokens(subContent),
+                semantic: true,
+              }
+            )
           );
           startPos = endPos;
           chunkIndex++;
@@ -88,7 +101,7 @@ export class SemanticChunker extends BaseChunker {
     }
 
     // Actualizar totalChunks
-    chunks.forEach(chunk => {
+    chunks.forEach((chunk) => {
       chunk.metadata.totalChunks = chunks.length;
     });
 
@@ -101,8 +114,11 @@ export class SemanticChunker extends BaseChunker {
     let currentLength = 0;
 
     for (const sentence of sentences) {
-      if (currentLength + sentence.length > this.maxChunkSize && currentChunk.length > 0) {
-        chunks.push(currentChunk.join(' '));
+      if (
+        currentLength + sentence.length > this.maxChunkSize &&
+        currentChunk.length > 0
+      ) {
+        chunks.push(currentChunk.join(" "));
         currentChunk = [];
         currentLength = 0;
       }
@@ -111,7 +127,7 @@ export class SemanticChunker extends BaseChunker {
     }
 
     if (currentChunk.length > 0) {
-      chunks.push(currentChunk.join(' '));
+      chunks.push(currentChunk.join(" "));
     }
 
     return chunks;
@@ -120,7 +136,7 @@ export class SemanticChunker extends BaseChunker {
   private splitIntoSentences(text: string): string[] {
     const sentenceRegex = /[^.!?]+[.!?]+["']?|[^.!?]+$/g;
     const matches = text.match(sentenceRegex) || [];
-    return matches.map(s => s.trim()).filter(s => s.length > 0);
+    return matches.map((s) => s.trim()).filter((s) => s.length > 0);
   }
 
   private cosineSimilarity(vecA: number[], vecB: number[]): number {

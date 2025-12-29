@@ -1,5 +1,3 @@
-import type { TextDTO } from "../@core-contracts/dtos";
-
 export class Text {
   constructor(
     public id: string,
@@ -12,7 +10,7 @@ export class Text {
     }
   ) {}
 
-  toDTO(): TextDTO {
+  toDTO() {
     return {
       id: this.id,
       sourceId: this.sourceId,

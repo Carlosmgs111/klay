@@ -1,6 +1,6 @@
 import type { FilesApi } from "../../files/@core-contracts/api";
-import type { TextExtractorApi } from "../../text-extraction/@core-contracts/textExtractorApi";
-import type { AIApi } from "../../agents/@core-contracts/aiApi";
+import type { TextExtractorApi } from "../../text-extraction/@core-contracts/api";
+import type { AIApi } from "../../agents/@core-contracts/api";
 import type { GenerateMindmapParams } from "../@core-contracts/dtos";
 
 const markmapExample = `

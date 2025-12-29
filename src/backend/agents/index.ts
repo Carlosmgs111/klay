@@ -10,7 +10,7 @@
  * - Agents capabilities
  *   - Use of tool
  */
-import type { AIApi } from "./@core-contracts/aiApi";
+import type { AIApi } from "./@core-contracts/api";
 import { AISDKProvider } from "./infrastructure/AIProvider/AIProvider";
 import { AIUsesCases } from "./application/UsesCases";
 import { LocalLevelAgentRepository } from "./infrastructure/Repositories/LocalLevelAgentRepository";

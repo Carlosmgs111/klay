@@ -1,7 +1,7 @@
 import type { EmbeddingProvider } from "../@core-contracts/providers";
-import type { VectorRepository } from "../@core-contracts/vectorRepository";
-import type { SearchResult } from "../@core-contracts/vectorRepository";
-import type { VectorDocument } from "../@core-contracts/vectorRepository";
+import type { VectorRepository } from "../@core-contracts/repositories";
+import type { SearchResult } from "../@core-contracts/repositories";
+import type { VectorDocument } from "../@core-contracts/repositories";
 
 export class EmbeddingUseCases {
   constructor(
@@ -11,7 +11,7 @@ export class EmbeddingUseCases {
 
   async generateEmbeddings(texts: string[]): Promise<VectorDocument[]> {
     const embeddings = await this.embeddingProvider.generateEmbeddings(texts);
-    const documents = texts.map((text, index) => ({
+    const documents: VectorDocument[] = texts.map((text, index) => ({
       id: index.toString(),
       content: text,
       embedding: embeddings[index],

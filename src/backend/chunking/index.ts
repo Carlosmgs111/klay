@@ -1,3 +1,9 @@
+/*
+ * This module chunk text
+ * - Chunk text 
+ * - Manage chunks in database
+ */
+
 import type { ChunkingApi } from "./@core-contracts/api";
 import { embeddingAPI } from "../embeddings";
 import { ChunkerFactory } from "./domain/ChunkerFactory";

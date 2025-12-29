@@ -1,4 +1,4 @@
-import type { Repository } from "../../@core-contracts/repository";
+import type { Repository } from "../../@core-contracts/repositories";
 import type { FileDTO } from "../../@core-contracts/dtos";
 import fs from "fs";
 

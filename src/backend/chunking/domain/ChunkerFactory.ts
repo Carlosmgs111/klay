@@ -5,7 +5,7 @@ import { SentenceChunker } from "./strategies/SentenceChunker";
 import { ParagraphChunker } from "./strategies/ParagraphChunker";
 import { RecursiveChunker } from "./strategies/RecursiveChunker";
 import { SemanticChunker } from "./strategies/SemanticChunker";
-import type { ChunkingConfig } from "../@core-contracts/chunking";
+import type { ChunkingConfig } from "../@core-contracts/dtos";
 import type { EmbeddingAPI } from "@/modules/embeddings/@core-contracts/api";
 
 export class ChunkerFactory {

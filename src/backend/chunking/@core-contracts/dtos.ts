@@ -1,12 +1,17 @@
-import type { Chunk } from "./chunking";
+import type { ChunkMetadata, Chunk, ChunkingStrategyType } from "./entities";
 
-export interface ProcessedDocument {
-    documentId: string;
-    chunks: Chunk[];
-    metadata: {
-      originalLength: number;
-      chunksCount: number;
-      strategy: string;
-      processingTime: number;
-    };
-  }
+export interface ChunkingStrategy {
+  chunk(
+    text: string,
+    metadata?: Partial<ChunkMetadata>
+  ): Chunk[] | Promise<Chunk[]>;
+}
+
+export interface ChunkingConfig {
+  strategy: ChunkingStrategyType;
+  chunkSize?: number;
+  chunkOverlap?: number;
+  separators?: string[];
+  minChunkSize?: number;
+  maxChunkSize?: number;
+}

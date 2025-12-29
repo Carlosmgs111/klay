@@ -1,7 +1,7 @@
 // src/lib/chunking/RecursiveChunker.ts
 
 import { BaseChunker } from './BaseChunker';
-import type { Chunk, ChunkMetadata } from '../../@core-contracts/chunking';
+import type { Chunk, ChunkMetadata } from '../../@core-contracts/entities';
 
 export class RecursiveChunker extends BaseChunker {
   private chunkSize: number;

@@ -1,20 +1,7 @@
-export interface TextDTO {
-  text: string;
-  id: string;
-  sourceId: string;
-  metadata?: {
-    author?: string;
-    title?: string;
-    numpages?: number;
-  };
-}
+import type { Source } from "./entities";
 
-export interface SourceDTO {
-    id: string;
-    name?: string;
-    type?: string;
-    path?: string;
-    buffer: Buffer;
+export interface SourceDTO extends Source {
+  buffer: Buffer;
 }
 
 export interface TextExtractParams {
@@ -32,5 +19,5 @@ export interface TextExtractDTO {
 }
 
 export interface TextExtractorParams {
-  buffer: Buffer;
+  source: SourceDTO;
 }

@@ -1,4 +1,4 @@
-import type { Repository } from "../../@core-contracts/repository";
+import type { Repository } from "../../@core-contracts/repositories";
 import type { TextDTO } from "../../@core-contracts/dtos";
 import { getTextsDB } from "../../../shared/config/repositories";
 import { Level } from "level";

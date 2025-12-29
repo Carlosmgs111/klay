@@ -1,6 +1,6 @@
 import type { GenerateNewKnowledgeDTO } from "../@core-contracts/dtos";
 import type { FilesApi } from "@/backend/files/@core-contracts/api";
-import type { TextExtractorApi } from "@/modules/text-extraction/@core-contracts/textExtractorApi";
+import type { TextExtractorApi } from "@/backend/text-extraction/@core-contracts/api";
 import type { ChunkingApi } from "@/modules/chunking/@core-contracts/api";
 import type { EmbeddingAPI } from "@/modules/embeddings/@core-contracts/api";
 import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";

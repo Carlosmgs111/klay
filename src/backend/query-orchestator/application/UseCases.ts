@@ -1,6 +1,6 @@
 import type { AICompletionDTO } from "@/backend/agents/@core-contracts/dtos";
 import type { EmbeddingAPI } from "@/backend/embeddings/@core-contracts/api";
-import type { AIApi } from "@/backend/agents/@core-contracts/aiApi";
+import type { AIApi } from "@/backend/agents/@core-contracts/api";
 
 export class UseCases {
   constructor(private embeddingAPI: EmbeddingAPI, private aiApi: AIApi) {}

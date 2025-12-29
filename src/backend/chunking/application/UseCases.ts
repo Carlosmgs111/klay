@@ -1,8 +1,5 @@
-import type { ChunkingConfig } from "../@core-contracts/chunking";
-import type { ChunkMetadata } from "../@core-contracts/chunking";
-import type { ProcessedDocument } from "../@core-contracts/dtos";
-import type { Chunk } from "../@core-contracts/chunking";
-import type { ChunkerFactory } from "../@core-contracts/chunking";
+import type { ChunkingConfig } from "../@core-contracts/dtos";
+import type { ChunkerFactory, Chunk, ChunkMetadata, ChunkBatch } from "../@core-contracts/entities";
 
 export class UseCases {
   constructor(private chunkerFactory: ChunkerFactory) {}
@@ -11,7 +8,7 @@ export class UseCases {
     text: string,
     config: ChunkingConfig,
     documentMetadata?: Partial<ChunkMetadata>
-  ): Promise<ProcessedDocument> => {
+  ): Promise<ChunkBatch> => {
     const startTime = Date.now();
     const documentId = crypto.randomUUID();
 
@@ -20,7 +17,6 @@ export class UseCases {
 
     let chunks: Chunk[];
 
-    // Manejar chunkers asíncronos (semantic)
     if (
       config.strategy === "semantic" &&
       chunker instanceof
@@ -39,8 +35,7 @@ export class UseCases {
 
     const processingTime = Date.now() - startTime;
 
-    return {
-      documentId,
+    const chunkBatch: ChunkBatch = {
       chunks,
       metadata: {
         originalLength: text.length,
@@ -49,12 +44,14 @@ export class UseCases {
         processingTime,
       },
     };
+
+    return chunkBatch;
   };
 
   chunkMultiple = async (
     documents: Array<{ text: string; metadata?: Partial<ChunkMetadata> }>,
     config: ChunkingConfig
-  ): Promise<ProcessedDocument[]> => {
+  ): Promise<ChunkBatch[]> => {
     return Promise.all(
       documents.map((doc) => this.chunkOne(doc.text, config, doc.metadata))
     );

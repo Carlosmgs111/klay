@@ -2,7 +2,7 @@
  ? This was generated with Claude
  */
 
-import type { VectorRepository } from "../../@core-contracts/vectorRepository";
+import type { VectorRepository } from "../../@core-contracts/repositories";
 import { getEmbeddingsDB } from "../../../shared/config/repositories";
 
 import { Level } from "level";
@@ -10,7 +10,7 @@ import type {
   VectorDocument,
   SearchResult,
   VectorDBConfig,
-} from "../../@core-contracts/vectorRepository";
+} from "../../@core-contracts/repositories";
 
 export class LevelVectorStore implements VectorRepository {
   private db: Level<string, string>;

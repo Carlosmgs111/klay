@@ -1,7 +1,11 @@
+/*
+ * Manage files
+ * Upload, download, delete, list
+ */
+
 import type { FilesApi } from "./@core-contracts/api";
 import type { Storage } from "./@core-contracts/storage";
-import type { Repository } from "./@core-contracts/repository";
-// import { Api } from "./application/Api";
+import type { Repository } from "./@core-contracts/repositories";
 import { FilesUseCases } from "./application/UseCases";
 import { LocalFsStorage } from "./infrastructure/storage/LocalFsStorage";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";

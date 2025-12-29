@@ -1,6 +1,6 @@
 // src/lib/chunking/BaseChunker.ts
 
-import type { Chunk, ChunkMetadata } from "../../@core-contracts/chunking";
+import type { Chunk, ChunkMetadata } from "../../@core-contracts/entities";
 
 export abstract class BaseChunker {
   protected generateChunkId(source: string, index: number): string {
@@ -16,7 +16,7 @@ export abstract class BaseChunker {
     baseMetadata?: Partial<ChunkMetadata>
   ): Promise<Chunk> {
     const metadata: ChunkMetadata = {
-      source: baseMetadata?.source || "unknown",
+      sourceId: baseMetadata?.sourceId || "unknown",
       chunkIndex: index,
       totalChunks: total,
       startPosition: startPos,
@@ -25,7 +25,7 @@ export abstract class BaseChunker {
     };
 
     return {
-      id: this.generateChunkId(metadata.source, index),
+      id: this.generateChunkId(metadata.sourceId, index),
       content: content.trim(),
       metadata,
     };

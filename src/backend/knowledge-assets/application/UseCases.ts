@@ -77,7 +77,7 @@ export class UseCases {
     await new Promise((resolve) => setTimeout(resolve, 300));
     yield { status: "success", step: "text-extraction", message: "Text extracted successfully" };
     await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "success", step: "chunking", message: "Chunks generated successfully" };
+    yield { status: "error", step: "chunking", message: "Chunks generated successfully" };
     await new Promise((resolve) => setTimeout(resolve, 300));
     yield { status: "success", step: "embedding", message: "Embeddings generated successfully" };
     await new Promise((resolve) => setTimeout(resolve, 300));

@@ -5,7 +5,8 @@ interface SpinnerProps {
   id?: string;
   className?: string;
   hidden?: boolean;
-  state?: "loading" | "success" | "error";
+  success?: boolean;
+  error?: boolean;
 }
 
 const sizeClasses = {
@@ -25,8 +26,11 @@ export default function Spinner({
   id,
   className = "",
   hidden = false,
-  state = "loading"
+  success = false,
+  error = false,
 }: SpinnerProps) {
+  const isLoading = !success && !error;
+
   return (
     <div className="flex items-center justify-center">
       <div
@@ -34,7 +38,7 @@ export default function Spinner({
         data-id={id}
         className={`relative ${sizeClasses[size]} ${className} ${hidden ? "hidden" : ""}`}
       >
-        {state === "loading" && (
+        {isLoading && (
           <>
             <div className="spinner-ring spinner-ring-1 absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500" />
             <div className="spinner-ring spinner-ring-2 absolute inset-0 rounded-full border-2 border-transparent border-t-cyan-400" />
@@ -42,7 +46,7 @@ export default function Spinner({
           </>
         )}
 
-        {state === "success" && (
+        {success && (
           <div
             className={`ready-icon flex items-center justify-center border-2 border-blue-500 rounded-full ${sizeClasses[size]}`}
           >
@@ -60,7 +64,7 @@ export default function Spinner({
           </div>
         )}
 
-        {state === "error" && (
+        {error && (
           <div
             className={`error-icon flex items-center justify-center border-2 border-red-400 rounded-full ${sizeClasses[size]}`}
           >

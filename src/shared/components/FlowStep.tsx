@@ -24,9 +24,9 @@ export default function FlowStep({
         className
       )}
     >
-      <span className="absolute bg-gray-800 -left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 py-2">
+      {/* <span className="absolute bg-gray-800 -left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 py-2">
         ⦿
-      </span>
+      </span> */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between border-b border-gray-600/20 pb-2">
           <span>{title}</span>

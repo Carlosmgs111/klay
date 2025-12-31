@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import DashBoardLayout from "@/layouts/DashboardLayout.astro";
 import LoadedFileSelector from "@/features/file-management/components/LoadedFileSelector.astro";
-import FlowStep from "../components/FlowStep.astro";
+import FlowStep from "@/shared/components/FlowStep.astro";
 import { sc } from "@/shared/utils/sc";
 const fileId = Astro.url.searchParams.get("fileId");
 const fileName = Astro.url.searchParams.get("fileName");

@@ -26,7 +26,6 @@ export class AIEmbeddingProvider implements EmbeddingProvider {
   async generateEmbeddings(texts: string[]): Promise<number[][]> {
     try {
       const response = await this.model.doEmbed({ values: texts });
-      console.log(response);
       return response.embeddings;
     } catch (error) {
       console.log(error);

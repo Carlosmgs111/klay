@@ -1,6 +1,9 @@
 import type { TextExtractor } from "../@core-contracts/services";
 import type { Repository } from "../@core-contracts/repositories";
-import type { TextExtractParams } from "../@core-contracts/dtos";
+import type {
+  TextExtractParams,
+  TextExtractionResultDTO,
+} from "../@core-contracts/dtos";
 import { Text } from "../domain/Text";
 import { TextCleanerService } from "./TextCleanerService";
 
@@ -11,7 +14,10 @@ export class UseCases {
     this.textExtractor = textExtractor;
     this.textRepository = textRepository;
   }
-  extractTextFromPDF = async ({ source, id }: TextExtractParams) => {
+  extractTextFromPDF = async ({
+    source,
+    id,
+  }: TextExtractParams): Promise<TextExtractionResultDTO> => {
     if (!source.buffer) {
       throw new Error("File not found");
     }
@@ -24,7 +30,11 @@ export class UseCases {
     const cleanedText = TextCleanerService.cleanAll(extractedText.text);
     const text = new Text(id, source.id, cleanedText, extractedText.metadata);
     await this.textRepository.saveTextById(id, text.toDTO());
-    return text;
+    return {
+      status: "success",
+      message: "Text extracted successfully",
+      ...text.toDTO(),
+    };
   };
   removeText = async (id: string) => {
     await this.textRepository.deleteTextById(id);

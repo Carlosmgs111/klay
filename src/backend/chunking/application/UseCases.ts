@@ -1,5 +1,13 @@
-import type { ChunkingConfig } from "../@core-contracts/dtos";
-import type { ChunkerFactory, Chunk, ChunkMetadata, ChunkBatch } from "../@core-contracts/entities";
+import type {
+  ChunkingConfig,
+  ChunkingResultDTO,
+} from "../@core-contracts/dtos";
+import type {
+  Chunk,
+  ChunkMetadata,
+  ChunkBatch,
+} from "../@core-contracts/entities";
+import type { ChunkerFactory } from "../@core-contracts/services";
 
 export class UseCases {
   constructor(private chunkerFactory: ChunkerFactory) {}
@@ -8,7 +16,7 @@ export class UseCases {
     text: string,
     config: ChunkingConfig,
     documentMetadata?: Partial<ChunkMetadata>
-  ): Promise<ChunkBatch> => {
+  ): Promise<ChunkingResultDTO> => {
     const startTime = Date.now();
     const documentId = crypto.randomUUID();
 
@@ -45,13 +53,17 @@ export class UseCases {
       },
     };
 
-    return chunkBatch;
+    return {
+      ...chunkBatch,
+      status: "success",
+      message: "Chunking completed successfully",
+    };
   };
 
   chunkMultiple = async (
     documents: Array<{ text: string; metadata?: Partial<ChunkMetadata> }>,
     config: ChunkingConfig
-  ): Promise<ChunkBatch[]> => {
+  ): Promise<ChunkingResultDTO[]> => {
     return Promise.all(
       documents.map((doc) => this.chunkOne(doc.text, config, doc.metadata))
     );

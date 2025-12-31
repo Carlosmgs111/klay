@@ -8,9 +8,8 @@ import { getEmbeddingsDB } from "../../../shared/config/repositories";
 import { Level } from "level";
 import type {
   VectorDocument,
-  SearchResult,
-  VectorDBConfig,
-} from "../../@core-contracts/repositories";
+} from "../../@core-contracts/entities";
+import type { SearchResult, VectorDBConfig } from "../../@core-contracts/dtos";
 
 export class LevelVectorStore implements VectorRepository {
   private db: Level<string, string>;

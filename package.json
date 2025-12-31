@@ -11,11 +11,14 @@
   "dependencies": {
     "@ai-sdk/cohere": "^2.0.21",
     "@ai-sdk/huggingface": "^0.0.12",
+    "@astrojs/react": "^4.4.2",
     "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.39.4",
     "@tailwindcss/vite": "^4.1.17",
     "@types/multer": "^2.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "ai": "^5.0.112",
     "astro": "^5.16.3",
     "bson": "^7.0.0",
@@ -29,6 +32,8 @@
     "markmap-view": "^0.18.12",
     "nanostores": "^1.1.0",
     "pdf-extraction": "^1.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.1.17"
   }

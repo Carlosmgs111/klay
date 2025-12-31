@@ -4,11 +4,11 @@ import type { KnowledgeAssetDTO } from "./dtos";
 export interface FlowState {
   status: "success" | "error";
   step:
-    | "fileUpload"
-    | "textExtraction"
+    | "file-upload"
+    | "text-extraction"
     | "chunking"
     | "embedding"
-    | "knowledgeAsset";
+    | "knowledge-asset";
   message?: string;
 }
 

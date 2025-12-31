@@ -1,9 +1,9 @@
 ---
 import { sc } from "@/shared/utils/sc";
-const { title, help } = Astro.props;
+const { title, help, class: className, id } = Astro.props;
 ---
 
-<div class="relative pt-4 pb-4 border border-gray-600/50 p-6 rounded-xl">
+<div id={id} class={sc("relative pt-4 pb-4 border border-gray-600/50 p-6 rounded-xl", className)}>
   <span
     class="absolute bg-gray-800 -left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 py-2"
     >⦿</span

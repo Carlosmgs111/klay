@@ -1,10 +1,33 @@
 import type { APIContext } from "astro";
-import type { KnowledgeAssetsAPI } from "../@core-contracts/api";
-import type { GenerateNewKnowledgeDTO } from "../@core-contracts/dtos";
+import type { KnowledgeAssetsAPI } from "../../@core-contracts/api";
+import type { KnowledgeAssetsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
+import type { GenerateNewKnowledgeDTO } from "../../@core-contracts/dtos";
 import type { ChunkingStrategyType } from "@/modules/chunking/@core-contracts/entities";
 
 export class AstroRouter {
-  constructor(private knowledgeAssetsApi: KnowledgeAssetsAPI) {}
+  private knowledgeAssetsApi: KnowledgeAssetsAPI;
+  constructor(
+    knowledgeAssetsApiFactory: (policy: KnowledgeAssetsInfrastructurePolicy) => KnowledgeAssetsAPI
+  ) {
+    this.knowledgeAssetsApi = knowledgeAssetsApiFactory({
+      repository: "local-level",
+      filesPolicy: {
+        storage: "local-fs",
+        repository: "csv",
+      },
+      textExtractionPolicy: {
+        extractor: "pdf",
+        repository: "local-level",
+      },
+      chunkingPolicy: {
+        strategy: "fixed",
+      },
+      embeddingsPolicy: {
+        provider: "cohere",
+        repository: "local-level",
+      },
+    });
+  }
 
   generateNewKnowledge = async ({ request, params }: APIContext) => {
     const id = params.id;

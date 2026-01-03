@@ -1,8 +1,17 @@
 import type { APIContext } from "astro";
 import type { TextExtractorApi } from "../../@core-contracts/api";
+import type { TextExtractionInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
-  constructor(private textExtractorApi: TextExtractorApi) {}
+  private textExtractorApi: TextExtractorApi;
+  constructor(
+    textExtractorApiFactory: (policy: TextExtractionInfrastructurePolicy) => TextExtractorApi
+  ) {
+    this.textExtractorApi = textExtractorApiFactory({
+      extractor: "pdf",
+      repository: "local-level",
+    });
+  }
   deleteText = async ({ params }: APIContext) => {
     const { id } = params;
     console.log({ id });

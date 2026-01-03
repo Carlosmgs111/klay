@@ -4,15 +4,15 @@
  */
 
 import type { FilesApi } from "./@core-contracts/api";
-import type { Storage } from "./@core-contracts/storage";
-import type { Repository } from "./@core-contracts/repositories";
+import type { FilesInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { FilesUseCases } from "./application/UseCases";
-import { LocalFsStorage } from "./infrastructure/storage/LocalFsStorage";
-import { AstroRouter } from "./infrastructure/routes/AstroRouter";
-import { LocalCsvRepository } from "./infrastructure/repository/LocalCsvRepository";
+import { FilesInfrastructureResolver } from "./infrastructure/composition/Resolver";
+import {AstroRouter} from "./infrastructure/routes/AstroRouter";
 
-const storage: Storage = new LocalFsStorage();
-const repository: Repository = new LocalCsvRepository();
-export const filesApi: FilesApi = new FilesUseCases(storage, repository);
+export function filesApiFactory(policy: FilesInfrastructurePolicy): FilesApi {
+  const { storage, repository } = FilesInfrastructureResolver.resolve(policy);
+  return new FilesUseCases(storage, repository);
+}
 
-export const filesRouter = new AstroRouter(filesApi);
+export const filesRouter = new AstroRouter(filesApiFactory);
+

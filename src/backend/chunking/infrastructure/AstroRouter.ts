@@ -1,8 +1,16 @@
 import type { APIContext } from "astro";
 import type { ChunkingApi } from "../@core-contracts/api";
+import type { ChunkingInfrastructurePolicy } from "../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
-  constructor(private chunkingApi: ChunkingApi) {}
+  private chunkingApi: ChunkingApi;
+  constructor(
+    chunkingApiFactory: (policy: ChunkingInfrastructurePolicy) => ChunkingApi
+  ) {
+    this.chunkingApi = chunkingApiFactory({
+      strategy: "fixed",
+    });
+  }
 
   chunkText = async ({ request }: APIContext) => {
     const body = await request.json();

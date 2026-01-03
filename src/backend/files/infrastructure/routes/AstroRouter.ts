@@ -1,11 +1,17 @@
 import type { APIContext } from "astro";
 import type { FilesApi } from "../../@core-contracts/api";
 import type { FileUploadDTO } from "../../@core-contracts/dtos";
+import type { FilesInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
   private fileManagerUseCases: FilesApi;
-  constructor(fileManagerUseCases: FilesApi) {
-    this.fileManagerUseCases = fileManagerUseCases;
+  constructor(
+    filesApiFactory: (policy: FilesInfrastructurePolicy) => FilesApi
+  ) {
+    this.fileManagerUseCases = filesApiFactory({
+      storage: "local-fs",
+      repository: "csv",
+    });
   }
 
   getAllFiles = async ({}: APIContext) => {
@@ -37,9 +43,10 @@ export class AstroRouter {
       type: file.type,
       size: file.size,
       lastModified: file.lastModified,
+      url: "",
     };
     const fileUrl = await this.fileManagerUseCases.uploadFile(fileParams);
-    return new Response(fileUrl, { status: 200 });
+    return new Response(fileUrl.url, { status: 200 });
   };
 
   deleteFile = async ({ params }: APIContext) => {

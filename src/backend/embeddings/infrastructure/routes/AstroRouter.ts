@@ -1,8 +1,17 @@
 import type { APIContext } from "astro";
 import type { EmbeddingAPI } from "../../@core-contracts/api";
+import type { EmbeddingsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
-  constructor(private embeddingAPI: EmbeddingAPI) {}
+  private embeddingAPI: EmbeddingAPI;
+  constructor(
+    embeddingApiFactory: (policy: EmbeddingsInfrastructurePolicy) => EmbeddingAPI
+  ) {
+    this.embeddingAPI = embeddingApiFactory({
+      provider: "cohere",
+      repository: "local-level",
+    });
+  }
 
   generateEmbeddings = async ({ request }: APIContext) => {
     const { texts } = await request.json();

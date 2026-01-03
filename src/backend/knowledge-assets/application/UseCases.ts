@@ -88,8 +88,8 @@ export class UseCases {
     try {
       const { status, message } = await this.filesApi.uploadFile(sourceFile);
       console.log(status, message);
-      if (status === "ERROR") {
-        yield { status: "ERROR", step: "file-upload", message :"File uploaded successfully"};
+      if (status === "SUCCESS") {
+        yield { status: "SUCCESS", step: "file-upload", message :"File uploaded successfully"};
       }
 
       const text = await this.textExtractorApi.extractTextFromPDF({

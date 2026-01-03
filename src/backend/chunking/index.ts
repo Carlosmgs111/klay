@@ -5,12 +5,24 @@
  */
 
 import type { ChunkingApi } from "./@core-contracts/api";
-import { embeddingAPI } from "../embeddings";
+import type { ChunkingInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
+import { embeddingApiFactory } from "../embeddings";
 import { ChunkerFactory } from "./domain/ChunkerFactory";
 import { UseCases } from "./application/UseCases";
 import { AstroRouter } from "./infrastructure/AstroRouter";
+// import { ChunkingInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-const chunkerFactory = new ChunkerFactory(embeddingAPI);
+export const embeddingAPI = embeddingApiFactory({
+  provider: "openai",
+  repository: "local-level",
+});
 
-export const chunkingApi: ChunkingApi = new UseCases(chunkerFactory);
-export const chunkingRouter = new AstroRouter(chunkingApi);
+export function chunkingApiFactory(
+  policy: ChunkingInfrastructurePolicy
+): ChunkingApi {
+  // const { chunker } = ChunkingInfrastructureResolver.resolve(policy);
+  const chunkerFactory = new ChunkerFactory(embeddingAPI);
+  return new UseCases(chunkerFactory);
+}
+
+export const chunkingRouter = new AstroRouter(chunkingApiFactory);

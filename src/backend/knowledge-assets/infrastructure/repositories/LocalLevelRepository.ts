@@ -1,5 +1,5 @@
-import type { KnowledgeAssetDTO } from "../@core-contracts/dtos";
-import type { KnowledgeAssetsRepository } from "../@core-contracts/repositories";
+import type { KnowledgeAssetDTO } from "../../@core-contracts/dtos";
+import type { KnowledgeAssetsRepository } from "../../@core-contracts/repositories";
 import { getKnowledgeAssetsDB } from "@/modules/shared/config/repositories";
 import { Level } from "level";
 

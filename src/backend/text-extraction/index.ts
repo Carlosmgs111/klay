@@ -5,15 +5,16 @@
  * - Manage cleaned text in database
  */
 import type { TextExtractorApi } from "./@core-contracts/api";
+import type { TextExtractionInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";
-import { PDFTextExtractor } from "./infrastructure/extraction/PDFTextExtractor";
 import { UseCases } from "./application/UseCases";
-import { LocalLevelRepository } from "./infrastructure/repository/LocalLevelRepository";
+import { TextExtractionInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-const pdfTextExtractor = new PDFTextExtractor();
-const textRepository = new LocalLevelRepository();
-export const textExtractorApi: TextExtractorApi = new UseCases(
-  pdfTextExtractor,
-  textRepository
-);
-export const textsRouter = new AstroRouter(textExtractorApi);
+export function textExtractorApiFactory(
+  policy: TextExtractionInfrastructurePolicy
+): TextExtractorApi {
+  const { extractor, repository } = TextExtractionInfrastructureResolver.resolve(policy);
+  return new UseCases(extractor, repository);
+}
+
+export const textsRouter = new AstroRouter(textExtractorApiFactory);

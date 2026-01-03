@@ -5,20 +5,30 @@
  * - manage chunking
  * - manage embeddings
  */
-import { filesApi } from "../files";
-import { textExtractorApi } from "../text-extraction";
-import { chunkingApi } from "../chunking";
-import { embeddingAPI } from "../embeddings";
 import type { KnowledgeAssetsAPI } from "./@core-contracts/api";
+import type { KnowledgeAssetsInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { UseCases } from "./application/UseCases";
-import { LocalLevelRepository } from "./infraestructure/LocalLevelRepository";
-import { AstroRouter } from "./infraestructure/AstroRouter";
+import { KnowledgeAssetsInfrastructureResolver } from "./infrastructure/composition/Resolver";
+import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 
-export const knowledgeAssetsApi: KnowledgeAssetsAPI = new UseCases(
-  filesApi,
-  textExtractorApi,
-  chunkingApi,
-  embeddingAPI,
-  new LocalLevelRepository()
-);
-export const knowledgeAssetsRouter = new AstroRouter(knowledgeAssetsApi);
+export function knowledgeAssetsApiFactory(
+  policy: KnowledgeAssetsInfrastructurePolicy
+): KnowledgeAssetsAPI {
+  const { 
+    repository, 
+    filesApi, 
+    textExtractorApi, 
+    chunkingApi, 
+    embeddingApi 
+  } = KnowledgeAssetsInfrastructureResolver.resolve(policy);
+
+  return new UseCases(
+    filesApi,
+    textExtractorApi,
+    chunkingApi,
+    embeddingApi,
+    repository
+  );
+}
+
+export const knowledgeAssetsRouter = new AstroRouter(knowledgeAssetsApiFactory);

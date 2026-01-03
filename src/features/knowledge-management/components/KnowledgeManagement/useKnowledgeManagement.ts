@@ -72,8 +72,8 @@ export function useKnowledgeManagement() {
         if (data) {
           try {
             const { status, step, message } = JSON.parse(data);
-            const isSuccess = status === "success";
-            const isError = status === "error";
+            const isSuccess = status === "SUCCESS";
+            const isError = status === "ERROR";
 
             updateStepState(step, isSuccess, isError);
             if (isError) {
@@ -133,8 +133,8 @@ export function useKnowledgeManagement() {
     formData.append("chunkingStrategy", "sentence");
     formData.append("embeddingStrategy", "sentence");
 
-    // await handleFromFetching(id, formData);
-    await handleFromApi();
+     await handleFromFetching(id, formData);
+    // await handleFromApi();
   };
 
   useEffect(() => {

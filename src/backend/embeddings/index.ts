@@ -6,23 +6,17 @@
  * - Recover embeddings
  */
 import type { EmbeddingAPI } from "./@core-contracts/api";
-import { LevelVectorStore } from "./infrastructure/repositories/LocalLevelVectorDB";
-import { AIEmbeddingProvider } from "./infrastructure/providers/AIEmbeddingProvider";
+import type { EmbeddingsInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { EmbeddingUseCases } from "./application/UseCases";
 import { AstroRouter } from "./infrastructure/routes/AstroRouter";
+import { EmbeddingsInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-const vectorStore = new LevelVectorStore({
-  dbPath: "./db",
-  dimensions: 1024,
-  similarityThreshold: 0.7,
-});
+export function embeddingApiFactory(
+  policy: EmbeddingsInfrastructurePolicy
+): EmbeddingAPI {
+  const { provider, repository } = EmbeddingsInfrastructureResolver.resolve(policy);
+  return new EmbeddingUseCases(provider, repository);
+}
 
-const embeddingProvider = new AIEmbeddingProvider();
-
-export const embeddingAPI: EmbeddingAPI = new EmbeddingUseCases(
-  embeddingProvider,
-  vectorStore
-);
-
-export const astroRouter = new AstroRouter(embeddingAPI);
+export const astroRouter = new AstroRouter(embeddingApiFactory);
 

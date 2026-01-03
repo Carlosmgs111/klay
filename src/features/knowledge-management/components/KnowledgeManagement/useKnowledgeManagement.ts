@@ -40,34 +40,7 @@ export function useKnowledgeManagement() {
     });
   };
 
-  const handleProcess = async () => {
-    const files = fileStore.get();
-    const stagedFile = files.stagedIndexes[0];
-    const file = files.files[stagedFile] as File;
-
-    if (!file) {
-      alert("Por favor selecciona un archivo primero");
-      return;
-    }
-
-    setProcessing(true);
-    setHasError(false);
-
-    // Reset all steps and show only first step in loading state
-    setSteps(prev => prev.map((step, index) => ({
-      ...step,
-      visible: index === 0,
-      success: false,
-      error: false
-    })));
-
-    const id = crypto.randomUUID();
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("id", id);
-    formData.append("chunkingStrategy", "sentence");
-    formData.append("embeddingStrategy", "sentence");
-
+  const handleFromFetching = async (id: string, formData: FormData) => {
     try {
       const response = await fetch("/api/knowledge/" + id, {
         method: "POST",
@@ -125,6 +98,43 @@ export function useKnowledgeManagement() {
       setProcessing(false);
       setHasError(true);
     }
+  }
+
+  const handleFromApi = async () => {
+    const knowledgeAssetsApi = await import("@/backend/knowledge-assets");
+    console.log(knowledgeAssetsApi);
+  }
+
+  const handleProcess = async () => {
+    const files = fileStore.get();
+    const stagedFile = files.stagedIndexes[0];
+    const file = files.files[stagedFile] as File;
+
+    if (!file) {
+      alert("Por favor selecciona un archivo primero");
+      return;
+    }
+
+    setProcessing(true);
+    setHasError(false);
+
+    // Reset all steps and show only first step in loading state
+    setSteps(prev => prev.map((step, index) => ({
+      ...step,
+      visible: index === 0,
+      success: false,
+      error: false
+    })));
+
+    const id = crypto.randomUUID();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("id", id);
+    formData.append("chunkingStrategy", "sentence");
+    formData.append("embeddingStrategy", "sentence");
+
+    // await handleFromFetching(id, formData);
+    await handleFromApi();
   };
 
   useEffect(() => {

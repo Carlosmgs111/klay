@@ -2,7 +2,7 @@ import type { GenerateNewKnowledgeDTO } from "./dtos";
 import type { KnowledgeAssetDTO } from "./dtos";
 
 export interface FlowState {
-  status: "success" | "error";
+  status: "SUCCESS" | "ERROR";
   step:
     | "file-upload"
     | "text-extraction"

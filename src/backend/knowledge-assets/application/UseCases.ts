@@ -32,7 +32,7 @@ export class UseCases {
     try {
       const { status, message } = await this.filesApi.uploadFile(sourceFile);
       console.log(status, message);
-      if (status === "error") {
+      if (status === "ERROR") {
         throw new Error(message);
       }
 
@@ -72,24 +72,24 @@ export class UseCases {
     const { source, chunkingStrategy, embeddingStrategy } = command;
     const sourceFile = source as FileUploadDTO;
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "success", step: "file-upload", message: "File uploaded successfully" };
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "success", step: "text-extraction", message: "Text extracted successfully" };
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "error", step: "chunking", message: "Chunks generated successfully" };
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "success", step: "embedding", message: "Embeddings generated successfully" };
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    yield { status: "success", step: "knowledge-asset", message: "Knowledge asset generated successfully" };
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // yield { status: "success", step: "file-upload", message: "File uploaded successfully" };
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // yield { status: "success", step: "text-extraction", message: "Text extracted successfully" };
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // yield { status: "error", step: "chunking", message: "Chunks generated successfully" };
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // yield { status: "success", step: "embedding", message: "Embeddings generated successfully" };
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+    // yield { status: "success", step: "knowledge-asset", message: "Knowledge asset generated successfully" };
 
-    return;
+    // return;
 
     try {
       const { status, message } = await this.filesApi.uploadFile(sourceFile);
       console.log(status, message);
-      if (status === "success") {
-        yield { status: "success", step: "file-upload", message :"File uploaded successfully"};
+      if (status === "ERROR") {
+        yield { status: "ERROR", step: "file-upload", message :"File uploaded successfully"};
       }
 
       const text = await this.textExtractorApi.extractTextFromPDF({
@@ -97,13 +97,13 @@ export class UseCases {
         source: sourceFile,
       });
       if (text.status === "success") {
-        yield { status: "success", step: "text-extraction", message: "Text extracted successfully" };
+        yield { status: "SUCCESS", step: "text-extraction", message: "Text extracted successfully" };
       }
       const chunks = await this.chunkingApi.chunkOne(text.text as string, {
         strategy: chunkingStrategy,
       });
       if(chunks.status === "success") {
-        yield { status: "success", step: "chunking", message: "Chunks generated successfully" };
+        yield { status: "SUCCESS", step: "chunking", message: "Chunks generated successfully" };
       }
       const chunkBatch = chunks.chunks as Chunk[];
       const chunksContent = chunkBatch.map((chunk) => chunk.content);
@@ -111,7 +111,7 @@ export class UseCases {
         chunksContent
       );
       if(embeddings.status === "success") {
-        yield { status: "success", step: "embedding", message: "Embeddings generated successfully" };
+        yield { status: "SUCCESS", step: "embedding", message: "Embeddings generated successfully" };
       }
       const embeddingsDocuments = embeddings.documents as VectorDocument[];
       const knowledgeAsset: KnowledgeAssetDTO = {
@@ -122,10 +122,11 @@ export class UseCases {
         embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
       };
       // await this.knowledgeAssetsRepository.saveKnowledgeAsset(knowledgeAsset);
-      yield { status: "success", step: "knowledge-asset", message: "Knowledge asset generated successfully" };
+      yield { status: "SUCCESS", step: "knowledge-asset", message: "Knowledge asset generated successfully" };
       // return knowledgeAsset;
     } catch (error) {
-      throw error;
+      console.log(error);
+      yield { status: "ERROR", step: "knowledge-asset", message: "Knowledge asset generation failed" };
     }
   }
   async retrieveKnowledge(command: string): Promise<void> {}

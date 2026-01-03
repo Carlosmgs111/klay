@@ -3,6 +3,7 @@ import type { Repository } from "../@core-contracts/repositories";
 import type { FileUploadDTO } from "../@core-contracts/dtos";
 import type { File } from "../@core-contracts/entities";
 import type { FileUploadResultDTO } from "../@core-contracts/dtos";
+import type { ApplicationResult } from "@/modules/shared/@core-contracts/result";
 
 export class FilesUseCases {
   storage: Storage;
@@ -26,10 +27,15 @@ export class FilesUseCases {
     return files;
   };
 
-  uploadFile = async (file: FileUploadDTO): Promise<FileUploadResultDTO> => {
+  uploadFile = async (
+    file: FileUploadDTO
+  ): Promise<ApplicationResult<FileUploadDTO>> => {
     const fileUrl = await this.storage.uploadFile(file.buffer, file.name);
     if (!fileUrl) {
-      return { status: "error", message: "File not uploaded" };
+      return {
+        status: "ERROR",
+        error: { code: 500, message: "File not uploaded" },
+      };
     }
     const fileEntity: File = {
       id: file.id,
@@ -40,7 +46,7 @@ export class FilesUseCases {
       url: fileUrl,
     };
     await this.repository.saveFile(fileEntity);
-    return { ...fileEntity, status: "success" };
+    return { data: { ...fileEntity, buffer: file.buffer }, status: "SUCCESS" };
   };
 
   deleteFile = async (fileId: string) => {

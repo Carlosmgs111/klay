@@ -1,10 +1,10 @@
-import type { FilesInfrastructurePolicy } from "../../../files/@core-contracts/infrastructurePolicies";
-import type { TextExtractionInfrastructurePolicy } from "../../../text-extraction/@core-contracts/infrastructurePolicies";
-import type { ChunkingInfrastructurePolicy } from "../../../chunking/@core-contracts/infrastructurePolicies";
-import type { EmbeddingsInfrastructurePolicy } from "../../../embeddings/@core-contracts/infrastructurePolicies";
+import type { FilesInfrastructurePolicy } from "@/modules/files/@core-contracts/infrastructurePolicies";
+import type { TextExtractionInfrastructurePolicy } from "@/modules/text-extraction/@core-contracts/infrastructurePolicies";
+import type { ChunkingInfrastructurePolicy } from "@/modules/chunking/@core-contracts/infrastructurePolicies";
+import type { EmbeddingsInfrastructurePolicy } from "@/modules/embeddings/@core-contracts/infrastructurePolicies";
 
 export type KnowledgeAssetsInfrastructurePolicy = {
-  repository: "local-level" | "remote-db";
+  repository: "local-level" | "remote-db" | "browser";
   filesPolicy: FilesInfrastructurePolicy;
   textExtractionPolicy: TextExtractionInfrastructurePolicy;
   chunkingPolicy: ChunkingInfrastructurePolicy;

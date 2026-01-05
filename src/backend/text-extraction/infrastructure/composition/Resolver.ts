@@ -3,6 +3,7 @@ import type { Repository } from "../../@core-contracts/repositories";
 import type { TextExtractionInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 import { PDFTextExtractor } from "../extraction/PDFTextExtractor";
 import { LocalLevelRepository } from "../repository/LocalLevelRepository";
+import { BrowserRepository } from "../repository/BrowserRepository";
 
 export class TextExtractionInfrastructureResolver {
   static resolve(policy: TextExtractionInfrastructurePolicy): {
@@ -35,6 +36,7 @@ export class TextExtractionInfrastructureResolver {
     const repositories = {
       "local-level": LocalLevelRepository,
       "remote-db": LocalLevelRepository, // TODO: Create RemoteDbRepository
+      "browser": BrowserRepository,
     };
     if (!repositories[type]) {
       throw new Error(`Unsupported repository: ${type}`);

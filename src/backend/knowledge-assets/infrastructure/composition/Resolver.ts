@@ -9,6 +9,7 @@ import { textExtractorApiFactory } from "../../../text-extraction";
 import { chunkingApiFactory } from "../../../chunking";
 import { embeddingApiFactory } from "../../../embeddings";
 import { LocalLevelRepository } from "../repositories/LocalLevelRepository";
+import { BrowserRepository } from "../repositories/BrowserRepository";
 
 export class KnowledgeAssetsInfrastructureResolver {
   static resolve(policy: KnowledgeAssetsInfrastructurePolicy): {
@@ -34,7 +35,8 @@ export class KnowledgeAssetsInfrastructureResolver {
   ): KnowledgeAssetsRepository {
     const repositories = {
       "local-level": LocalLevelRepository,
-      "remote-db": LocalLevelRepository,
+      "remote-db": LocalLevelRepository, // TODO: Create RemoteRepository
+      "browser": BrowserRepository,
     };
     if (!repositories[type]) {
       throw new Error(`Unsupported repository: ${type}`);

@@ -4,6 +4,7 @@ import type { EmbeddingsInfrastructurePolicy } from "../../@core-contracts/infra
 import { AIEmbeddingProvider } from "../providers/AIEmbeddingProvider";
 import { HuggingFaceEmbeddingProvider } from "../providers/HuggingFaceEmbeddingProvider";
 import { LevelVectorStore } from "../repositories/LocalLevelVectorDB";
+import { BrowserVectorDB } from "../repositories/BrowserVectorDB";
 
 export class EmbeddingsInfrastructureResolver {
   static resolve(policy: EmbeddingsInfrastructurePolicy): {
@@ -34,16 +35,25 @@ export class EmbeddingsInfrastructureResolver {
     type: EmbeddingsInfrastructurePolicy["repository"]
   ): VectorRepository {
     const repositories = {
-      "local-level": LevelVectorStore,
-      "remote-db": LevelVectorStore, // TODO: Create RemoteVectorDB
+      "local-level": () => new LevelVectorStore({
+        dimensions: 1024,
+        similarityThreshold: 0.7,
+        dbPath: "./embeddings.db",
+      }),
+      "remote-db": () => new LevelVectorStore({ // TODO: Create RemoteVectorDB
+        dimensions: 1024,
+        similarityThreshold: 0.7,
+        dbPath: "./embeddings.db",
+      }),
+      "browser": () => new BrowserVectorDB({
+        dimensions: 1024,
+        similarityThreshold: 0.7,
+        dbName: "embeddings-db",
+      }),
     };
     if (!repositories[type]) {
       throw new Error(`Unsupported repository: ${type}`);
     }
-    return new repositories[type]({
-      dimensions: 1024,
-      similarityThreshold: 0.7,
-      dbPath: "./embeddings.db",
-    });
+    return repositories[type]();
   }
 }

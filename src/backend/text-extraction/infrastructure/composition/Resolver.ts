@@ -1,46 +1,60 @@
 import type { TextExtractor } from "../../@core-contracts/services";
 import type { Repository } from "../../@core-contracts/repositories";
 import type { TextExtractionInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
-import { PDFTextExtractor } from "../extraction/PDFTextExtractor";
-import { LocalLevelRepository } from "../repository/LocalLevelRepository";
-import { BrowserRepository } from "../repository/BrowserRepository";
 
 export class TextExtractionInfrastructureResolver {
-  static resolve(policy: TextExtractionInfrastructurePolicy): {
+  static async resolve(policy: TextExtractionInfrastructurePolicy): Promise<{
     extractor: TextExtractor;
     repository: Repository;
-  } {
+  }> {
     return {
-      extractor: TextExtractionInfrastructureResolver.resolveExtractor(policy.extractor),
-      repository: TextExtractionInfrastructureResolver.resolveRepository(policy.repository),
+      extractor: await TextExtractionInfrastructureResolver.resolveExtractor(policy.extractor),
+      repository: await TextExtractionInfrastructureResolver.resolveRepository(policy.repository),
     };
   }
 
-  private static resolveExtractor(
+  private static async resolveExtractor(
     type: TextExtractionInfrastructurePolicy["extractor"]
-  ): TextExtractor {
-    const extractors = {
-      "pdf": new PDFTextExtractor(),
-      "docx": new PDFTextExtractor(), // TODO: Create DocxTextExtractor
-      "txt": new PDFTextExtractor(),  // TODO: Create TxtTextExtractor
-    };
-    if (!extractors[type]) {
-      throw new Error(`Unsupported extractor: ${type}`);
+  ): Promise<TextExtractor> {
+    switch (type) {
+      case "pdf": {
+        const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
+        return new PDFTextExtractor();
+      }
+      case "docx": {
+        // TODO: Create DocxTextExtractor
+        const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
+        return new PDFTextExtractor();
+      }
+      case "txt": {
+        // TODO: Create TxtTextExtractor
+        const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
+        return new PDFTextExtractor();
+      }
+      default:
+        throw new Error(`Unsupported extractor: ${type}`);
     }
-    return extractors[type];
   }
 
-  private static resolveRepository(
+  private static async resolveRepository(
     type: TextExtractionInfrastructurePolicy["repository"]
-  ): Repository {
-    const repositories = {
-      "local-level": LocalLevelRepository,
-      "remote-db": LocalLevelRepository, // TODO: Create RemoteDbRepository
-      "browser": BrowserRepository,
-    };
-    if (!repositories[type]) {
-      throw new Error(`Unsupported repository: ${type}`);
+  ): Promise<Repository> {
+    switch (type) {
+      case "local-level": {
+        const { LocalLevelRepository } = await import("../repository/LocalLevelRepository");
+        return new LocalLevelRepository();
+      }
+      case "remote-db": {
+        // TODO: Create RemoteDbRepository
+        const { LocalLevelRepository } = await import("../repository/LocalLevelRepository");
+        return new LocalLevelRepository();
+      }
+      case "browser": {
+        const { BrowserRepository } = await import("../repository/BrowserRepository");
+        return new BrowserRepository();
+      }
+      default:
+        throw new Error(`Unsupported repository: ${type}`);
     }
-    return new repositories[type]();
   }
 }

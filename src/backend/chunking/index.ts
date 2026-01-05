@@ -9,10 +9,10 @@ import type { ChunkingInfrastructurePolicy } from "./@core-contracts/infrastruct
 import { embeddingApiFactory } from "../embeddings";
 import { ChunkerFactory } from "./domain/ChunkerFactory";
 import { UseCases } from "./application/UseCases";
-import { AstroRouter } from "./infrastructure/AstroRouter";
+// import { AstroRouter } from "./infrastructure/AstroRouter";
 // import { ChunkingInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-export const embeddingAPI = embeddingApiFactory({
+export const embeddingAPI = await embeddingApiFactory({
   provider: "openai",
   repository: "local-level",
 });
@@ -25,4 +25,4 @@ export function chunkingApiFactory(
   return new UseCases(chunkerFactory);
 }
 
-export const chunkingRouter = new AstroRouter(chunkingApiFactory);
+// export const chunkingRouter = new AstroRouter(chunkingApiFactory);

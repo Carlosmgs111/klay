@@ -4,24 +4,26 @@ import type { FileUploadDTO } from "../../@core-contracts/dtos";
 import type { FilesInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
-  private fileManagerUseCases: FilesApi;
+  private fileManagerUseCasesPromise: Promise<FilesApi>;
   constructor(
-    filesApiFactory: (policy: FilesInfrastructurePolicy) => FilesApi
+    filesApiFactory: (policy: FilesInfrastructurePolicy) => Promise<FilesApi>
   ) {
-    this.fileManagerUseCases = filesApiFactory({
+    this.fileManagerUseCasesPromise = filesApiFactory({
       storage: "local-fs",
       repository: "csv",
     });
   }
 
   getAllFiles = async ({}: APIContext) => {
-    const files = await this.fileManagerUseCases.getFiles();
+    const fileManagerUseCases = await this.fileManagerUseCasesPromise;
+    const files = await fileManagerUseCases.getFiles();
     return new Response(JSON.stringify(files), { status: 200 });
   };
 
   getFileById = async ({ params }: APIContext) => {
     const { id } = params;
-    const file = await this.fileManagerUseCases.getFileById(id as string);
+    const fileManagerUseCases = await this.fileManagerUseCasesPromise;
+    const file = await fileManagerUseCases.getFileById(id as string);
     return new Response(JSON.stringify(file), { status: 200 });
   };
 
@@ -45,7 +47,8 @@ export class AstroRouter {
       lastModified: file.lastModified,
       url: "",
     };
-    const fileUrl = await this.fileManagerUseCases.uploadFile(fileParams);
+    const fileManagerUseCases = await this.fileManagerUseCasesPromise;
+    const fileUrl = await fileManagerUseCases.uploadFile(fileParams);
     return new Response(fileUrl.url, { status: 200 });
   };
 
@@ -55,7 +58,8 @@ export class AstroRouter {
     if (!id) {
       return new Response("No file id provided", { status: 400 });
     }
-    await this.fileManagerUseCases.deleteFile(id);
+    const fileManagerUseCases = await this.fileManagerUseCasesPromise;
+    await fileManagerUseCases.deleteFile(id);
     return new Response("File deleted", { status: 200 });
   };
 }

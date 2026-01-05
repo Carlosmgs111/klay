@@ -101,8 +101,37 @@ export function useKnowledgeManagement() {
   }
 
   const handleFromApi = async () => {
-    const knowledgeAssetsApi = await import("@/backend/knowledge-assets");
-    console.log(knowledgeAssetsApi);
+    const { knowledgeAssetsApiFactory } = await import("@/modules/knowledge-assets");
+    try {
+      const knowledgeAssetsApi = await knowledgeAssetsApiFactory({
+      repository: "browser",
+      filesPolicy: {
+        storage: "browser",
+        repository: "browser",
+      },
+      textExtractionPolicy: {
+        extractor: "pdf",
+        repository: "browser",
+      },
+      chunkingPolicy: {
+        strategy: "fixed",
+      },
+      embeddingsPolicy: {
+        provider: "hugging-face",
+        repository: "browser",
+      },
+    });
+    } catch (error) {
+      console.error("Error processing:", error);
+      setSteps(prev => prev.map((step, index) => ({
+        ...step,
+        visible: index === 0,
+        success: false,
+        error: false
+      })));
+      setProcessing(false);
+      setHasError(true);
+    }
   }
 
   const handleProcess = async () => {
@@ -133,8 +162,8 @@ export function useKnowledgeManagement() {
     formData.append("chunkingStrategy", "sentence");
     formData.append("embeddingStrategy", "sentence");
 
-     await handleFromFetching(id, formData);
-    // await handleFromApi();
+    // await handleFromFetching(id, formData);
+    await handleFromApi();
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
 export type FilesInfrastructurePolicy = {
   storage: "local-fs" | "browser";
-  repository: "csv";
+  repository: "csv" | "browser";
 };

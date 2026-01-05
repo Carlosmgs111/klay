@@ -3,11 +3,11 @@ import type { TextExtractorApi } from "../../@core-contracts/api";
 import type { TextExtractionInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 
 export class AstroRouter {
-  private textExtractorApi: TextExtractorApi;
+  private textExtractorApiPromise: Promise<TextExtractorApi>;
   constructor(
-    textExtractorApiFactory: (policy: TextExtractionInfrastructurePolicy) => TextExtractorApi
+    textExtractorApiFactory: (policy: TextExtractionInfrastructurePolicy) => Promise<TextExtractorApi>
   ) {
-    this.textExtractorApi = textExtractorApiFactory({
+    this.textExtractorApiPromise = textExtractorApiFactory({
       extractor: "pdf",
       repository: "local-level",
     });
@@ -18,11 +18,13 @@ export class AstroRouter {
     if (!id) {
       return new Response("No file id provided", { status: 400 });
     }
-    const deleted = await this.textExtractorApi.removeText(id as string);
+    const textExtractorApi = await this.textExtractorApiPromise;
+    const deleted = await textExtractorApi.removeText(id as string);
     return new Response(JSON.stringify(deleted), { status: 200 });
   };
   getIndexes = async ({ request }: APIContext) => {
-    const indexes = await this.textExtractorApi.getAllIndexes();
+    const textExtractorApi = await this.textExtractorApiPromise;
+    const indexes = await textExtractorApi.getAllIndexes();
     return new Response(JSON.stringify(indexes), { status: 200 });
   };
 }

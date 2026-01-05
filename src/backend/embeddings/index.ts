@@ -8,15 +8,15 @@
 import type { EmbeddingAPI } from "./@core-contracts/api";
 import type { EmbeddingsInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { EmbeddingUseCases } from "./application/UseCases";
-import { AstroRouter } from "./infrastructure/routes/AstroRouter";
+// import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 import { EmbeddingsInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-export function embeddingApiFactory(
+export async function embeddingApiFactory(
   policy: EmbeddingsInfrastructurePolicy
-): EmbeddingAPI {
-  const { provider, repository } = EmbeddingsInfrastructureResolver.resolve(policy);
+): Promise<EmbeddingAPI> {
+  const { provider, repository } = await EmbeddingsInfrastructureResolver.resolve(policy);
   return new EmbeddingUseCases(provider, repository);
 }
 
-export const astroRouter = new AstroRouter(embeddingApiFactory);
+// export const astroRouter = new AstroRouter(embeddingApiFactory);
 

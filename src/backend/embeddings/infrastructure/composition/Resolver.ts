@@ -1,59 +1,71 @@
 import type { EmbeddingProvider } from "../../@core-contracts/providers";
 import type { VectorRepository } from "../../@core-contracts/repositories";
 import type { EmbeddingsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
-import { AIEmbeddingProvider } from "../providers/AIEmbeddingProvider";
-import { HuggingFaceEmbeddingProvider } from "../providers/HuggingFaceEmbeddingProvider";
-import { LevelVectorStore } from "../repositories/LocalLevelVectorDB";
-import { BrowserVectorDB } from "../repositories/BrowserVectorDB";
 
 export class EmbeddingsInfrastructureResolver {
-  static resolve(policy: EmbeddingsInfrastructurePolicy): {
+  static async resolve(policy: EmbeddingsInfrastructurePolicy): Promise<{
     provider: EmbeddingProvider;
     repository: VectorRepository;
-  } {
+  }> {
     return {
-      provider: EmbeddingsInfrastructureResolver.resolveProvider(policy.provider),
-      repository: EmbeddingsInfrastructureResolver.resolveRepository(policy.repository),
+      provider: await EmbeddingsInfrastructureResolver.resolveProvider(policy.provider),
+      repository: await EmbeddingsInfrastructureResolver.resolveRepository(policy.repository),
     };
   }
 
-  private static resolveProvider(
+  private static async resolveProvider(
     type: EmbeddingsInfrastructurePolicy["provider"]
-  ): EmbeddingProvider {
-    const providers = {
-      "cohere": new AIEmbeddingProvider(),
-      "hugging-face": new HuggingFaceEmbeddingProvider(),
-      "openai": new AIEmbeddingProvider(),       // TODO: Create OpenAIProvider
-    };
-    if (!providers[type]) {
-      throw new Error(`Unsupported provider: ${type}`);
+  ): Promise<EmbeddingProvider> {
+    switch (type) {
+      case "cohere": {
+        const { AIEmbeddingProvider } = await import("../providers/AIEmbeddingProvider");
+        return new AIEmbeddingProvider();
+      }
+      case "hugging-face": {
+        const { HuggingFaceEmbeddingProvider } = await import("../providers/HuggingFaceEmbeddingProvider");
+        return new HuggingFaceEmbeddingProvider();
+      }
+      case "openai": {
+        // TODO: Create OpenAIProvider
+        const { AIEmbeddingProvider } = await import("../providers/AIEmbeddingProvider");
+        return new AIEmbeddingProvider();
+      }
+      default:
+        throw new Error(`Unsupported provider: ${type}`);
     }
-    return providers[type];
   }
 
-  private static resolveRepository(
+  private static async resolveRepository(
     type: EmbeddingsInfrastructurePolicy["repository"]
-  ): VectorRepository {
-    const repositories = {
-      "local-level": () => new LevelVectorStore({
-        dimensions: 1024,
-        similarityThreshold: 0.7,
-        dbPath: "./embeddings.db",
-      }),
-      "remote-db": () => new LevelVectorStore({ // TODO: Create RemoteVectorDB
-        dimensions: 1024,
-        similarityThreshold: 0.7,
-        dbPath: "./embeddings.db",
-      }),
-      "browser": () => new BrowserVectorDB({
-        dimensions: 1024,
-        similarityThreshold: 0.7,
-        dbName: "embeddings-db",
-      }),
-    };
-    if (!repositories[type]) {
-      throw new Error(`Unsupported repository: ${type}`);
+  ): Promise<VectorRepository> {
+    switch (type) {
+      case "local-level": {
+        const { LevelVectorStore } = await import("../repositories/LocalLevelVectorDB");
+        return new LevelVectorStore({
+          dimensions: 1024,
+          similarityThreshold: 0.7,
+          dbPath: "./embeddings.db",
+        });
+      }
+      case "remote-db": {
+        // TODO: Create RemoteVectorDB
+        const { LevelVectorStore } = await import("../repositories/LocalLevelVectorDB");
+        return new LevelVectorStore({
+          dimensions: 1024,
+          similarityThreshold: 0.7,
+          dbPath: "./embeddings.db",
+        });
+      }
+      case "browser": {
+        const { BrowserVectorDB } = await import("../repositories/BrowserVectorDB");
+        return new BrowserVectorDB({
+          dimensions: 1024,
+          similarityThreshold: 0.7,
+          dbName: "embeddings-db",
+        });
+      }
+      default:
+        throw new Error(`Unsupported repository: ${type}`);
     }
-    return repositories[type]();
   }
 }

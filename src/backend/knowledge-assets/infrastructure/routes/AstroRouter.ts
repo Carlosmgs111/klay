@@ -5,9 +5,9 @@ import type { GenerateNewKnowledgeDTO } from "../../@core-contracts/dtos";
 import type { ChunkingStrategyType } from "@/modules/chunking/@core-contracts/entities";
 
 export class AstroRouter {
-  private knowledgeAssetsApi: KnowledgeAssetsAPI;
+  private knowledgeAssetsApi: Promise<KnowledgeAssetsAPI>;
   constructor(
-    knowledgeAssetsApiFactory: (policy: KnowledgeAssetsInfrastructurePolicy) => KnowledgeAssetsAPI
+    knowledgeAssetsApiFactory: (policy: KnowledgeAssetsInfrastructurePolicy) => Promise<KnowledgeAssetsAPI>
   ) {
     this.knowledgeAssetsApi = knowledgeAssetsApiFactory({
       repository: "local-level",
@@ -57,7 +57,7 @@ export class AstroRouter {
           embeddingStrategy,
         };
         const knowledgeAsset =
-          await this.knowledgeAssetsApi.generateNewKnowledge(command);
+          (await this.knowledgeAssetsApi).generateNewKnowledge(command);
         console.log({ knowledgeAsset });
         return new Response(JSON.stringify(knowledgeAsset), { status: 200 });
       } catch (error) {}
@@ -98,7 +98,7 @@ export class AstroRouter {
           async start(controller) {
             try {
               const encoder = new TextEncoder();
-              for await (const chunk of knowledgeAssetsApi.generateNewKnowledgeStreamingState(
+              for await (const chunk of (await knowledgeAssetsApi).generateNewKnowledgeStreamingState(
                 command
               )) {
                 if (chunk instanceof Object) {

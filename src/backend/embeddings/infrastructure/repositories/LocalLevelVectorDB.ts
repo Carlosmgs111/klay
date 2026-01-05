@@ -4,18 +4,16 @@
 
 import type { VectorRepository } from "../../@core-contracts/repositories";
 import { getEmbeddingsDB } from "../../../shared/config/repositories";
-
-import { Level } from "level";
 import type { VectorDocument } from "../../@core-contracts/entities";
 import type { SearchResult, VectorDBConfig } from "../../@core-contracts/dtos";
 
 export class LevelVectorStore implements VectorRepository {
-  private db: Level<string, string>;
+  private db: any;
   private dimensions: number;
   private similarityThreshold: number;
+  private dbInitialized: boolean = false;
 
   constructor(config: VectorDBConfig) {
-    this.db = getEmbeddingsDB();
     this.dimensions = config.dimensions;
     this.similarityThreshold = config.similarityThreshold || 0.7;
     import("ai")
@@ -28,7 +26,11 @@ export class LevelVectorStore implements VectorRepository {
   }
 
   async initialize(): Promise<void> {
-    await this.db.open();
+    if (!this.dbInitialized) {
+      this.db = await getEmbeddingsDB();
+      this.dbInitialized = true;
+      await this.db.open();
+    }
   }
 
   async addDocument(

@@ -4,43 +4,71 @@ import type { FilesApi } from "../../../files/@core-contracts/api";
 import type { TextExtractorApi } from "../../../text-extraction/@core-contracts/api";
 import type { ChunkingApi } from "../../../chunking/@core-contracts/api";
 import type { EmbeddingAPI } from "../../../embeddings/@core-contracts/api";
-import { filesApiFactory } from "../../../files";
-import { textExtractorApiFactory } from "../../../text-extraction";
-import { chunkingApiFactory } from "../../../chunking";
-import { embeddingApiFactory } from "../../../embeddings";
-import { LocalLevelRepository } from "../repositories/LocalLevelRepository";
-import { BrowserRepository } from "../repositories/BrowserRepository";
 
 export class KnowledgeAssetsInfrastructureResolver {
-  static resolve(policy: KnowledgeAssetsInfrastructurePolicy): {
+  static async resolve(policy: KnowledgeAssetsInfrastructurePolicy): Promise<{
     repository: KnowledgeAssetsRepository;
     filesApi: FilesApi;
     textExtractorApi: TextExtractorApi;
     chunkingApi: ChunkingApi;
     embeddingApi: EmbeddingAPI;
-  } {
+  }> {
+    const [repository, filesApi, textExtractorApi, chunkingApi, embeddingApi] = await Promise.all([
+      KnowledgeAssetsInfrastructureResolver.resolveRepository(policy.repository),
+      KnowledgeAssetsInfrastructureResolver.resolveFilesApi(policy.filesPolicy),
+      KnowledgeAssetsInfrastructureResolver.resolveTextExtractorApi(policy.textExtractionPolicy),
+      KnowledgeAssetsInfrastructureResolver.resolveChunkingApi(policy.chunkingPolicy),
+      KnowledgeAssetsInfrastructureResolver.resolveEmbeddingApi(policy.embeddingsPolicy),
+    ]);
+
     return {
-      repository: KnowledgeAssetsInfrastructureResolver.resolveRepository(
-        policy.repository
-      ),
-      filesApi: filesApiFactory(policy.filesPolicy),
-      textExtractorApi: textExtractorApiFactory(policy.textExtractionPolicy),
-      chunkingApi: chunkingApiFactory(policy.chunkingPolicy),
-      embeddingApi: embeddingApiFactory(policy.embeddingsPolicy),
+      repository,
+      filesApi,
+      textExtractorApi,
+      chunkingApi,
+      embeddingApi,
     };
   }
 
-  private static resolveRepository(
+  private static async resolveRepository(
     type: KnowledgeAssetsInfrastructurePolicy["repository"]
-  ): KnowledgeAssetsRepository {
-    const repositories = {
-      "local-level": LocalLevelRepository,
-      "remote-db": LocalLevelRepository, // TODO: Create RemoteRepository
-      "browser": BrowserRepository,
-    };
-    if (!repositories[type]) {
-      throw new Error(`Unsupported repository: ${type}`);
+  ): Promise<KnowledgeAssetsRepository> {
+    switch (type) {
+      case "local-level": {
+        const { LocalLevelRepository } = await import("../repositories/LocalLevelRepository");
+        return new LocalLevelRepository();
+      }
+      case "remote-db": {
+        // TODO: Create RemoteRepository
+        const { LocalLevelRepository } = await import("../repositories/LocalLevelRepository");
+        return new LocalLevelRepository();
+      }
+      case "browser": {
+        const { BrowserRepository } = await import("../repositories/BrowserRepository");
+        return new BrowserRepository();
+      }
+      default:
+        throw new Error(`Unsupported repository: ${type}`);
     }
-    return new repositories[type]();
+  }
+
+  private static async resolveFilesApi(policy: any): Promise<FilesApi> {
+    const { filesApiFactory } = await import("../../../files");
+    return await filesApiFactory(policy);
+  }
+
+  private static async resolveTextExtractorApi(policy: any): Promise<TextExtractorApi> {
+    const { textExtractorApiFactory } = await import("../../../text-extraction");
+    return await textExtractorApiFactory(policy);
+  }
+
+  private static async resolveChunkingApi(policy: any): Promise<ChunkingApi> {
+    const { chunkingApiFactory } = await import("../../../chunking");
+    return await chunkingApiFactory(policy);
+  }
+
+  private static async resolveEmbeddingApi(policy: any): Promise<EmbeddingAPI> {
+    const { embeddingApiFactory } = await import("../../../embeddings");
+    return await embeddingApiFactory(policy);
   }
 }

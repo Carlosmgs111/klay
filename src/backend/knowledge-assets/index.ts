@@ -9,18 +9,18 @@ import type { KnowledgeAssetsAPI } from "./@core-contracts/api";
 import type { KnowledgeAssetsInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
 import { UseCases } from "./application/UseCases";
 import { KnowledgeAssetsInfrastructureResolver } from "./infrastructure/composition/Resolver";
-import { AstroRouter } from "./infrastructure/routes/AstroRouter";
+// import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 
-export function knowledgeAssetsApiFactory(
+export async function knowledgeAssetsApiFactory(
   policy: KnowledgeAssetsInfrastructurePolicy
-): KnowledgeAssetsAPI {
+): Promise<KnowledgeAssetsAPI> {
   const { 
     repository, 
     filesApi, 
     textExtractorApi, 
     chunkingApi, 
     embeddingApi 
-  } = KnowledgeAssetsInfrastructureResolver.resolve(policy);
+  } = await KnowledgeAssetsInfrastructureResolver.resolve(policy);
 
   return new UseCases(
     filesApi,
@@ -31,4 +31,4 @@ export function knowledgeAssetsApiFactory(
   );
 }
 
-export const knowledgeAssetsRouter = new AstroRouter(knowledgeAssetsApiFactory);
+// export const knowledgeAssetsRouter = new AstroRouter(knowledgeAssetsApiFactory);

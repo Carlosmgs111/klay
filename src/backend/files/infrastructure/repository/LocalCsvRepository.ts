@@ -1,5 +1,5 @@
 import type { Repository } from "../../@core-contracts/repositories";
-import type { FileDTO } from "../../@core-contracts/dtos";
+import type { File } from "../../@core-contracts/entities";
 import fs from "fs";
 
 export class LocalCsvRepository implements Repository {
@@ -9,7 +9,7 @@ export class LocalCsvRepository implements Repository {
       fs.mkdirSync(this.repositoryPath);
     }
   }
-  saveFile = async (file: FileDTO) => {
+  saveFile = async (file: File) => {
     const { size } = fs.statSync(this.repositoryPath + "files.csv");
     fs.appendFileSync(
       this.repositoryPath + "files.csv",
@@ -25,12 +25,12 @@ export class LocalCsvRepository implements Repository {
         file.lastModified
     );
   };
-  getFileById = async (id: string): Promise<FileDTO | undefined> => {
+  getFileById = async (id: string): Promise<File | undefined> => {
     const files = await this.getFiles();
     return files.find((file) => file.id === id);
   };
   getFiles = async () => {
-    return new Promise<FileDTO[]>((resolve, reject) => {
+    return new Promise<File[]>((resolve, reject) => {
       fs.readFile(this.repositoryPath + "files.csv", "utf-8", (err, data) => {
         if (err) {
           console.error(err);
@@ -46,6 +46,7 @@ export class LocalCsvRepository implements Repository {
               type,
               size: Number(size),
               lastModified: Number(lastModified),
+              url: "",
             };
           })
         );

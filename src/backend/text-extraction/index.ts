@@ -6,15 +6,15 @@
  */
 import type { TextExtractorApi } from "./@core-contracts/api";
 import type { TextExtractionInfrastructurePolicy } from "./@core-contracts/infrastructurePolicies";
-import { AstroRouter } from "./infrastructure/routes/AstroRouter";
+// import { AstroRouter } from "./infrastructure/routes/AstroRouter";
 import { UseCases } from "./application/UseCases";
 import { TextExtractionInfrastructureResolver } from "./infrastructure/composition/Resolver";
 
-export function textExtractorApiFactory(
+export async function textExtractorApiFactory(
   policy: TextExtractionInfrastructurePolicy
-): TextExtractorApi {
-  const { extractor, repository } = TextExtractionInfrastructureResolver.resolve(policy);
+): Promise<TextExtractorApi> {
+  const { extractor, repository } = await TextExtractionInfrastructureResolver.resolve(policy);
   return new UseCases(extractor, repository);
 }
 
-export const textsRouter = new AstroRouter(textExtractorApiFactory);
+// export const textsRouter = new AstroRouter(textExtractorApiFactory);

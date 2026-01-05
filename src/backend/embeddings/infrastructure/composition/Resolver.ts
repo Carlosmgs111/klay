@@ -2,6 +2,7 @@ import type { EmbeddingProvider } from "../../@core-contracts/providers";
 import type { VectorRepository } from "../../@core-contracts/repositories";
 import type { EmbeddingsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 import { AIEmbeddingProvider } from "../providers/AIEmbeddingProvider";
+import { HuggingFaceEmbeddingProvider } from "../providers/HuggingFaceEmbeddingProvider";
 import { LevelVectorStore } from "../repositories/LocalLevelVectorDB";
 
 export class EmbeddingsInfrastructureResolver {
@@ -20,7 +21,7 @@ export class EmbeddingsInfrastructureResolver {
   ): EmbeddingProvider {
     const providers = {
       "cohere": new AIEmbeddingProvider(),
-      "hugging-face": new AIEmbeddingProvider(), // TODO: Create HuggingFaceProvider
+      "hugging-face": new HuggingFaceEmbeddingProvider(),
       "openai": new AIEmbeddingProvider(),       // TODO: Create OpenAIProvider
     };
     if (!providers[type]) {
@@ -40,7 +41,7 @@ export class EmbeddingsInfrastructureResolver {
       throw new Error(`Unsupported repository: ${type}`);
     }
     return new repositories[type]({
-      dimensions: 1536,
+      dimensions: 1024,
       similarityThreshold: 0.7,
       dbPath: "./embeddings.db",
     });

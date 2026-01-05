@@ -54,6 +54,7 @@ export class LevelVectorStore implements VectorRepository {
     const batch = this.db.batch();
 
     for (const doc of documents) {
+      console.log(doc.embedding.length, this.dimensions);
       if (doc.embedding.length !== this.dimensions) {
         throw new Error(`Document ${doc.id}: Embedding dimension mismatch`);
       }

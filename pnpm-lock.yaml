@@ -23,6 +23,9 @@ dependencies:
   '@codemirror/view':
     specifier: ^6.39.4
     version: 6.39.4
+  '@huggingface/inference':
+    specifier: ^4.13.5
+    version: 4.13.5
   '@tailwindcss/vite':
     specifier: ^4.1.17
     version: 4.1.17(vite@6.4.1)
@@ -1068,6 +1071,23 @@ packages:
     resolution: {integrity: sha512-EOqf31IATRE6zS1W1EoWmXZhGfLAoO9FIlwTtHduSrBdud4npYBxYAkv8dZ5hudDPwJeeSjn40kbCL4wAzr8dA==}
     dependencies:
       '@babel/runtime': 7.28.4
+    dev: false
+
+  /@huggingface/inference@4.13.5:
+    resolution: {integrity: sha512-jeRQVwoV2Xx5stHR4wyZPPvhOOm6Hi9B2hsHWWuFJBEoxlFJMbRAsQbTvQrusw2vNBfNHIqb2i9EpelNLOqhvg==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@huggingface/jinja': 0.5.3
+      '@huggingface/tasks': 0.19.74
+    dev: false
+
+  /@huggingface/jinja@0.5.3:
+    resolution: {integrity: sha512-asqfZ4GQS0hD876Uw4qiUb7Tr/V5Q+JZuo2L+BtdrD4U40QU58nIRq3ZSgAzJgT874VLjhGVacaYfrdpXtEvtA==}
+    engines: {node: '>=18'}
+    dev: false
+
+  /@huggingface/tasks@0.19.74:
+    resolution: {integrity: sha512-2H3v2kkMmvx6reRo18hXWg50NH+0151O8kCkvCiuDobC5RYCIoiLz9Z1PFYXIQAvQpUfZDeeZd87figo/q5gIQ==}
     dev: false
 
   /@img/colour@1.0.0:

@@ -23,7 +23,7 @@ export class AstroRouter {
         strategy: "fixed",
       },
       embeddingsPolicy: {
-        provider: "cohere",
+        provider: "hugging-face",
         repository: "local-level",
       },
     });
@@ -45,6 +45,7 @@ export class AstroRouter {
           type: file.type,
           size: file.size,
           lastModified: file.lastModified,
+          url: "",
         };
         const chunkingStrategy = formData.get(
           "chunkingStrategy"
@@ -82,6 +83,7 @@ export class AstroRouter {
           type: file.type,
           size: file.size,
           lastModified: file.lastModified,
+          url: "",
         };
         const chunkingStrategy = formData.get(
           "chunkingStrategy"

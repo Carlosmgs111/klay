@@ -4,77 +4,120 @@ import { sc } from "@/shared/utils/sc";
 
 const currentPath = Astro.url.pathname;
 
-const mainItems = [
+const knowledgeItems = [
   {
-    href: "/dashboard/generator",
-    label: "Generador",
-    classIcon: "bx bx-pencil-sparkles",
-    isActive: currentPath.includes("generator"),
-    title: "Generador de mindmap",
+    href: "/knowledge/generator",
+    label: "Generar nuevo conocimiento",
+    classIcon: "bx bxs-layers-down-right",
+    isActive: currentPath.includes("/knowledge/generator"),
+    title: "Generar nuevo conocimiento",
   },
   {
-    href: "/services/knowledge-management",
-    label: "Gestion de conocimiento",
-    classIcon: "bx bx-brain",
-    isActive: currentPath.includes("knowledge-management"),
-    title: "Gestion de conocimiento",
+    href: "/knowledge/assets",
+    label: "Assets",
+    classIcon: "bx bxs-intellect",
+    isActive: currentPath.includes("assets"),
+    title: "Gestion de assets",
   },
   {
-    href: "/dashboard/mindmaps",
-    label: "Mindmaps",
-    classIcon: "bx bx-intellect",
-    isActive: currentPath.includes("mindmaps"),
-    title: "Gestion de mindmaps",
-  },
-  {
-    href: "/dashboard/files",
+    href: "/knowledge/files",
     label: "Archivos",
-    classIcon: "bx bx-archive",
+    classIcon: "bx bxs-archive",
     isActive: currentPath.includes("files"),
     title: "Gestion de archivos",
   },
   {
-    href: "/dashboard/chat",
-    label: "Chat",
-    classIcon: "bx bx-user",
-    isActive: currentPath.includes("chat"),
-    title: "Chat",
+    href: "/knowledge/texts",
+    label: "Textos",
+    classIcon: "bx bxs-quote-right",
+    isActive: currentPath.includes("texts"),
+    title: "Gestion de textos",
+  },
+  {
+    href: "/knowledge/chunks",
+    label: "Porciones",
+    classIcon: "bx bxs-cake-slice",
+    isActive: currentPath.includes("chunks"),
+    title: "Gestion de porciones",
+  },
+  {
+    href: "/knowledge/embeddings",
+    label: "Embeddings",
+    classIcon: "bx bxs-vector-triangle",
+    isActive: currentPath.includes("embeddings"),
+    title: "Gestion de embeddings",
   },
 ];
 
-const microServicesItems: any[] = [
+const useCasesItems: any[] = [
   {
-    href: "/services/chunking",
-    label: "Chunking",
-    classIcon: "bx bx-cut",
-    isActive: currentPath.includes("chunking"),
-    title: "Gestion de servicios",
+    href: "/use-cases/chat",
+    label: "Chat con IA",
+    classIcon: "bx bxs-message-dots",
+    isActive: currentPath.includes("chat"),
+    title: "Chat con IA",
+  },
+  {
+    href: "/use-cases/generator",
+    label: "Generador de Mindmap",
+    classIcon: "bx bxs-pencil-sparkles",
+    isActive: currentPath.includes("/use-cases/generator"),
+    title: "Generador de mindmap",
+  },
+  {
+    href: "/use-cases/mindmaps",
+    label: "Mindmaps",
+    classIcon: "bx bxs-sitemap",
+    isActive: currentPath.includes("mindmaps"),
+    title: "Gestion de mindmaps",
+  },
+];
+const playgroundItems: any[] = [
+  {
+    href: "/playground/chunker",
+    label: "Chunker",
+    classIcon: "bx bxs-cut",
+    isActive: currentPath.includes("chunker"),
+    title: "Chunker",
   },
 ];
 ---
 
 <div
   class={sc(
-    "h-screen flex flex-col gap-6 bg-slate-800/70 p-4 text-gray-200",
-    "border-r border-gray-700 sticky top-0"
+    "h-screen flex flex-col gap-2 bg-slate-800/50 text-slate-200",
+    "border-r border-slate-700/70 sticky top-0 overflow-y-auto"
   )}
 >
-  <div class="flex items-center text-lg font-bold my-4">
+  <div
+    class="flex items-center text-lg font-bold p-4 sticky top-0 bg-slate-900 border-b border-slate-700/50"
+  >
     <a class="text-center" href="/">
-      <i class="bx bx-brain mr-4 p-3 bg-slate-700/80 rounded-lg"></i>
-      MindMap AI
+      <i class="bx bxs-layers-plus-alt mr-2 p-3 bg-slate-700/80 rounded-lg"></i>
+      Klay
     </a>
   </div>
 
-  <nav>
+  <nav class="p-4">
     <ul class={sc("flex flex-col gap-2")}>
-      {mainItems.map((item) => <SidebarItem {...item} />)}
       <li
         class="flex items-center gap-2 text-gray-400 border-b border-gray-700 py-2 uppercase px-4 font-semibold"
       >
-        <i class="bx bx-layers"></i>Services
+        <i class="bx bx-book-library"></i>Conocimiento
       </li>
-      {microServicesItems.map((item: any) => <SidebarItem {...item} />)}
+      {knowledgeItems.map((item) => <SidebarItem {...item} />)}
+      <li
+        class="flex items-center gap-2 text-gray-400 border-b border-gray-700 py-2 uppercase px-4 font-semibold"
+      >
+        <i class="bx bxs-sparkles-alt"></i>Casos de Uso
+      </li>
+      {useCasesItems.map((item: any) => <SidebarItem {...item} />)}
+      <li
+        class="flex items-center gap-2 text-gray-400 border-b border-gray-700 py-2 uppercase px-4 font-semibold"
+      >
+        <i class="bx bxs-beach-ball"></i>Playground
+      </li>
+      {playgroundItems.map((item: any) => <SidebarItem {...item} />)}
     </ul>
   </nav>
 </div>

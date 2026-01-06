@@ -3,18 +3,20 @@ import { sc } from "@/shared/utils/sc";
 const { title, help, class: className, id } = Astro.props;
 ---
 
-<div id={id} class={sc("relative pt-4 pb-4 border border-gray-600/50 p-6 rounded-xl", className)}>
-  <span
-    class="absolute bg-gray-800 -left-6 top-1/2 -translate-x-1/2 -translate-y-1/2 py-2"
-    >⦿</span
-  >
+<div
+  id={id}
+  class={sc(
+    "relative pt-4 pb-4 border border-gray-600/50 p-6 rounded-md",
+    className
+  )}
+>
   <div class="flex flex-col gap-2">
     <div
       class="flex items-center justify-between border-b border-gray-600/20 pb-2"
     >
       <span>{title}</span>
       <div class={sc("event-none group relative", !help && "hidden")}>
-        <i class="bx bx-info-circle "></i>
+        <i class="bx bx-info-circle"></i>
         <span
           class={sc(
             "pointer-events-none tooltip absolute group-hover:opacity-100 transition-opacity duration-150",

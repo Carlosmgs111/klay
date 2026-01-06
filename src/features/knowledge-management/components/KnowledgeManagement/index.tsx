@@ -8,21 +8,14 @@ export default function KnowledgeManagement() {
 
   return (
     <div className="flex flex-col gap-4 text-white">
-      <h1>Knowledge Management</h1>
-      <ul>
-        <li>Subir archivo</li>
-        <li>Extraer texto</li>
-        <li>Limpiar texto</li>
-        <li>Trocear texto</li>
-        <li>Generar embeddings</li>
-      </ul>
-      <div className="border border-gray-500 p-2 rounded-xl">
-        <LoadedFileSelector />
+        <div className="bg-slate-700/50 border border-slate-800/50 h-20 w-full rounded-md">
+          <LoadedFileSelector className="h-20 w-full px-8" />
+        </div>
         <div id="flow" className="flex flex-col gap-2 mt-2">
           {steps.map((step) => (
             <FlowStep
               key={step.id}
-              className="flow-step"
+              className="flow-step bg-slate-800/50 border border-slate-600/50"
               id={step.id}
               title={step.title}
             >
@@ -50,7 +43,6 @@ export default function KnowledgeManagement() {
           <i className={hasError ? "bx bx-error" : "bx bx-filter"}></i>
           {hasError ? "Error - Reintentar" : processing ? "Processing..." : "Process"}
         </button>
-      </div>
     </div>
   );
 }

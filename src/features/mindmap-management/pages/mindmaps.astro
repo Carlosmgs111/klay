@@ -9,9 +9,15 @@ const documentsIndexes: string[] = await fetch(
 ---
 
 <Layout title="Mindmaps | MindMapAI">
-  <DashBoardLayout contentClass="pt-8">
-    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-      <ul class="w-full flex flex-wrap table text-gray-200">
+  <DashBoardLayout contentClass="pt-8"
+    ><span
+      class={sc(
+        "block text-slate-200 font-semibold text-xl px-4 w-full mt-6 text-center",
+        documentsIndexes.length > 0 && "hidden"
+      )}>Aun no tienes ningun MindMap.</span
+    >
+    <div class={sc("bg-slate-800/50 p-6 rounded-lg border border-slate-700/50", documentsIndexes.length === 0 && "hidden")}>
+      <ul class="w-full flex flex-wrap table text-slate-200">
         {
           [
             <li class=" font-bold text-lg table-row ">
@@ -21,7 +27,7 @@ const documentsIndexes: string[] = await fetch(
               <span class="p-4 whitespace-nowrap table-cell">Acciones</span>
             </li>,
             ...documentsIndexes.map((document) => (
-              <li class="hover:bg-gray-700/50 transition-all table-row border rounded-lg">
+              <li class="hover:bg-slate-700/50 transition-all table-row border rounded-lg">
                 <DocumentIndex id={document} />
               </li>
             )),
@@ -29,21 +35,16 @@ const documentsIndexes: string[] = await fetch(
         }
       </ul>
     </div>
-    <a
-      href="/dashboard/generator"
-      class="block text-gray-200 font-semibold text-lg px-4 w-full mt-6 text-center bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg border border-gray-600"
-      ><i class="bx bx-plus mr-2 align-middle text-xl"></i>Agregar MindMap</a
-    >
-    <a
-      href="/editor"
-      class="block text-gray-200 font-semibold text-lg px-4 w-full mt-6 text-center bg-gray-700/50 hover:bg-gray-700 p-4 rounded-lg border border-gray-600"
-      ><i class="bx bx-rename mr-2 align-middle text-xl"></i>Abre el Editor</a
-    >
-    <span
-      class={sc(
-        "block text-gray-200 font-semibold text-xl px-4 w-full mt-6 text-center",
-        documentsIndexes.length > 0 && "hidden"
-      )}>Aun no tienes ningun MindMap.</span
-    >
+    <div class="flex gap-2 mt-6">
+      <a
+        href="/use-cases/generator"
+        class="block text-slate-200 font-thin text-lg px-4 w-full mt-6 text-center bg-slate-700/50 hover:bg-slate-700 p-4 rounded-lg border border-slate-600"
+        ><i class="bx bx-plus mr-2 align-middle text-xl"></i>Agregar MindMap</a
+      >
+      <a
+        href="/playground/editor"
+        class="block text-slate-200 font-thin text-lg px-4 w-full mt-6 text-center bg-slate-700/50 hover:bg-slate-700 p-4 rounded-lg border border-slate-600"
+        ><i class="bx bx-rename mr-2 align-middle text-xl"></i>Abre el Editor</a>
+    </div>
   </DashBoardLayout>
 </Layout>

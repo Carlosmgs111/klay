@@ -6,7 +6,7 @@ const { contentClass } = Astro.props;
 
 <div class="flex overflow-y-auto overflow-x-hidden">
   <Sidebar />
-  <div class={sc("flex flex-col gap-6 w-3xl mx-auto h-screen", contentClass)}>
+  <div class={sc("flex flex-col gap-6 p-8 mx-auto w-full h-screen", contentClass)}>
     <slot />
   </div>
 </div>

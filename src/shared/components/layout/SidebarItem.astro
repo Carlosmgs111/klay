@@ -8,12 +8,15 @@ const { isActive, href, label, classIcon, title } = Astro.props;
   data-is-active={isActive}
   class={sc(
     "bg-slate-700/20 rounded-lg hover:bg-slate-700/60",
-    "transition-all font-semibold cursor-pointer ",
+    "transition-all font-thin cursor-pointer ",
     isActive && "bg-slate-700/80"
   )}
   title={title}
 >
-  <a href={href} class="block px-4 py-2 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+  <a
+    href={href}
+    class="block px-6 py-3 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+  >
     <i class={sc("mr-4 align-middle", classIcon)}></i>{label}
   </a>
 </li>

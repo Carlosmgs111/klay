@@ -64,7 +64,7 @@ export default function FileItem({ file, onDelete, onDetail, timeAgo }: FileItem
         isDeleting ? "opacity-50 pointer-events-none" : ""
       } ${isSelected ? "bg-gray-700/50" : ""} ${mode ? "cursor-pointer" : ""}`}
     >
-      <span className="p-4 w-full font-[500] table-cell flex justify-between gap-2">
+      <span className="p-4 w-full font-thin table-cell flex justify-between gap-2">
         <label className={`${mode ? "" : "hidden"}`} id="file-is-selected">
           {isSelected ? "✅" : "🔲"}
         </label>
@@ -79,7 +79,7 @@ export default function FileItem({ file, onDelete, onDetail, timeAgo }: FileItem
           unit: "kilobyte",
         }).format(Math.round(file.size / 1024))}
       </span>
-      <div className="flex gap-1 p-4">
+      <div className="flex gap-1 p-4 sticky right-0 bg-slate-900 border-l border-slate-700">
         <button
           className="h-fit rounded-lg bx bx-file-detail text-gray-500 p-2 hover:bg-gray-500/50 transition-all"
           onClick={(e) => {

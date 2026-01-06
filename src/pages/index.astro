@@ -3,47 +3,70 @@ import Layout from "../layouts/Layout.astro";
 // Data configuration
 const features = [
   {
-    icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-    title: "Carga tus Documentos",
-    description: "PDF, DOCX, TXT y más formatos soportados",
+    icon: "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12",
+    title: "Ingesta Unificada",
+    description: "Documentos, webs, APIs. Una sola interfaz para todas tus fuentes",
+  },
+  {
+    icon: "M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4",
+    title: "Embeddings Gestionados",
+    description: "Generación, versionado y optimización automática de vectores",
   },
   {
     icon: "M13 10V3L4 14h7v7l9-11h-7z",
-    title: "IA Instantánea",
-    description: "Análisis y estructuración automática con Claude",
+    title: "Retrieval Inteligente",
+    description: "Contexto óptimo para tus LLMs, en tiempo real",
+  },
+];
+
+const benefits = [
+  {
+    icon: "🚀",
+    title: "A Producción en Horas",
+    desc: "No semanas. Integra RAG sin reinventar la rueda",
   },
   {
-    icon: "M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z",
-    title: "Markdown Estructurado",
-    description: "Jerarquías claras listas para visualizar",
+    icon: "🔧",
+    title: "Cero Infraestructura",
+    desc: "Olvídate de vector DBs, parsers y orquestación",
+  },
+  {
+    icon: "🎯",
+    title: "Menos Alucinaciones",
+    desc: "Mejor recuperación de contexto = respuestas más precisas",
+  },
+  {
+    icon: "📊",
+    title: "Totalmente Observable",
+    desc: "Monitorea cada ingesta, embedding y consulta",
   },
 ];
 
 const useCases = [
   {
-    emoji: "📚",
-    title: "Estudio",
-    desc: "Convierte apuntes en mapas conceptuales",
+    emoji: "💼",
+    title: "SaaS con IA",
+    desc: "Añade features de RAG sin complejidad técnica",
   },
   {
-    emoji: "📊",
-    title: "Análisis",
-    desc: "Extrae insights de reportes complejos",
+    emoji: "🚀",
+    title: "Startups",
+    desc: "Enfócate en producto, no en infraestructura LLM",
   },
   {
-    emoji: "🎯",
-    title: "Planificación",
-    desc: "Organiza proyectos visualmente",
+    emoji: "🏢",
+    title: "Equipos Empresariales",
+    desc: "Escalabilidad y seguridad multi-tenant desde día uno",
   },
   {
-    emoji: "🔬",
+    emoji: "🧪",
     title: "Investigación",
-    desc: "Estructura papers y documentación",
+    desc: "Experimenta con modelos sin gestionar pipelines",
   },
 ];
 ---
 
-<Layout title="MindMapAI">
+<Layout title="KaaS - Knowledge as a Service">
  
 
   <!-- Main Container -->
@@ -76,15 +99,15 @@ const useCases = [
             <span
               class="text-2xl font-bold font-['Roboto'] bg-gradient-to-r from-blue-400 to-gray-300 bg-clip-text text-transparent"
             >
-              MindForge
+              KaaS
             </span>
           </div>
           <a
-            href="/dashboard/generator"
+            href="/knowledge/generator"
             class="cta-btn px-6 py-2.5 bg-blue-500 hover:bg-blue-600 rounded-lg font-medium transition-all"
             data-action="start"
           >
-            Comenzar
+            Consola
           </a>
         </nav>
       </header>
@@ -97,45 +120,75 @@ const useCases = [
           <span
             class="inline-block w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"
           ></span>
-          Powered by AI SDK
+          Knowledge as a Service
         </div>
 
         <h1
-          class="text-7xl md:text-8xl font-['Roboto'] font-black mb-6 leading-tight slide-up"
+          class="text-6xl md:text-7xl font-['Roboto'] font-black mb-6 leading-tight slide-up"
         >
           <span
             class="block bg-gradient-to-r from-slate-100 via-blue-100 to-gray-200 bg-clip-text text-transparent"
           >
-            Transforma
+            El backend de conocimiento
           </span>
-          <span class="block text-slate-400 text-5xl md:text-6xl mt-2">
-            documentos en
+          <span class="block text-slate-400 text-4xl md:text-5xl mt-2">
+            para tus
           </span>
           <span
             class="block bg-gradient-to-r from-blue-400 via-gray-400 to-violet-400 bg-clip-text text-transparent mt-2"
           >
-            Mindmaps
+            LLMs
           </span>
         </h1>
 
         <p
-          class="text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed fade-in-delayed"
+          class="text-xl text-slate-400 max-w-3xl mx-auto mb-4 leading-relaxed fade-in-delayed"
         >
-          Sube cualquier documento y obtén un mapa mental estructurado en
-          segundos.
-          <span class="text-gray-400 font-medium"
-            >Arquitectura nano-precisa</span
-          > para visualización instantánea.
+          Así como <span class="text-blue-400 font-medium">Supabase</span> simplificó el backend tradicional,
+          <span class="text-gray-400 font-bold">KaaS</span> simplifica la infraestructura de conocimiento para IA.
+        </p>
+
+        <p class="text-lg text-slate-500 max-w-2xl mx-auto mb-12 fade-in-delayed">
+          Conecta tus datos. Nosotros hacemos el resto.
+        </p>
+
+        <div class="max-w-3xl mx-auto mb-12 p-6 bg-slate-900/50 border border-slate-800 rounded-2xl fade-in-delayed-2">
+          <div class="space-y-3 text-left text-slate-300">
+            <div class="flex items-start gap-3">
+              <span class="text-blue-400 mt-1">→</span>
+              <span>Ingesta documentos, webs y APIs.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-gray-400 mt-1">→</span>
+              <span>Extraemos y limpiamos el texto.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-violet-400 mt-1">→</span>
+              <span>Lo particionamos de forma semántica.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-blue-400 mt-1">→</span>
+              <span>Generamos y versionamos embeddings.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="text-gray-400 mt-1">→</span>
+              <span><strong>Recuperamos el contexto óptimo</strong> para tus LLMs, en tiempo real.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-slate-500 mb-8 fade-in-delayed-3">
+          Todo desde una sola API, con SDKs ligeros, listo para producción.
         </p>
 
         <div
-          class="flex flex-col sm:flex-row gap-4 justify-center items-center fade-in-delayed-2"
+          class="flex flex-col sm:flex-row gap-4 justify-center items-center fade-in-delayed-3"
         >
           <button
             class="cta-primary group px-8 py-4 bg-gradient-to-r from-blue-500 to-gray-500 rounded-xl font-semibold text-lg transition-all flex items-center gap-3"
             data-action="try-now"
           >
-            Probar Ahora
+            Empezar Gratis
             <svg
               class="w-5 h-5 group-hover:translate-x-1 transition-transform"
               fill="none"
@@ -163,44 +216,39 @@ const useCases = [
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               ></path>
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            Ver Demo
+            Ver Documentación
           </button>
         </div>
 
-        <!-- Stats -->
-        <div
-          class="grid grid-cols-3 gap-8 max-w-3xl mx-auto mt-20 fade-in-delayed-3"
-        >
-          <div class="text-center">
-            <div class="text-4xl font-bold font-['Roboto'] text-blue-400 mb-2">
-              {"< 3s"}
+      </section>
+
+      <!-- Problem Section -->
+      <section class="container mx-auto px-6 py-24 bg-gradient-to-b from-transparent to-slate-900/30">
+        <div class="max-w-4xl mx-auto text-center mb-16">
+          <span class="inline-block px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full text-sm text-red-300 mb-6">
+            El Problema
+          </span>
+          <h2 class="text-4xl font-['Roboto'] font-bold mb-6 text-slate-100">
+            Construir RAG hoy es <span class="text-red-400">caro, frágil y lento</span>
+          </h2>
+          <div class="grid md:grid-cols-3 gap-6 mt-12">
+            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-xl">
+              <div class="text-3xl mb-3">🏗️</div>
+              <h3 class="font-semibold text-slate-200 mb-2">Demasiada infraestructura</h3>
+              <p class="text-sm text-slate-400">Vector DBs, parsers, orquestación...</p>
             </div>
-            <div class="text-sm text-slate-500 uppercase tracking-wider">
-              Tiempo Proceso
+            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-xl">
+              <div class="text-3xl mb-3">🤔</div>
+              <h3 class="font-semibold text-slate-200 mb-2">Demasiadas decisiones</h3>
+              <p class="text-sm text-slate-400">Chunking, embeddings, retrieval...</p>
             </div>
-          </div>
-          <div class="text-center border-x border-slate-800">
-            <div class="text-4xl font-bold font-['Roboto'] text-gray-400 mb-2">
-              10+
-            </div>
-            <div class="text-sm text-slate-500 uppercase tracking-wider">
-              Formatos
-            </div>
-          </div>
-          <div class="text-center">
-            <div class="text-4xl font-bold font-['Roboto'] text-violet-400 mb-2">
-              100%
-            </div>
-            <div class="text-sm text-slate-500 uppercase tracking-wider">
-              Markdown
+            <div class="p-6 bg-slate-900/50 border border-slate-800 rounded-xl">
+              <div class="text-3xl mb-3">♻️</div>
+              <h3 class="font-semibold text-slate-200 mb-2">Reinventar la rueda</h3>
+              <p class="text-sm text-slate-400">Cada equipo construye lo mismo</p>
             </div>
           </div>
         </div>
@@ -209,14 +257,15 @@ const useCases = [
       <!-- Features Section -->
       <section class="container mx-auto px-6 py-24">
         <div class="text-center mb-16">
-          <h2 class="text-5xl font-['Roboto'] font-bold mb-4">
-            <span
-              class="bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent"
-            >
-              Arquitectura Simple.
+          <span class="inline-block px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full text-sm text-green-300 mb-6">
+            La Solución
+          </span>
+          <h2 class="text-4xl font-['Roboto'] font-bold mb-4">
+            <span class="text-slate-100">
+              Una capa gestionada
             </span>
             <br />
-            <span class="text-blue-400">Resultados Complejos.</span>
+            <span class="text-blue-400">entre tus datos y tus modelos</span>
           </h2>
         </div>
 
@@ -251,92 +300,31 @@ const useCases = [
         </div>
       </section>
 
-      <!-- Visual Demo Section -->
-      <section class="container mx-auto px-6 py-24">
-        <div
-          class="max-w-6xl mx-auto bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-3xl p-12 relative overflow-hidden"
-        >
-          <div
-            class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"
-          >
-          </div>
+      <!-- Benefits Section -->
+      <section class="container mx-auto px-6 py-24 bg-gradient-to-b from-slate-900/30 to-transparent">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-['Roboto'] font-bold text-slate-100 mb-4">
+            ¿Por qué KaaS?
+          </h2>
+          <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+            Tú construyes producto. Nosotros gestionamos el conocimiento.
+          </p>
+        </div>
 
-          <div class="relative z-10">
-            <div class="text-center mb-12">
-              <h2 class="text-4xl font-['Roboto'] font-bold text-slate-100 mb-4">
-                De Caos a Claridad
-              </h2>
-              <p class="text-slate-400 text-lg">
-                Observa cómo transformamos información densa en estructuras
-                visuales
-              </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-              <!-- Before -->
-              <div class="space-y-4">
-                <div class="flex items-center gap-2 mb-4">
-                  <span
-                    class="px-3 py-1 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-medium"
-                    >ANTES</span
-                  >
-                  <span class="text-slate-500 text-sm">Documento denso</span>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          {
+            benefits.map((benefit) => (
+              <div class="use-case-card group p-6 bg-slate-900/30 backdrop-blur-sm border border-slate-800 hover:border-blue-500/50 rounded-xl transition-all">
+                <div class="text-4xl mb-4 group-hover:scale-110 transition-transform">
+                  {benefit.icon}
                 </div>
-                <div
-                  class="bg-slate-950/50 border border-slate-800 rounded-xl p-6 space-y-3 font-mono text-xs"
-                >
-                  <div class="h-2 bg-slate-700 rounded w-full"></div>
-                  <div class="h-2 bg-slate-700 rounded w-11/12"></div>
-                  <div class="h-2 bg-slate-700 rounded w-full"></div>
-                  <div class="h-2 bg-slate-700 rounded w-10/12"></div>
-                  <div class="h-2 bg-slate-700 rounded w-full"></div>
-                  <div class="h-2 bg-slate-700 rounded w-9/12"></div>
-                  <div class="h-2 bg-slate-700 rounded w-full"></div>
-                </div>
+                <h3 class="text-lg font-['Roboto'] font-semibold text-slate-100 mb-2">
+                  {benefit.title}
+                </h3>
+                <p class="text-sm text-slate-400">{benefit.desc}</p>
               </div>
-
-              <!-- After -->
-              <div class="space-y-4">
-                <div class="flex items-center gap-2 mb-4">
-                  <span
-                    class="px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-xs font-medium"
-                    >DESPUÉS</span
-                  >
-                  <span class="text-slate-500 text-sm"
-                    >Mindmap estructurado</span
-                  >
-                </div>
-                <div
-                  class="bg-slate-950/50 border border-slate-800 rounded-xl p-6 space-y-2 font-mono text-xs"
-                >
-                  <div class="flex items-center gap-2">
-                    <span class="text-blue-400">#</span>
-                    <div class="h-2 bg-blue-500/50 rounded w-32"></div>
-                  </div>
-                  <div class="flex items-center gap-2 ml-4">
-                    <span class="text-gray-400">##</span>
-                    <div class="h-2 bg-gray-500/50 rounded w-40"></div>
-                  </div>
-                  <div class="flex items-center gap-2 ml-8">
-                    <span class="text-violet-400">-</span>
-                    <div class="h-2 bg-violet-500/50 rounded w-36"></div>
-                  </div>
-                  <div class="flex items-center gap-2 ml-8">
-                    <span class="text-violet-400">-</span>
-                    <div class="h-2 bg-violet-500/50 rounded w-32"></div>
-                  </div>
-                  <div class="flex items-center gap-2 ml-4">
-                    <span class="text-gray-400">##</span>
-                    <div class="h-2 bg-gray-500/50 rounded w-36"></div>
-                  </div>
-                  <div class="flex items-center gap-2 ml-8">
-                    <span class="text-violet-400">-</span>
-                    <div class="h-2 bg-violet-500/50 rounded w-40"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            ))
+          }
         </div>
       </section>
 
@@ -344,10 +332,10 @@ const useCases = [
       <section class="container mx-auto px-6 py-24">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-['Roboto'] font-bold text-slate-100 mb-4">
-            Casos de Uso
+            ¿Para quién es KaaS?
           </h2>
           <p class="text-slate-400 text-lg">
-            Potencia tu flujo de trabajo en múltiples contextos
+            Equipos que quieren construir IA, no infraestructura
           </p>
         </div>
 
@@ -380,17 +368,16 @@ const useCases = [
 
           <div class="relative z-10">
             <h2 class="text-5xl font-['Roboto'] font-black text-white mb-6">
-              Empieza a Visualizar
+              El conocimiento como infraestructura
             </h2>
             <p class="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Transforma tu próximo documento en un mindmap interactivo. Sin
-              instalación, sin complicaciones.
+              Conecta datos, no pipelines. Construye features de IA sin reinventar la rueda.
             </p>
             <button
               class="cta-final px-10 py-5 bg-white text-blue-600 rounded-xl font-bold text-lg transition-all inline-flex items-center gap-3"
               data-action="start-free"
             >
-              Comenzar Gratis
+              Solicitar Acceso
               <svg
                 class="w-5 h-5"
                 fill="none"
@@ -404,6 +391,9 @@ const useCases = [
                   d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
               </svg>
             </button>
+            <p class="text-sm text-blue-200 mt-6">
+              Disponible pronto en beta privada
+            </p>
           </div>
         </div>
       </section>
@@ -433,22 +423,23 @@ const useCases = [
             <span
               class="font-['Roboto'] font-bold text-xl bg-gradient-to-r from-blue-400 to-gray-300 bg-clip-text text-transparent"
             >
-              MindForge
+              KaaS
             </span>
           </div>
 
           <div class="flex gap-6 text-sm text-slate-500">
             <a href="#" class="hover:text-slate-300 transition-colors"
-              >Documentación</a
+              >Docs</a
             >
-            <a href="#" class="hover:text-slate-300 transition-colors">API</a>
+            <a href="#" class="hover:text-slate-300 transition-colors">API Reference</a>
+            <a href="#" class="hover:text-slate-300 transition-colors">Pricing</a>
             <a href="#" class="hover:text-slate-300 transition-colors"
-              >Contacto</a
+              >Blog</a
             >
           </div>
 
           <div class="text-sm text-slate-500">
-            Built with <span class="text-blue-400">nano-precision</span>
+            Knowledge as a Service • <span class="text-blue-400">Powered by AI</span>
           </div>
         </div>
       </footer>

@@ -127,8 +127,8 @@ export default function FileList({ execEnv }: FileListProps) {
 
   if (files.length === 0) {
     return (
-      <div className="text-gray-200 p-6 bg-gray-800 border border-gray-700 rounded-lg">
-        <span className="block text-gray-200 font-semibold text-2xl px-4 w-full mt-6 text-center">
+      <div className="text-gray-200 p-12 bg-gray-800/50 border border-gray-700/50 rounded-lg">
+        <span className="block text-gray-200 font-semibold text-xl px-4 w-full text-center">
           Aun no tienes ningun archivo.
         </span>
       </div>
@@ -136,24 +136,26 @@ export default function FileList({ execEnv }: FileListProps) {
   }
 
   return (
-    <div className="text-gray-200 p-6 bg-gray-800 border border-gray-700 rounded-lg">
-      <span className="block text-gray-200 mb-2 font-bold text-lg px-4 pb-2 w-full">
+    <div className="text-slate-200 p-6 bg-slate-800/50 border border-slate-700/50 rounded-lg">
+      <span className="block text-slate-200 mb-2 font-semibold text-lg px-4 pb-2 w-full">
         Archivos
       </span>
-      <span className="block text-gray-200 mb-2 font-semibold text-sm px-4 pb-2 w-full border-b border-gray-700">
+      <span className="block text-slate-200 mb-2 font-thin text-sm px-4 pb-2 w-full border-b border-slate-700/50">
         Archivos guardados en la biblioteca
       </span>
       <LibraryFileSelector />
 
       <div className="overflow-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
         <ul className="w-full flex flex-wrap table mb-2">
-          <li className="font-bold text-lg table-row">
-            <span className="p-4 w-full font-[500] table-cell">Nombre</span>
+          <li className="font-semibold text-lg table-row">
+            <span className="p-4 w-full table-cell">Nombre</span>
             <span className="p-4 whitespace-nowrap table-cell">
               Ultima modificacion
             </span>
             <span className="p-4 whitespace-nowrap table-cell">Tamaño</span>
-            <span className="p-4 whitespace-nowrap table-cell">Acciones</span>
+            <span className="p-4 whitespace-nowrap table-cell sticky right-0 bg-slate-900 border-l border-slate-700">
+              Acciones
+            </span>
           </li>
           {files.map((file) => (
             <FileItem

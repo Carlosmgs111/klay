@@ -86,7 +86,9 @@ export default function LoadedFileSelector({
       type: fileInputRef.current.files[0].type,
       size: fileInputRef.current.files[0].size,
       lastModified: new Date().getTime(),
-      buffer: new Uint8Array(await fileInputRef.current.files[0].arrayBuffer()) as Buffer,
+      buffer: new Uint8Array(
+        await fileInputRef.current.files[0].arrayBuffer()
+      ) as Buffer,
       url: "",
     };
 
@@ -100,7 +102,7 @@ export default function LoadedFileSelector({
   return (
     <form
       id={id}
-      className={sc("flex gap-2 items-center text-gray-200", className)}
+      className={sc("flex gap-2 items-center text-gray-200  font-thin")}
       onSubmit={handleUpload}
     >
       <input
@@ -114,7 +116,10 @@ export default function LoadedFileSelector({
       />
       <label
         id="fileLabel"
-        className="w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer"
+        className={sc(
+          "w-full p-4 hover:bg-gray-700/50 rounded-lg overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer flex items-center",
+          className
+        )}
         htmlFor="fileInput"
       >
         <i className="bx bx-folder-open mr-2 align-middle text-xl"></i>

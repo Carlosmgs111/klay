@@ -29,7 +29,6 @@ db
 .vercel
 test-*
 .claude
-docs
 .vercel
 .env*.local
 CLAUDE.md

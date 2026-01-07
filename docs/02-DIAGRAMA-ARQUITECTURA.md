@@ -10,22 +10,22 @@ graph TB
     end
 
     subgraph "FRONTEND LAYER - Astro SSR + React"
-        LP[Landing Page<br/>index.astro]
-        KP[Knowledge Pages<br/>generator, assets, files]
-        UP[Use Cases Pages<br/>chat, mindmaps, generator]
-        PG[Playground Pages<br/>chunker tester]
+        LP["Landing Page<br/>index.astro"]
+        KP["Knowledge Pages<br/>generator, assets, files"]
+        UP["Use Cases Pages<br/>chat, mindmaps, generator"]
+        PG["Playground Pages<br/>chunker tester"]
 
         subgraph "FEATURES (Autocontenidos)"
-            FM[File Management<br/>FileList, FileUploader]
-            MM[Mindmap Management<br/>Editor, Viewer, Generator]
-            KM[Knowledge Management<br/>Dashboard, FlowSteps]
-            CH[Chat<br/>ChatManager, Messages]
+            FM["File Management<br/>FileList, FileUploader"]
+            MM["Mindmap Management<br/>Editor, Viewer, Generator"]
+            KM["Knowledge Management<br/>Dashboard, FlowSteps"]
+            CH["Chat<br/>ChatManager, Messages"]
         end
 
         subgraph "SHARED LAYER"
-            SC[Components<br/>Switch, Spinner, Sidebar]
-            ST[Stores (Nanostores)<br/>fileStore, chatStore, mindmapStore]
-            UT[Utils<br/>sc, shuffleArray]
+            SC["Components<br/>Switch, Spinner, Sidebar"]
+            ST["Stores (Nanostores)<br/>fileStore, chatStore, mindmapStore"]
+            UT["Utils<br/>sc, shuffleArray"]
         end
 
         subgraph "LAYOUTS"
@@ -35,68 +35,68 @@ graph TB
     end
 
     subgraph "API ROUTES LAYER - Astro Server"
-        AR1[/api/file]
-        AR2[/api/texts]
-        AR3[/api/chunking]
-        AR4[/api/embeddings]
-        AR5[/api/mindmaps]
-        AR6[/api/chat]
-        AR7[/api/query]
-        AR8[/api/knowledge]
+        AR1["/api/file"]
+        AR2["/api/texts"]
+        AR3["/api/chunking"]
+        AR4["/api/embeddings"]
+        AR5["/api/mindmaps"]
+        AR6["/api/chat"]
+        AR7["/api/query"]
+        AR8["/api/knowledge"]
     end
 
     subgraph "BACKEND LAYER - Clean Architecture"
         subgraph "Domain Modules"
-            FI[FILES Module<br/>Upload, Download, Delete]
-            TE[TEXT-EXTRACTION Module<br/>PDF→Text, Cleaning]
-            CK[CHUNKING Module<br/>6 Estrategias de chunking]
-            EM[EMBEDDINGS Module<br/>Vector generation & search]
-            AG[AGENTS/AI Module<br/>LLM Integration]
-            MD[MINDMAPS Module<br/>Markdown generation]
-            KA[KNOWLEDGE-ASSETS Module<br/>Pipeline orchestration]
-            QO[QUERY-ORCHESTRATOR Module<br/>RAG Pipeline]
+            FI["FILES Module<br/>Upload, Download, Delete"]
+            TE["TEXT-EXTRACTION Module<br/>PDF→Text, Cleaning"]
+            CK["CHUNKING Module<br/>6 Estrategias de chunking"]
+            EM["EMBEDDINGS Module<br/>Vector generation & search"]
+            AG["AGENTS/AI Module<br/>LLM Integration"]
+            MD["MINDMAPS Module<br/>Markdown generation"]
+            KA["KNOWLEDGE-ASSETS Module<br/>Pipeline orchestration"]
+            QO["QUERY-ORCHESTRATOR Module<br/>RAG Pipeline"]
         end
 
         subgraph "Shared Backend"
-            SH[Shared<br/>Config, Contracts, DTOs]
+            SH["Shared<br/>Config, Contracts, DTOs"]
         end
     end
 
     subgraph "INFRASTRUCTURE LAYER"
         subgraph "Storage Providers"
-            LFS[LocalFsStorage<br/>Server filesystem]
-            BRS[BrowserStorage<br/>File System Access API]
+            LFS["LocalFsStorage<br/>Server filesystem"]
+            BRS["BrowserStorage<br/>File System Access API"]
         end
 
         subgraph "Repositories"
-            LR[LocalCsvRepository<br/>CSV metadata]
-            LLR[LocalLevelRepository<br/>LevelDB vectors]
-            BIR[BrowserRepository<br/>IndexedDB]
+            LR["LocalCsvRepository<br/>CSV metadata"]
+            LLR["LocalLevelRepository<br/>LevelDB vectors"]
+            BIR["BrowserRepository<br/>IndexedDB"]
         end
 
         subgraph "AI Providers"
-            HF[HuggingFace Provider<br/>Embeddings + LLMs]
-            CO[Cohere Provider<br/>Embeddings]
-            BR[Browser Provider<br/>@xenova/transformers]
-            AI[AI SDK Provider<br/>DeepSeek-V3]
+            HF["HuggingFace Provider<br/>Embeddings + LLMs"]
+            CO["Cohere Provider<br/>Embeddings"]
+            BR["Browser Provider<br/>@xenova/transformers"]
+            AI["AI SDK Provider<br/>DeepSeek-V3"]
         end
 
         subgraph "Extractors"
-            PE[PDF Extractor<br/>pdfjs-dist]
-            TC[Text Cleaner<br/>Preprocessing]
+            PE["PDF Extractor<br/>pdfjs-dist"]
+            TC["Text Cleaner<br/>Preprocessing"]
         end
     end
 
     subgraph "DATA STORAGE LAYER"
-        FS[(Local Filesystem<br/>PDFs, Files)]
-        LDB[(LevelDB<br/>Key-Value Store)]
-        IDB[(IndexedDB<br/>Browser Storage)]
-        CSV[(CSV Files<br/>Metadata Repository)]
+        FS[("Local Filesystem<br/>PDFs, Files")]
+        LDB[("LevelDB<br/>Key-Value Store")]
+        IDB[("IndexedDB<br/>Browser Storage")]
+        CSV[("CSV Files<br/>Metadata Repository")]
     end
 
     subgraph "EXTERNAL SERVICES"
-        HFA[HuggingFace API<br/>Inference Endpoints]
-        COA[Cohere API<br/>Embeddings]
+        HFA["HuggingFace API<br/>Inference Endpoints"]
+        COA["Cohere API<br/>Embeddings"]
     end
 
     %% User flow

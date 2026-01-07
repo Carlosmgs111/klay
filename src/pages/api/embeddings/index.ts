@@ -1,6 +1,9 @@
-import { astroRouter } from "../../../backend/embeddings";
+import { embeddingApiFactory } from "@/modules/embeddings";
+import { AstroRouter } from "@/modules/embeddings/infrastructure/routes/AstroRouter";
 
-export const POST = astroRouter.generateEmbeddings;
-export const GET = astroRouter.getAllDocuments;
-export const PUT = astroRouter.search;
+const embeddingsRouter = new AstroRouter(embeddingApiFactory);
+
+export const POST = embeddingsRouter.generateEmbeddings;
+export const GET = embeddingsRouter.getAllDocuments;
+export const PUT = embeddingsRouter.search;
 

@@ -19,43 +19,45 @@ export class EmbeddingsInfrastructureResolver {
   private static async resolveProvider(
     type: EmbeddingsInfrastructurePolicy["provider"]
   ): Promise<EmbeddingProvider> {
-    switch (type) {
-      case "cohere": {
+    const resolverTypes = {
+      cohere: async () => {
         const { AIEmbeddingProvider } = await import("../providers/AIEmbeddingProvider");
         return new AIEmbeddingProvider();
-      }
-      case "hugging-face": {
+      },
+      "hugging-face": async () => {
         const { HuggingFaceEmbeddingProvider } = await import("../providers/HuggingFaceEmbeddingProvider");
         return new HuggingFaceEmbeddingProvider();
-      }
-      case "browser": {
+      },
+      browser: async () => {
         const { BrowserEmbeddingProvider } = await import("../providers/BrowserEmbeddingProvider");
         return new BrowserEmbeddingProvider();
-      }
-      case "openai": {
+      },
+      openai: async () => {
         // TODO: Create OpenAIProvider
         const { AIEmbeddingProvider } = await import("../providers/AIEmbeddingProvider");
         return new AIEmbeddingProvider();
-      }
-      default:
-        throw new Error(`Unsupported provider: ${type}`);
+      },
+    };
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported provider: ${type}`);
     }
+    return resolverTypes[type]();
   }
 
   private static async resolveRepository(
     type: EmbeddingsInfrastructurePolicy["repository"],
     dimensions: number
   ): Promise<VectorRepository> {
-    switch (type) {
-      case "local-level": {
+    const resolverTypes = {
+      "local-level": async () => {
         const { LevelVectorStore } = await import("../repositories/LocalLevelVectorDB");
         return new LevelVectorStore({
           dimensions,
           similarityThreshold: 0.7,
           dbPath: "./embeddings.db",
         });
-      }
-      case "remote-db": {
+      },
+      "remote-db": async () => {
         // TODO: Create RemoteVectorDB
         const { LevelVectorStore } = await import("../repositories/LocalLevelVectorDB");
         return new LevelVectorStore({
@@ -63,17 +65,19 @@ export class EmbeddingsInfrastructureResolver {
           similarityThreshold: 0.7,
           dbPath: "./embeddings.db",
         });
-      }
-      case "browser": {
+      },
+      browser: async () => {
         const { BrowserVectorDB } = await import("../repositories/BrowserVectorDB");
         return new BrowserVectorDB({
           dimensions,
           similarityThreshold: 0.7,
           dbName: "embeddings-db",
         });
-      }
-      default:
-        throw new Error(`Unsupported repository: ${type}`);
+      },
+    };
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported repository: ${type}`);
     }
+    return resolverTypes[type]();
   }
 }

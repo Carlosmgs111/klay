@@ -1,2 +1,0 @@
-- [ ] Frontend:
-    - [ ] Hacer componente Switch independiente, de momento importa la gestion del estado 

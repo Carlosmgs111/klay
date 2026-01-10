@@ -9,43 +9,58 @@ export class FilesInfrastructureResolver {
   }> {
     return {
       storage: await FilesInfrastructureResolver.resolveStorage(policy.storage),
-      repository: await FilesInfrastructureResolver.resolveRepository(policy.repository),
+      repository: await FilesInfrastructureResolver.resolveRepository(
+        policy.repository
+      ),
     };
   }
 
-  private static async resolveStorage(type: FilesInfrastructurePolicy["storage"]): Promise<Storage> {
-    switch (type) {
-      case "local-fs": {
+  private static async resolveStorage(
+    type: FilesInfrastructurePolicy["storage"]
+  ): Promise<Storage> {
+    const resolverTypes = {
+      "local-fs": async () => {
         const { LocalFsStorage } = await import("../storage/LocalFsStorage");
         return new LocalFsStorage();
-      }
-      case "browser": {
+      },
+      browser: async () => {
         const { BrowserStorage } = await import("../storage/BrowserStorage");
         return new BrowserStorage();
-      }
-      case "browser-mock": {
-        const { BrowserMockStorage } = await import("../storage/BrowserMockStorage");
+      },
+      "browser-mock": async () => {
+        const { BrowserMockStorage } = await import(
+          "../storage/BrowserMockStorage"
+        );
         return new BrowserMockStorage();
-      }
-      default:
-        throw new Error(`Unsupported storage: ${type}`);
+      },
+    };
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported storage: ${type}`);
     }
+    return resolverTypes[type]();
   }
 
   private static async resolveRepository(
     type: FilesInfrastructurePolicy["repository"]
   ): Promise<Repository> {
-    switch (type) {
-      case "csv": {
-        const { LocalCsvRepository } = await import("../repository/LocalCsvRepository");
+    const resolverTypes = {
+      csv: async () => {
+        const { LocalCsvRepository } = await import(
+          "../repository/LocalCsvRepository"
+        );
         return new LocalCsvRepository();
-      }
-      case "browser": {
-        const { BrowserRepository } = await import("../repository/BrowserRepository");
+      },
+      browser: async () => {
+        const { BrowserRepository } = await import(
+          "../repository/BrowserRepository"
+        );
         return new BrowserRepository();
-      }
-      default:
-        throw new Error(`Unsupported repository: ${type}`);
+      },
+    };
+
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported repository: ${type}`);
     }
+    return resolverTypes[type]();
   }
 }

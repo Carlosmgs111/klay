@@ -1,14 +1,14 @@
-import type { GenerateNewKnowledgeDTO } from "../@core-contracts/dtos";
+import type { NewKnowledgeDTO } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/dtos";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
 import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
 import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
 import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
 import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";
-import type { KnowledgeAssetsRepository } from "../@core-contracts/repositories";
-import type { KnowledgeAssetDTO } from "../@core-contracts/dtos";
+import type { KnowledgeAssetDTO } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/dtos";
 import type { FlowState } from "../@core-contracts/api";
 import type { Chunk } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
 import type { VectorDocument } from "@/modules/knowledge-base/embeddings/@core-contracts/entities";
+import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
 
 export class UseCases {
   constructor(
@@ -16,7 +16,7 @@ export class UseCases {
     private textExtractorApi: TextExtractorApi,
     private chunkingApi: ChunkingApi,
     private embeddingApi: EmbeddingAPI,
-    private knowledgeAssetsRepository: KnowledgeAssetsRepository
+    private knowledgeAssetApi: KnowledgeAssetApi,
   ) {}
   /**
    * This function generates a new knowledge asset from a file.
@@ -24,7 +24,7 @@ export class UseCases {
    * @returns A promise that resolves when the knowledge asset is generated.
    */
   async generateNewKnowledge(
-    command: GenerateNewKnowledgeDTO
+    command: NewKnowledgeDTO
   ): Promise<KnowledgeAssetDTO> {
     const { source, chunkingStrategy, embeddingStrategy } = command;
     const sourceFile = source as FileUploadDTO;
@@ -56,38 +56,26 @@ export class UseCases {
         chunksContent
       );
       const embeddingsDocuments = embeddings.documents as VectorDocument[];
-      const knowledgeAsset: KnowledgeAssetDTO = {
-        id: crypto.randomUUID(),
-        sourceId: sourceFile.id,
+      const knowledgeAsset: NewKnowledgeDTO = {
+        source: sourceFile,
+        chunkingStrategy,
+        embeddingStrategy,
         cleanedTextId: text.id as string,
-        chunksIds: chunkBatch?.map((chunk) => chunk.id),
         embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
       };
-      // await this.knowledgeAssetsRepository.saveKnowledgeAsset(knowledgeAsset);
-      return knowledgeAsset;
+    
+      const result = await this.knowledgeAssetApi.generateKnowledgeAsset(knowledgeAsset);
+      return result;
     } catch (error) {
       throw error;
     }
   }
 
   async *generateNewKnowledgeStreamingState(
-    command: GenerateNewKnowledgeDTO
+    command: NewKnowledgeDTO
   ): AsyncGenerator<KnowledgeAssetDTO | FlowState> {
     const { source, chunkingStrategy, embeddingStrategy } = command;
     const sourceFile = source as FileUploadDTO;
-
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-    // yield { status: "success", step: "file-upload", message: "File uploaded successfully" };
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-    // yield { status: "success", step: "text-extraction", message: "Text extracted successfully" };
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-    // yield { status: "error", step: "chunking", message: "Chunks generated successfully" };
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-    // yield { status: "success", step: "embedding", message: "Embeddings generated successfully" };
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-    // yield { status: "success", step: "knowledge-asset", message: "Knowledge asset generated successfully" };
-
-    // return;
 
     try {
       const { status, message } = await this.filesApi.uploadFile(sourceFile);
@@ -139,14 +127,15 @@ export class UseCases {
         };
       }
       const embeddingsDocuments = embeddings.documents as VectorDocument[];
-      const knowledgeAsset: KnowledgeAssetDTO = {
-        id: crypto.randomUUID(),
-        sourceId: sourceFile.id,
+
+      const newKnowledgeDTO: NewKnowledgeDTO = {
+        source: sourceFile,
+        chunkingStrategy,
+        embeddingStrategy,
         cleanedTextId: text.id as string,
-        chunksIds: chunkBatch.map((chunk) => chunk.id),
         embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
       };
-      // await this.knowledgeAssetsRepository.saveKnowledgeAsset(knowledgeAsset);
+      const knowledgeAsset = await this.knowledgeAssetApi.generateKnowledgeAsset(newKnowledgeDTO);
       yield {
         status: "SUCCESS",
         step: "knowledge-asset",

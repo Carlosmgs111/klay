@@ -15,11 +15,11 @@ export async function knowledgeAssetsApiFactory(
   policy: KnowledgeAssetsInfrastructurePolicy
 ): Promise<KnowledgeAssetsAPI> {
   const { 
-    repository, 
     filesApi, 
     textExtractorApi, 
     chunkingApi, 
-    embeddingApi 
+    embeddingApi,
+    knowledgeAssetApi
   } = await KnowledgeAssetsInfrastructureResolver.resolve(policy);
 
   return new UseCases(
@@ -27,7 +27,7 @@ export async function knowledgeAssetsApiFactory(
     textExtractorApi,
     chunkingApi,
     embeddingApi,
-    repository
+    knowledgeAssetApi
   );
 }
 

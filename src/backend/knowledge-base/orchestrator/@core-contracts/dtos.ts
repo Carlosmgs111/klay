@@ -1,16 +1,8 @@
 import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";
-import type { ChunkingStrategyType } from "@/backend/knowledge-base/chunking/@core-contracts/entities";
+import type { ChunkingStrategyType } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
 
 export interface GenerateNewKnowledgeDTO {
-  source: FileUploadDTO | string;
-  chunkingStrategy: ChunkingStrategyType;
-  embeddingStrategy: string;
-}
-
-export interface KnowledgeAssetDTO {
-  id: string;
-  sourceId: string;
-  cleanedTextId: string;
-  chunksIds: string[];
-  embeddingsIds: string[];
+    source: FileUploadDTO | string;
+    chunkingStrategy: ChunkingStrategyType;
+    embeddingStrategy: string;
 }

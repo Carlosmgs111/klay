@@ -32,3 +32,4 @@ test-*
 .vercel
 .env*.local
 CLAUDE.md
+docs

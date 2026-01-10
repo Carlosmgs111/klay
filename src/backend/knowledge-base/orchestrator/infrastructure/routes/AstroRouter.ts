@@ -2,7 +2,7 @@ import type { APIContext } from "astro";
 import type { KnowledgeAssetsAPI } from "../../@core-contracts/api";
 import type { KnowledgeAssetsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 import type { GenerateNewKnowledgeDTO } from "../../@core-contracts/dtos";
-import type { ChunkingStrategyType } from "@/backend/knowledge-base/chunking/@core-contracts/entities";
+import type { ChunkingStrategyType } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
 
 export class AstroRouter {
   private knowledgeAssetsApi: Promise<KnowledgeAssetsAPI>;
@@ -24,6 +24,9 @@ export class AstroRouter {
       },
       embeddingsPolicy: {
         provider: "hugging-face",
+        repository: "local-level",
+      },
+      knowledgeAssetPolicy: {
         repository: "local-level",
       },
     });

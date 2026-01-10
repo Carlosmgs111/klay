@@ -160,6 +160,9 @@ export function useKnowledgeManagement() {
           provider: "browser",
           repository: "browser",
         },
+        knowledgeAssetPolicy: {
+          repository: "browser",
+        },
       });
       const file = formData.get("file") as File;
       const buffer = new Uint8Array(await file.arrayBuffer()) as Buffer;

@@ -16,49 +16,53 @@ export class TextExtractionInfrastructureResolver {
   private static async resolveExtractor(
     type: TextExtractionInfrastructurePolicy["extractor"]
   ): Promise<TextExtractor> {
-    switch (type) {
-      case "pdf": {
+    const resolverTypes = {
+      pdf: async () => {
         const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
         return new PDFTextExtractor();
-      }
-      case "browser-pdf": {
+      },
+      "browser-pdf": async () => {
         const { BrowserPDFTextExtractor } = await import("../extraction/BrowserPDFTextExtractor");
         return new BrowserPDFTextExtractor();
-      }
-      case "docx": {
+      },
+      docx: async () => {
         // TODO: Create DocxTextExtractor
         const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
         return new PDFTextExtractor();
-      }
-      case "txt": {
+      },
+      txt: async () => {
         // TODO: Create TxtTextExtractor
         const { PDFTextExtractor } = await import("../extraction/PDFTextExtractor");
         return new PDFTextExtractor();
-      }
-      default:
-        throw new Error(`Unsupported extractor: ${type}`);
+      },
+    };
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported extractor: ${type}`);
     }
+    return resolverTypes[type]();
   }
 
   private static async resolveRepository(
     type: TextExtractionInfrastructurePolicy["repository"]
   ): Promise<Repository> {
-    switch (type) {
-      case "local-level": {
+    const resolverTypes = {
+      "local-level": async () => {
         const { LocalLevelRepository } = await import("../repository/LocalLevelRepository");
         return new LocalLevelRepository();
-      }
-      case "remote-db": {
+      },
+      "remote-db": async () => {
         // TODO: Create RemoteDbRepository
         const { LocalLevelRepository } = await import("../repository/LocalLevelRepository");
         return new LocalLevelRepository();
-      }
-      case "browser": {
+      },
+      browser: async () => {
         const { BrowserRepository } = await import("../repository/BrowserRepository");
         return new BrowserRepository();
-      }
-      default:
-        throw new Error(`Unsupported repository: ${type}`);
+      },
+    };
+    if (!resolverTypes[type]) {
+      throw new Error(`Unsupported repository: ${type}`);
     }
+    return resolverTypes[type]();
   }
 }

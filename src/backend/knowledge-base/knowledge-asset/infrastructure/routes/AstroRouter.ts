@@ -18,13 +18,17 @@ export class AstroRouter {
   generateKnowledgeAsset = async ({ request, params }: APIContext) => {
     const { id } = params;
     const { texts } = await request.json();
-    const embeddings = await (await this.knowledgeAssetApi).generateKnowledgeAsset(texts);
+    const embeddings = await (
+      await this.knowledgeAssetApi
+    ).generateKnowledgeAsset(texts);
     return new Response(JSON.stringify(embeddings));
   };
 
   getAllKnowledgeAssets = async ({ request }: APIContext) => {
     return new Response(
-      JSON.stringify(await (await this.knowledgeAssetApi).getAllKnowledgeAssets())
+      JSON.stringify(
+        await (await this.knowledgeAssetApi).getAllKnowledgeAssets()
+      )
     );
   };
 
@@ -35,7 +39,9 @@ export class AstroRouter {
         status: 400,
       });
     }
-    const deleted = await (await this.knowledgeAssetApi).deleteKnowledgeAsset(id);
+    const deleted = await (
+      await this.knowledgeAssetApi
+    ).deleteKnowledgeAsset(id);
     return new Response(JSON.stringify({ deleted }));
   };
 }

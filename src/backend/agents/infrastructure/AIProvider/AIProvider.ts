@@ -6,17 +6,15 @@ import { createHuggingFace } from "@ai-sdk/huggingface";
 export class AISDKProvider implements AIProvider {
   private model: any;
   private agent: any;
-  constructor() {}
-
-  async setAgent(agent: AgentDTO) {
+  constructor({ model }: { model: string }) {
     this.model = createHuggingFace({
       apiKey: import.meta.env.HF_API_KEY,
-    }).languageModel(agent.model);
+    }).languageModel(model);
     this.agent = new Agent({
       model: this.model,
     });
-    return;
   }
+
   generateCompletion = async (command: AICompletionDTO) => {
     return command.userPrompt;
   };

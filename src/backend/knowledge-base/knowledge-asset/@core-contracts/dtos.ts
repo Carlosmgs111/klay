@@ -7,8 +7,6 @@ export interface NewKnowledgeDTO {
   sources: [FileUploadDTO | string];
   chunkingStrategy: ChunkingStrategyType;
   embeddingStrategy: string;
-  cleanedTextIds: string[];
-  embeddingsIds: string[];
   metadata: Record<string, any>;
 }
 
@@ -17,4 +15,15 @@ export interface KnowledgeAssetDTO {
   sourcesIds: string[];
   cleanedTextIds: string[];
   embeddingsIds: string[];
+}
+
+export interface FlowState {
+  status: "SUCCESS" | "ERROR";
+  step:
+    | "file-upload"
+    | "text-extraction"
+    | "chunking"
+    | "embedding"
+    | "knowledge-asset";
+  message: string;
 }

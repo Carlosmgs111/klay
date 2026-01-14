@@ -8,39 +8,34 @@ import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset
 
 export class KnowledgeAssetsInfrastructureResolver {
   static async resolve(policy: KnowledgeAssetsInfrastructurePolicy): Promise<{
-    filesApi: FilesApi;
-    textExtractorApi: TextExtractorApi;
-    chunkingApi: ChunkingApi;
-    embeddingApi: EmbeddingAPI;
     knowledgeAssetApi: KnowledgeAssetApi;
   }> {
-    const [
-      filesApi,
-      textExtractorApi,
-      chunkingApi,
-      embeddingApi,
-      knowledgeAssetApi,
-    ] = await Promise.all([
-      KnowledgeAssetsInfrastructureResolver.resolveFilesApi(policy.filesPolicy),
-      KnowledgeAssetsInfrastructureResolver.resolveTextExtractorApi(
-        policy.textExtractionPolicy
-      ),
-      KnowledgeAssetsInfrastructureResolver.resolveChunkingApi(
-        policy.chunkingPolicy
-      ),
-      KnowledgeAssetsInfrastructureResolver.resolveEmbeddingApi(
-        policy.embeddingsPolicy
-      ),
-      KnowledgeAssetsInfrastructureResolver.resolveKnowledgeAssetApi(
-        policy.knowledgeAssetPolicy
-      ),
-    ]);
+    const [filesApi, textExtractorApi, chunkingApi, embeddingApi] =
+      await Promise.all([
+        KnowledgeAssetsInfrastructureResolver.resolveFilesApi(
+          policy.filesPolicy
+        ),
+        KnowledgeAssetsInfrastructureResolver.resolveTextExtractorApi(
+          policy.textExtractionPolicy
+        ),
+        KnowledgeAssetsInfrastructureResolver.resolveChunkingApi(
+          policy.chunkingPolicy
+        ),
+        KnowledgeAssetsInfrastructureResolver.resolveEmbeddingApi(
+          policy.embeddingsPolicy
+        ),
+      ]);
+
+    const knowledgeAssetApi =
+      await KnowledgeAssetsInfrastructureResolver.resolveKnowledgeAssetApi(
+        policy.knowledgeAssetPolicy,
+        filesApi,
+        textExtractorApi,
+        chunkingApi,
+        embeddingApi
+      );
 
     return {
-      filesApi,
-      textExtractorApi,
-      chunkingApi,
-      embeddingApi,
       knowledgeAssetApi,
     };
   }
@@ -74,12 +69,22 @@ export class KnowledgeAssetsInfrastructureResolver {
   }
 
   private static async resolveKnowledgeAssetApi(
-    policy: any
+    policy: any,
+    filesApi: FilesApi,
+    textExtractorApi: TextExtractorApi,
+    chunkingApi: ChunkingApi,
+    embeddingApi: EmbeddingAPI
   ): Promise<KnowledgeAssetApi> {
     const { knowledgeAssetApiFactory } = await import(
       "@/modules/knowledge-base/knowledge-asset"
     );
     console.log(policy, knowledgeAssetApiFactory);
-    return await knowledgeAssetApiFactory(policy);
+    return await knowledgeAssetApiFactory(
+      policy,
+      filesApi,
+      textExtractorApi,
+      chunkingApi,
+      embeddingApi
+    );
   }
 }

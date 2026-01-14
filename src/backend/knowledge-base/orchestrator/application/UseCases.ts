@@ -1,22 +1,11 @@
 import type { NewKnowledgeDTO } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/dtos";
-import type { FilesApi } from "@/modules/files/@core-contracts/api";
-import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
-import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
-import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
-import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";
 import type { KnowledgeAssetDTO } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/dtos";
 import type { FlowState } from "../@core-contracts/api";
-import type { Chunk } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
-import type { VectorDocument } from "@/modules/knowledge-base/embeddings/@core-contracts/entities";
 import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
 
 export class UseCases {
   constructor(
-    private filesApi: FilesApi,
-    private textExtractorApi: TextExtractorApi,
-    private chunkingApi: ChunkingApi,
-    private embeddingApi: EmbeddingAPI,
-    private knowledgeAssetApi: KnowledgeAssetApi,
+    private knowledgeAssetApi: KnowledgeAssetApi
   ) {}
   /**
    * This function generates a new knowledge asset from a file.
@@ -26,48 +15,20 @@ export class UseCases {
   async generateNewKnowledge(
     command: NewKnowledgeDTO
   ): Promise<KnowledgeAssetDTO> {
-    const { sources, chunkingStrategy, embeddingStrategy, name } = command;
-    const sourceFile = sources[0] as FileUploadDTO;
-
     try {
-      const { status, message } = await this.filesApi.uploadFile(sourceFile);
-      console.log(status, message);
-      if (status === "ERROR") {
-        throw new Error(message);
-      }
-
-      const text = await this.textExtractorApi.extractTextFromPDF({
-        id: sourceFile.id,
-        source: sourceFile,
-      });
-      if (text.status === "error") {
-        throw new Error(text.message);
-      }
-      const chunks = await this.chunkingApi.chunkOne(text.content as string, {
-        strategy: chunkingStrategy,
-      });
-      const chunkBatch = chunks.chunks as Chunk[];
-      const chunksContent = chunkBatch?.map((chunk) => ({
-        id: crypto.randomUUID(),
-        content: chunk.content,
-        metadata: { sourceId: sourceFile.id },
-      }));
-      const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent
-      );
-      const embeddingsDocuments = embeddings.documents as VectorDocument[];
+      const { sources, chunkingStrategy, embeddingStrategy, name } = command;
       const knowledgeAsset: NewKnowledgeDTO = {
         name: name,
         id: crypto.randomUUID(),
         sources: sources,
         chunkingStrategy,
         embeddingStrategy,
-        cleanedTextIds: [text.id as string],
-        embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
         metadata: {},
       };
-    
-      const result = await this.knowledgeAssetApi.generateKnowledgeAsset(knowledgeAsset);
+
+      const result = await this.knowledgeAssetApi.generateKnowledgeAsset(
+        knowledgeAsset
+      );
       return result;
     } catch (error) {
       throw error;
@@ -77,77 +38,12 @@ export class UseCases {
   async *generateNewKnowledgeStreamingState(
     command: NewKnowledgeDTO
   ): AsyncGenerator<KnowledgeAssetDTO | FlowState> {
-    const { sources, chunkingStrategy, embeddingStrategy, name } = command;
-    const sourceFile = sources[0] as FileUploadDTO;
-
     try {
-      const { status, message } = await this.filesApi.uploadFile(sourceFile);
-      console.log(status, message);
-      if (status === "SUCCESS") {
-        yield {
-          status: "SUCCESS",
-          step: "file-upload",
-          message: "File uploaded successfully",
-        };
+      for await (const event of this.knowledgeAssetApi.generateKnowledgeAssetStreamingState(
+        command
+      )) {
+        yield event;
       }
-
-      const text = await this.textExtractorApi.extractTextFromPDF({
-        id: crypto.randomUUID(),
-        source: sourceFile,
-      });
-      if (text.status === "success") {
-        yield {
-          status: "SUCCESS",
-          step: "text-extraction",
-          message: "Text extracted successfully",
-        };
-      }
-      const chunks = await this.chunkingApi.chunkOne(text.content as string, {
-        strategy: chunkingStrategy,
-      });
-      if (chunks.status === "success") {
-        yield {
-          status: "SUCCESS",
-          step: "chunking",
-          message: "Chunks generated successfully",
-        };
-      }
-      const chunkBatch = chunks.chunks as Chunk[];
-      const chunksContent = chunkBatch.map((chunk) => ({
-        id: crypto.randomUUID(),
-        content: chunk.content,
-        metadata: { sourceId: sourceFile.id },
-        timestamp: Date.now(),
-      }));
-      const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent
-      );
-      if (embeddings.status === "success") {
-        yield {
-          status: "SUCCESS",
-          step: "embedding",
-          message: "Embeddings generated successfully",
-        };
-      }
-      const embeddingsDocuments = embeddings.documents as VectorDocument[];
-
-      const newKnowledgeDTO: NewKnowledgeDTO = {
-        name: name,
-        id: crypto.randomUUID(),
-        sources,
-        chunkingStrategy,
-        embeddingStrategy,
-        cleanedTextIds: [text.id as string],
-        embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
-        metadata: {},
-      };
-      const knowledgeAsset = await this.knowledgeAssetApi.generateKnowledgeAsset(newKnowledgeDTO);
-      yield {
-        status: "SUCCESS",
-        step: "knowledge-asset",
-        message: "Knowledge asset generated successfully",
-      };
-      // return knowledgeAsset;
     } catch (error) {
       console.log(error);
       yield {

@@ -13,20 +13,10 @@ import { KnowledgeAssetsInfrastructureResolver } from "./infrastructure/composit
 export async function knowledgeAssetsApiFactory(
   policy: KnowledgeAssetsInfrastructurePolicy
 ): Promise<KnowledgeAssetsAPI> {
-  const { 
-    filesApi, 
-    textExtractorApi, 
-    chunkingApi, 
-    embeddingApi,
-    knowledgeAssetApi
-  } = await KnowledgeAssetsInfrastructureResolver.resolve(policy);
+  const { knowledgeAssetApi } = await KnowledgeAssetsInfrastructureResolver.resolve(policy);
 
   return new UseCases(
-    filesApi,
-    textExtractorApi,
-    chunkingApi,
-    embeddingApi,
     knowledgeAssetApi
-  );
+  );  
 }
 

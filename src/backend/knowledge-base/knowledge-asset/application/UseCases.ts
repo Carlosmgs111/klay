@@ -66,7 +66,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         metadata: { sourceId: sourceFile.id },
       }));
       const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent
+        chunksContent, command.name
       );
       const embeddingsDocuments = embeddings.documents as VectorDocument[];
       const embeddingsIds = embeddingsDocuments.map(
@@ -122,6 +122,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       const chunks = await this.chunkingApi.chunkOne(text.content as string, {
         strategy: chunkingStrategy,
       });
+      console.log({chunks});
       if (chunks.status === "success") {
         yield {
           status: "SUCCESS",
@@ -137,8 +138,10 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         timestamp: Date.now(),
       }));
       const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent
+        chunksContent,
+        name
       );
+      console.log({embeddings});
       if (embeddings.status === "success") {
         yield {
           status: "SUCCESS",
@@ -170,6 +173,17 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         step: "chunking",
         message: "Chunks generation failed",
       };
+    }
+  }
+
+  async retrieveKnowledge(knowledgeAssetId: string, query: string): Promise<string[]> {
+    try {
+      const knowledgeAsset = await this.repository.getKnowledgeAssetById(knowledgeAssetId);
+      const searchResult = await this.embeddingApi.search(query, 5, knowledgeAsset.name);
+      const similarQuery = searchResult.map((query) => query.document.content);
+      return similarQuery;
+    } catch (error) {
+      throw error;
     }
   }
 

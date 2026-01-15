@@ -1,24 +1,29 @@
 import type { AICompletionDTO } from "@/backend/agents/@core-contracts/dtos";
-import type { EmbeddingAPI } from "@/backend/knowledge-base/embeddings/@core-contracts/api";
+import type { KnowledgeAssetsAPI } from "@/modules/knowledge-base/orchestrator/@core-contracts/api";
 import type { AIApi } from "@/backend/agents/@core-contracts/api";
 
 export class UseCases {
-  constructor(private embeddingAPI: EmbeddingAPI, private aiApi: AIApi) {}
+  constructor(
+    private knowledgeAssetsApi: KnowledgeAssetsAPI,
+    private aiApi: AIApi
+  ) {}
 
   async *streamCompletionWithContext(command: AICompletionDTO) {
-    const similarQuery = (
-      await this.embeddingAPI.search(command.userPrompt)
-    ).map((query) => query.document.content);
+    console.log("streamCompletionWithContext", command);
+    const similarQuery = await this.knowledgeAssetsApi.retrieveKnowledge(
+      "2e2d621b-1531-464e-b143-5b5c360a9938",
+      command.userPrompt
+    );
     console.log({ similarQuery });
-    const context = `
-    # Response a la siguiente consulta: ${command.userPrompt}
-    ${similarQuery.length > 0 ? `\nContexto: ${similarQuery.join("\n")}` : ""}
-    `;
-    for await (const chunk of this.aiApi.streamCompletion("", {
-      ...command,
-      userPrompt: context,
-    })) {
-      yield chunk;
-    }
+    // const context = `
+    // # Response a la siguiente consulta: ${command.userPrompt}
+    // ${similarQuery.length > 0 ? `\nContexto: ${similarQuery.join("\n")}` : ""}
+    // `;
+    // for await (const chunk of this.aiApi.streamCompletion("", {
+    //   ...command,
+    //   userPrompt: context,
+    // })) {
+    //   yield chunk;
+    // }
   }
 }

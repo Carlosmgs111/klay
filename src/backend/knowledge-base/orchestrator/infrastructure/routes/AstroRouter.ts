@@ -61,8 +61,6 @@ export class AstroRouter {
           chunkingStrategy,
           embeddingStrategy,
           id: crypto.randomUUID(),
-          cleanedTextIds: [],
-          embeddingsIds: [],
           metadata: {},
         };
         const knowledgeAsset =
@@ -104,8 +102,6 @@ export class AstroRouter {
           chunkingStrategy,
           embeddingStrategy,
           id: crypto.randomUUID(),
-          cleanedTextIds: [],
-          embeddingsIds: [],
           metadata: {},
         };
         const stream = new ReadableStream({

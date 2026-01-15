@@ -1,5 +1,8 @@
 import type { Message } from "@/shared/stores/chat";
 import { chatStore, appendToMessage } from "@/shared/stores/chat";
+import { orchestatorApi } from "@/backend/query-orchestator";
+
+const execEnv = import.meta.env.PUBLIC_EXEC_ENV;
 
 export class ChatManager {
   private messagesContainer: HTMLElement;
@@ -39,6 +42,20 @@ export class ChatManager {
     this.addMessage(userMessage);
     this.input.value = "";
     this.setLoading(true);
+
+    if (execEnv === "browser") {
+      console.log("browser");
+      const response = await orchestatorApi.streamCompletionWithContext({
+        userPrompt: userMessage.content,
+        systemPrompt: "",
+      });
+      console.log(response);
+      for await (const chunk of response) {
+        appendToMessage(chunk);
+      }
+      this.setLoading(false);
+      return;
+    }
 
     const response = await fetch("/api", {
       method: "POST",

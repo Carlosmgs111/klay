@@ -61,7 +61,7 @@ export class EmbeddingsInfrastructureResolver {
         );
         return new LevelDBVectorStore({
           dimensions,
-          similarityThreshold: 0.7,
+          similarityThreshold: 0.5,
           dbPath: "./embeddings.db",
         });
       },
@@ -71,7 +71,7 @@ export class EmbeddingsInfrastructureResolver {
         );
         return new IDBVectorStore({
           dimensions,
-          similarityThreshold: 0.7,
+          similarityThreshold: 0.5,
           dbName: "embeddings-db",
         });
       },

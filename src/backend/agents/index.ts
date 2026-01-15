@@ -17,14 +17,13 @@ import { LocalLevelAgentRepository } from "./infrastructure/Repositories/LocalLe
 import { AstroRouter } from "./infrastructure/AstroRouter";
 
 const agentRepository = new LocalLevelAgentRepository();
-const aiProvider = new AISDKProvider();
-aiProvider.setAgent({
+const aiProvider = new AISDKProvider({
   model: "deepseek-ai/DeepSeek-V3-0324",
-  id: "1",
-  name: "DeepSeek",
-  description: "DeepSeek",
-  instructions: "DeepSeek",
-  tools: [],
+  // id: "1",
+  // name: "DeepSeek",
+  // description: "DeepSeek",
+  // instructions: "DeepSeek",
+  // tools: [],
 });
 export const aiApi: AIApi = new AIUsesCases(aiProvider, agentRepository);
 export const router = new AstroRouter(aiApi);

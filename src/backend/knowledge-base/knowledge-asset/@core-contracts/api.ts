@@ -7,4 +7,5 @@ export interface KnowledgeAssetApi {
   getAllKnowledgeAssets(): Promise<KnowledgeAsset[]>;
   getKnowledgeAssetById(id: string): Promise<KnowledgeAsset>;
   deleteKnowledgeAsset(id: string): Promise<boolean>;
+  retrieveKnowledge(knowledgeAssetId: string, query: string): Promise<string[]>;
 }

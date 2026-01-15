@@ -57,5 +57,12 @@ export class UseCases {
   async deleteKnowledgeAsset(id: string): Promise<void> {
     await this.knowledgeAssetApi.deleteKnowledgeAsset(id);
   }
-  async retrieveKnowledge(command: string): Promise<void> {}
+  async retrieveKnowledge(knowledgeAssetId: string, query: string): Promise<string[]> {
+    try {
+      const result = await this.knowledgeAssetApi.retrieveKnowledge(knowledgeAssetId, query);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

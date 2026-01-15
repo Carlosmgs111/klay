@@ -5,41 +5,72 @@ import type { SearchResult } from "../../@core-contracts/dtos";
 interface IDBVectorConfig {
   dbName: string;
   version: number;
-  storeName: string;
   dimensions: number;
   similarityThreshold: number;
 }
 
 export class IDBVectorStore implements VectorRepository {
   private config: IDBVectorConfig;
+  private currentVersion: number | undefined;
+  private dbPromise: Promise<IDBDatabase> | null = null;
 
   constructor(config: Partial<IDBVectorConfig> = {}) {
     this.config = {
       dbName: config.dbName || "vector-embeddings-db",
       version: config.version || 1,
-      storeName: config.storeName || "embeddings",
       dimensions: config.dimensions || 1024,
-      similarityThreshold: config.similarityThreshold || 0.7,
+      similarityThreshold: config.similarityThreshold || 0.5,
     };
   }
 
-  private async openDB(): Promise<IDBDatabase> {
+  private async getCurrentVersion(): Promise<number> {
+    if (this.currentVersion !== undefined) {
+      return this.currentVersion;
+    }
+
+    return new Promise((resolve) => {
+      const request = indexedDB.open(this.config.dbName);
+      request.onsuccess = () => {
+        const db = request.result;
+        this.currentVersion = db.version;
+        db.close();
+        resolve(this.currentVersion);
+      };
+      request.onerror = () => {
+        this.currentVersion = 1;
+        resolve(1);
+      };
+    });
+  }
+
+  private async openDB(collectionId?: string): Promise<IDBDatabase> {
+    const version = await this.getCurrentVersion();
+
     return new Promise((resolve, reject) => {
       if (!("indexedDB" in window)) {
         reject(new Error("IndexedDB not supported"));
         return;
       }
 
-      const request = indexedDB.open(this.config.dbName, this.config.version);
+      const request = indexedDB.open(this.config.dbName, version);
 
       request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+
+      request.onsuccess = () => {
+        const db = request.result;
+        if (collectionId && !db.objectStoreNames.contains(collectionId)) {
+          this.currentVersion = version + 1;
+          this.openDB(collectionId).then(resolve).catch(reject);
+          return;
+        }
+        resolve(db);
+      };
 
       request.onupgradeneeded = () => {
         const db = request.result;
-        if (!db.objectStoreNames.contains(this.config.storeName)) {
-          const store = db.createObjectStore(this.config.storeName, { keyPath: "id" });
-          // Create indexes for efficient querying
+
+        if (collectionId && !db.objectStoreNames.contains(collectionId)) {
+          const store = db.createObjectStore(collectionId, { keyPath: "id" });
           store.createIndex("metadata", "metadata", { multiEntry: false });
           store.createIndex("timestamp", "timestamp");
         }
@@ -48,23 +79,22 @@ export class IDBVectorStore implements VectorRepository {
   }
 
   async initialize(): Promise<void> {
-    // Initialize the database by opening it
     const db = await this.openDB();
     db.close();
   }
 
-  async addDocument(document: Omit<VectorDocument, "timestamp">): Promise<void> {
-    const db = await this.openDB();
-    
+  async addDocument(document: Omit<VectorDocument, "timestamp">, collectionId: string): Promise<void> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readwrite");
-      const store = transaction.objectStore(this.config.storeName);
-      
+      const transaction = db.transaction([collectionId], "readwrite");
+      const store = transaction.objectStore(collectionId);
+
       const documentWithTimestamp: VectorDocument = {
         ...document,
         timestamp: Date.now(),
       };
-      
+
       const request = store.put(documentWithTimestamp);
 
       request.onerror = () => reject(request.error);
@@ -72,31 +102,31 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async addDocuments(documents: Omit<VectorDocument, "timestamp">[]): Promise<void> {
-    const db = await this.openDB();
-    
+  async addDocuments(documents: Omit<VectorDocument, "timestamp">[], collectionId: string): Promise<void> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readwrite");
-      const store = transaction.objectStore(this.config.storeName);
-      
+      const transaction = db.transaction([collectionId], "readwrite");
+      const store = transaction.objectStore(collectionId);
+
       let completed = 0;
       let hasError = false;
 
       documents.forEach(doc => {
         if (hasError) return;
-        
+
         const documentWithTimestamp: VectorDocument = {
           ...doc,
           timestamp: Date.now(),
         };
-        
+
         const request = store.put(documentWithTimestamp);
-        
+
         request.onerror = () => {
           hasError = true;
           reject(request.error);
         };
-        
+
         request.onsuccess = () => {
           completed++;
           if (completed === documents.length) {
@@ -111,12 +141,12 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async getDocument(id: string): Promise<VectorDocument | null> {
-    const db = await this.openDB();
-    
+  async getDocument(id: string, collectionId: string): Promise<VectorDocument | null> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readonly");
-      const store = transaction.objectStore(this.config.storeName);
+      const transaction = db.transaction([collectionId], "readonly");
+      const store = transaction.objectStore(collectionId);
       const request = store.get(id);
 
       request.onerror = () => reject(request.error);
@@ -124,12 +154,12 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async deleteDocument(id: string): Promise<void> {
-    const db = await this.openDB();
-    
+  async deleteDocument(id: string, collectionId: string): Promise<void> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readwrite");
-      const store = transaction.objectStore(this.config.storeName);
+      const transaction = db.transaction([collectionId], "readwrite");
+      const store = transaction.objectStore(collectionId);
       const request = store.delete(id);
 
       request.onerror = () => reject(request.error);
@@ -137,12 +167,13 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async search(queryEmbedding: number[], topK: number): Promise<SearchResult[]> {
-    const allDocuments = await this.getAllDocuments();
-    
+  async search(queryEmbedding: number[], topK: number = 5, collectionId: string): Promise<SearchResult[]> {
+    const allDocuments = await this.getAllDocuments(collectionId);
+    console.log("IDBVectorStore.search - allDocuments:", allDocuments);
     // Calculate cosine similarity for each document
     const results: SearchResult[] = allDocuments.map(doc => {
       const similarity = this.cosineSimilarity(queryEmbedding, doc.embedding);
+      console.log("IDBVectorStore.search - similarity:", similarity);
       return {
         document: doc,
         similarity,
@@ -157,12 +188,12 @@ export class IDBVectorStore implements VectorRepository {
       .slice(0, topK);
   }
 
-  async getAllDocuments(): Promise<VectorDocument[]> {
-    const db = await this.openDB();
-    
+  async getAllDocuments(collectionId: string): Promise<VectorDocument[]> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readonly");
-      const store = transaction.objectStore(this.config.storeName);
+      const transaction = db.transaction([collectionId], "readonly");
+      const store = transaction.objectStore(collectionId);
       const request = store.getAll();
 
       request.onerror = () => reject(request.error);
@@ -170,12 +201,12 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async count(): Promise<number> {
-    const db = await this.openDB();
-    
+  async count(collectionId: string): Promise<number> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readonly");
-      const store = transaction.objectStore(this.config.storeName);
+      const transaction = db.transaction([collectionId], "readonly");
+      const store = transaction.objectStore(collectionId);
       const request = store.count();
 
       request.onerror = () => reject(request.error);
@@ -183,12 +214,12 @@ export class IDBVectorStore implements VectorRepository {
     });
   }
 
-  async clear(): Promise<void> {
-    const db = await this.openDB();
-    
+  async clear(collectionId: string): Promise<void> {
+    const db = await this.openDB(collectionId);
+
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.config.storeName], "readwrite");
-      const store = transaction.objectStore(this.config.storeName);
+      const transaction = db.transaction([collectionId], "readwrite");
+      const store = transaction.objectStore(collectionId);
       const request = store.clear();
 
       request.onerror = () => reject(request.error);
@@ -197,8 +228,6 @@ export class IDBVectorStore implements VectorRepository {
   }
 
   async close(): Promise<void> {
-    // Browser IndexedDB connections are automatically managed
-    // No explicit close needed
     return Promise.resolve();
   }
 

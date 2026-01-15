@@ -10,8 +10,10 @@ export class EmbeddingUseCases {
     private vectorRepository: VectorRepository
   ) {}
 
-  async generateEmbeddings(texts: EmbeddingCreationDTO[]): Promise<EmbeddingResultDTO> {
+  async generateEmbeddings(texts: EmbeddingCreationDTO[], collectionId: string): Promise<EmbeddingResultDTO> {
+    try {
     const embeddings = await this.embeddingProvider.generateEmbeddings(texts.map((text) => text.content));
+    console.log("EmbeddingUseCases.generateEmbeddings - collectionId:", collectionId);
     const documents: VectorDocument[] = texts.map((text, index) => ({
       id: crypto.randomUUID(),
       content: text.content,
@@ -21,17 +23,30 @@ export class EmbeddingUseCases {
       },
       timestamp: Date.now(),
     }));
-    await this.vectorRepository.addDocuments(documents);
+    await this.vectorRepository.addDocuments(documents, collectionId);
     return {
       documents,
       status: "success",
-    };
+    };}
+    catch (error: any) {
+      console.log(error);
+      return {
+        documents: [],
+        status: "error",
+        message: error.message,
+      };
+    }
   }
-  async search(text: string, topK: number): Promise<SearchResult[]> {
+  async search(text: string, topK: number, collectionId: string): Promise<SearchResult[]> {
+    console.log("EmbeddingUseCases.search - text:", text);
+    console.log("EmbeddingUseCases.search - topK:", topK);
     const queryEmbedding = await this.embeddingProvider.generateEmbedding(text);
-    return this.vectorRepository.search(queryEmbedding, topK);
+    console.log("EmbeddingUseCases.search - queryEmbedding:", queryEmbedding);
+    const results = await this.vectorRepository.search(queryEmbedding, topK, collectionId);
+    console.log("EmbeddingUseCases.search - results:", results);
+    return results;
   }
-  async getAllDocuments(): Promise<VectorDocument[]> {
-    return this.vectorRepository.getAllDocuments();
+  async getAllDocuments(collectionId: string): Promise<VectorDocument[]> {
+    return this.vectorRepository.getAllDocuments(collectionId);
   }
 }

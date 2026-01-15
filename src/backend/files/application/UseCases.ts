@@ -2,7 +2,6 @@ import type { Storage } from "../@core-contracts/storage";
 import type { Repository } from "../@core-contracts/repositories";
 import type { FileUploadDTO } from "../@core-contracts/dtos";
 import type { File } from "../@core-contracts/entities";
-import type { FileUploadResultDTO } from "../@core-contracts/dtos";
 import type { ApplicationResult } from "@/modules/shared/@core-contracts/result";
 
 export class FilesUseCases {
@@ -13,24 +12,34 @@ export class FilesUseCases {
     this.repository = repository;
   }
 
-  getFileById = async (id: string): Promise<File & { buffer: Buffer }> => {
-    const file = await this.repository.getFileById(id);
-    const fileBuffer = await this.getFileBuffer(id);
+  getFileById = async (
+    collectionId: string,
+    id: string
+  ): Promise<File & { buffer: Buffer }> => {
+    const file = await this.repository.getFileById(collectionId, id);
+    const fileBuffer = await this.getFileBuffer(collectionId, id);
     if (!file) {
       throw new Error("File not found");
     }
     return { ...file, buffer: fileBuffer };
   };
 
-  getFiles = async (): Promise<File[]> => {
-    const files = await this.repository.getFiles();
+  getFiles = async (collectionId: string): Promise<File[]> => {
+    console.log("collectionId", collectionId);
+    const files = await this.repository.getFiles(collectionId);
     return files;
   };
 
-  uploadFile = async (
-    file: FileUploadDTO
-  ): Promise<ApplicationResult<FileUploadDTO>> => {
+  uploadFile = async ({
+    file,
+    collectionId,
+  }: {
+    file: FileUploadDTO;
+    collectionId: string;
+  }): Promise<ApplicationResult<FileUploadDTO & { collectionId: string }>> => {
+   try{ console.log("uploading file", file);
     const fileUrl = await this.storage.uploadFile(file.buffer, file.name);
+    console.log({ fileUrl });
     if (!fileUrl) {
       return {
         status: "ERROR",
@@ -45,12 +54,27 @@ export class FilesUseCases {
       lastModified: file.lastModified,
       url: fileUrl,
     };
-    await this.repository.saveFile(fileEntity);
-    return { data: { ...fileEntity, buffer: file.buffer }, status: "SUCCESS" };
+    console.log({ fileEntity });
+    await this.repository.saveFile(collectionId, fileEntity);
+    return {
+      data: {
+        ...fileEntity,
+        buffer: file.buffer,
+        collectionId,
+      },
+      status: "SUCCESS",
+    };}
+    catch (error) {
+      console.log(error);
+      return {
+        status: "ERROR",
+        error: { code: 500, message: "File not uploaded" },
+      };
+    }
   };
 
-  deleteFile = async (fileId: string) => {
-    const file = await this.repository.getFileById(fileId);
+  deleteFile = async (collectionId: string, fileId: string) => {
+    const file = await this.repository.getFileById(collectionId, fileId);
     if (!file) {
       throw new Error("File not found");
     }
@@ -58,14 +82,17 @@ export class FilesUseCases {
     if (!deleted) {
       throw new Error("File not deleted");
     }
-    const deletedDb = await this.repository.deleteFile(fileId);
+    const deletedDb = await this.repository.deleteFile(collectionId, fileId);
     if (!deletedDb) {
       throw new Error("File not deleted in database");
     }
   };
 
-  private getFileBuffer = async (fileId: string): Promise<Buffer> => {
-    const file = await this.repository.getFileById(fileId);
+  private getFileBuffer = async (
+    collectionId: string,
+    fileId: string
+  ): Promise<Buffer> => {
+    const file = await this.repository.getFileById(collectionId, fileId);
     if (!file) {
       throw new Error("File not found");
     }

@@ -60,7 +60,8 @@ const { initialMessages = [], placeholder = "Escribe algo..." } = Astro.props;
 
 <script>
   import { ChatManager } from "./lib/ChatManager";
+  const chatManager = new ChatManager();
   document.addEventListener("astro:page-load", () => {
-    const chatManager = new ChatManager();
+    console.log("astro:page-load");
   });
 </script>

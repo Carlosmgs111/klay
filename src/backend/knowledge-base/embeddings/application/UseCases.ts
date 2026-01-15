@@ -10,7 +10,7 @@ export class EmbeddingUseCases {
     private vectorRepository: VectorRepository
   ) {}
 
-  async generateEmbeddings(texts: EmbeddingCreationDTO[], collectionId: string): Promise<EmbeddingResultDTO> {
+  async generateEmbeddings({texts, collectionId, embeddingsId}: {texts: EmbeddingCreationDTO[], collectionId: string, embeddingsId: string}): Promise<EmbeddingResultDTO> {
     try {
     const embeddings = await this.embeddingProvider.generateEmbeddings(texts.map((text) => text.content));
     console.log("EmbeddingUseCases.generateEmbeddings - collectionId:", collectionId);

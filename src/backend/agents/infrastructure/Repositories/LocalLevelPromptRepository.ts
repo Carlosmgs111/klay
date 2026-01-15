@@ -1,6 +1,6 @@
 import type { PromptRepository } from "../../@core-contracts/repositories";
 import type { PromptTemplateDTO } from "../../@core-contracts/dtos";
-import { getPromptsDB } from "../../../shared/config/repositories";
+import { getDB } from "../../../shared/config/repositories";
 import { Level } from "level";
 
 export class LocalLevelPromptRepository implements PromptRepository {
@@ -12,7 +12,7 @@ export class LocalLevelPromptRepository implements PromptRepository {
 
     private async ensureDB() {
         if (!this.dbInitialized) {
-            this.db = await getPromptsDB();
+            this.db = await getDB("prompts");
             this.dbInitialized = true;
         }
     }

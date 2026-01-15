@@ -104,16 +104,19 @@ export class IDBVectorStore implements VectorRepository {
 
   async addDocuments(documents: Omit<VectorDocument, "timestamp">[], collectionId: string): Promise<void> {
     const db = await this.openDB(collectionId);
-
+    console.log("IDBVectorStore.addDocuments");
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([collectionId], "readwrite");
       const store = transaction.objectStore(collectionId);
+      console.log("IDBVectorStore.addDocuments - store:", store);
 
       let completed = 0;
       let hasError = false;
 
       documents.forEach(doc => {
         if (hasError) return;
+
+        console.log("IDBVectorStore.addDocuments - timestamp:", Date.now());
 
         const documentWithTimestamp: VectorDocument = {
           ...doc,
@@ -192,6 +195,12 @@ export class IDBVectorStore implements VectorRepository {
     const db = await this.openDB(collectionId);
 
     return new Promise((resolve, reject) => {
+      // Check if store exists
+      if (!db.objectStoreNames.contains(collectionId)) {
+        resolve([]);
+        return;
+      }
+
       const transaction = db.transaction([collectionId], "readonly");
       const store = transaction.objectStore(collectionId);
       const request = store.getAll();
@@ -205,6 +214,12 @@ export class IDBVectorStore implements VectorRepository {
     const db = await this.openDB(collectionId);
 
     return new Promise((resolve, reject) => {
+      // Check if store exists
+      if (!db.objectStoreNames.contains(collectionId)) {
+        resolve(0);
+        return;
+      }
+
       const transaction = db.transaction([collectionId], "readonly");
       const store = transaction.objectStore(collectionId);
       const request = store.count();
@@ -218,6 +233,12 @@ export class IDBVectorStore implements VectorRepository {
     const db = await this.openDB(collectionId);
 
     return new Promise((resolve, reject) => {
+      // Check if store exists
+      if (!db.objectStoreNames.contains(collectionId)) {
+        resolve();
+        return;
+      }
+
       const transaction = db.transaction([collectionId], "readwrite");
       const store = transaction.objectStore(collectionId);
       const request = store.clear();

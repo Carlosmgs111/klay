@@ -172,7 +172,7 @@ export function useKnowledgeManagement() {
         },
       });
       const file = formData.get("file") as File;
-      const name = formData.get("name") as string;
+      const assetName = formData.get("assetName") as string;
       const buffer = new Uint8Array(await file.arrayBuffer()) as Buffer;
       const source = {
         id: id,
@@ -183,15 +183,12 @@ export function useKnowledgeManagement() {
         lastModified: file.lastModified,
         url: "",
       };
-      console.log({ name });
+      console.log({ assetName });
       const command: NewKnowledgeDTO = {
-        name: name,
+        name: assetName,
         sources: [source],
         chunkingStrategy: "sentence",
-        embeddingStrategy: "sentence",
         id: crypto.randomUUID(),
-        cleanedTextIds: [],
-        embeddingsIds: [],
         metadata: {},
       };
       for await (const chunk of (
@@ -257,17 +254,16 @@ export function useKnowledgeManagement() {
     formData.append("file", file);
     formData.append("id", id);
     formData.append("chunkingStrategy", "sentence");
-    formData.append("embeddingStrategy", "sentence");
     const result = window.prompt("Name for the knowledge asset");
-    const name =
+    const assetName =
       result ||
       uniqueNamesGenerator({
         length: 2,
         style: "lowerCase",
         dictionaries: [adjectives, colors, animals],
       });
-    console.log({ name });
-    formData.append("name", name);
+    console.log({ assetName });
+    formData.append("assetName", assetName);
 
     if (execEnv === "browser") {
       await handleFromApi(id, formData);

@@ -43,6 +43,8 @@ export class ChatManager {
     this.input.value = "";
     this.setLoading(true);
 
+    console.log("handleSubmit");
+
     if (execEnv === "browser") {
       console.log("browser");
       const response = await orchestatorApi.streamCompletionWithContext({

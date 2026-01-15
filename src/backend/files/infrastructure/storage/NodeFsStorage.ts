@@ -11,6 +11,7 @@ export class NodeFsStorage implements Storage {
 
   uploadFile = async (file: Buffer, fileName: string): Promise<string> => {
     const filePath = `${this.storagePath}/${fileName}`;
+    console.log({ filePath });
     return new Promise((resolve, reject) => {
       fs.writeFile(filePath, file, (err) => {
         if (err) {

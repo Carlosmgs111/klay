@@ -1,6 +1,6 @@
 import type { KnowledgeAsset } from "../../@core-contracts/entities";
 import type { KnowledgeAssetsRepository } from "../../@core-contracts/repositories";
-import { getKnowledgeAssetsDB } from "@/modules/shared/config/repositories";
+import { getDB } from "@/modules/shared/config/repositories";
 // import { Level } from "level";
 
 export class LevelDBRepository implements KnowledgeAssetsRepository {
@@ -13,7 +13,7 @@ export class LevelDBRepository implements KnowledgeAssetsRepository {
 
   private async ensureDB() {
     if (!this.dbInitialized) {
-      this.db = await getKnowledgeAssetsDB();
+      this.db = await getDB("knowledge-assets");
       this.dbInitialized = true;
     }
   }

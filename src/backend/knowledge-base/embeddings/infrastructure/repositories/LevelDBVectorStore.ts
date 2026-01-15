@@ -3,7 +3,7 @@
  */
 
 import type { VectorRepository } from "../../@core-contracts/repositories";
-import { getEmbeddingsDB } from "../../../../shared/config/repositories";
+import { getDB } from "../../../../shared/config/repositories";
 import type { VectorDocument } from "../../@core-contracts/entities";
 import type { SearchResult, VectorDBConfig } from "../../@core-contracts/dtos";
 
@@ -25,7 +25,7 @@ export class LevelDBVectorStore implements VectorRepository {
 
   async initialize(): Promise<void> {
     if (!this.dbInitialized) {
-      this.db = await getEmbeddingsDB();
+      this.db = await getDB("embeddings");
       this.dbInitialized = true;
       await this.db.open();
     }

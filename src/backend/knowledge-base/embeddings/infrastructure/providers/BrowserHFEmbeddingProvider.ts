@@ -44,7 +44,7 @@ export class BrowserHFEmbeddingProvider implements EmbeddingProvider {
 
       // Convert tensor to array
       const embedding = Array.from(output.data) as number[];
-
+      console.log("Browser embedding generated:", embedding);
       return embedding;
     } catch (error) {
       console.error("Browser embedding error:", error);
@@ -53,6 +53,7 @@ export class BrowserHFEmbeddingProvider implements EmbeddingProvider {
   }
 
   async generateEmbeddings(texts: string[]): Promise<number[][]> {
+    console.log("BrowserHFEmbeddingProvider.generateEmbeddings");
     try {
       await this.ensureInitialized();
 

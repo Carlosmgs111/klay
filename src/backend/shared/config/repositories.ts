@@ -2,49 +2,23 @@
 let LevelClass: typeof import("level").Level | null = null;
 
 async function ensureLevelLoaded() {
+  console.log("ensureLevelLoaded");
   if (!LevelClass) {
+    console.log("LevelClass not initialized");
     const levelModule = await import("level");
     LevelClass = levelModule.Level;
   }
+  console.log("LevelClass initialized");
   return LevelClass;
 }
 
-let textsDB: any;
+const dbs: Record<string, any> = {};
 
-export async function getTextsDB() {
-  if (!textsDB) {
+export async function getDB(dbName: string){
+  console.log("getDB", {dbs});
+  if(!dbs[dbName]){
     const Level = await ensureLevelLoaded();
-    textsDB = new Level("./database/level/texts", { valueEncoding: "json" });
+    dbs[dbName] = new Level("./database/level/" + dbName, { valueEncoding: "json" });
   }
-  return textsDB;
-}
-
-let promptsDB: any;
-
-export async function getPromptsDB() {
-  if (!promptsDB) {
-    const Level = await ensureLevelLoaded();
-    promptsDB = new Level("./database/level/prompts", { valueEncoding: "json" });
-  }
-  return promptsDB;
-}
-
-let embeddingsDB: any;
-
-export async function getEmbeddingsDB() {
-  if (!embeddingsDB) {
-    const Level = await ensureLevelLoaded();
-    embeddingsDB = new Level("./database/level/embeddings", { valueEncoding: "json" });
-  }
-  return embeddingsDB;
-}
-
-let knowledgeAssetsDB: any;
-
-export async function getKnowledgeAssetsDB() {
-  if (!knowledgeAssetsDB) {
-    const Level = await ensureLevelLoaded();
-    knowledgeAssetsDB = new Level("./database/level/knowledge-assets", { valueEncoding: "json" });
-  }
-  return knowledgeAssetsDB;
+  return dbs[dbName];
 }

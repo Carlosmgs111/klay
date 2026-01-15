@@ -41,8 +41,14 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
 
     try {
       const { sources, chunkingStrategy } = command;
-      const sourceFile = sources[0] as FileUploadDTO;
-      const { status, message } = await this.filesApi.uploadFile(sourceFile);
+      const sourceFile = {
+        ...(sources[0] as FileUploadDTO),
+        collectionId: command.name,
+      };
+      const { status, message } = await this.filesApi.uploadFile({
+        file: sourceFile,
+        collectionId: command.name,
+      });
       console.log(status, message);
       if (status === "ERROR") {
         throw new Error(message);
@@ -51,6 +57,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       const text = await this.textExtractorApi.extractTextFromPDF({
         id: sourceFile.id,
         source: sourceFile,
+        collectionId: command.name,
       });
       if (text.status === "error") {
         throw new Error(text.message);
@@ -65,9 +72,10 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         content: chunk.content,
         metadata: { sourceId: sourceFile.id },
       }));
-      const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent, command.name
-      );
+      const embeddings = await this.embeddingApi.generateEmbeddings({
+        texts: chunksContent,
+        collectionId: command.name,
+      });
       const embeddingsDocuments = embeddings.documents as VectorDocument[];
       const embeddingsIds = embeddingsDocuments.map(
         (embedding) => embedding.id
@@ -75,11 +83,6 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       const knowledgeAsset: KnowledgeAsset = {
         name: command.name,
         id: crypto.randomUUID(),
-        sourcesIds: command.sources.map((source) =>
-          typeof source === "string" ? source : source.id
-        ),
-        cleanedTextIds: textIds,
-        embeddingsIds: embeddingsIds,
         metadata: command.metadata,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -96,9 +99,15 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     command: NewKnowledgeDTO
   ): AsyncGenerator<KnowledgeAssetDTO | FlowState> {
     try {
-      const { sources, chunkingStrategy, embeddingStrategy, name } = command;
+      const knowledgeAssetId = crypto.randomUUID();
+      const { sources, chunkingStrategy, name } = command;
       const sourceFile = sources[0] as FileUploadDTO;
-      const { status, message } = await this.filesApi.uploadFile(sourceFile);
+      console.log({ sourceFile });
+      const { status, message } = await this.filesApi.uploadFile({
+        file: sourceFile,
+        collectionId: knowledgeAssetId.split("-").reverse()[0] + ":" + name,
+      });
+      console.log({ status, message });
       if (status === "ERROR") {
         throw new Error(message);
       }
@@ -107,10 +116,13 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         step: "file-upload",
         message: "File uploaded successfully",
       };
+      const textId = crypto.randomUUID();
       const text = await this.textExtractorApi.extractTextFromPDF({
-        id: crypto.randomUUID(),
+        id: textId,
         source: sourceFile,
+        collectionId: knowledgeAssetId.split("-").reverse()[0] + ":" + name,
       });
+      console.log({ text });
       if (text.status === "error") {
         throw new Error(text.message);
       }
@@ -122,7 +134,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       const chunks = await this.chunkingApi.chunkOne(text.content as string, {
         strategy: chunkingStrategy,
       });
-      console.log({chunks});
+      console.log({ chunks });
       if (chunks.status === "success") {
         yield {
           status: "SUCCESS",
@@ -137,11 +149,11 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         metadata: { sourceId: sourceFile.id },
         timestamp: Date.now(),
       }));
-      const embeddings = await this.embeddingApi.generateEmbeddings(
-        chunksContent,
-        name
-      );
-      console.log({embeddings});
+      const embeddings = await this.embeddingApi.generateEmbeddings({
+        texts: chunksContent,
+        collectionId: knowledgeAssetId.split("-").reverse()[0] + ":" + name,
+      });
+      console.log({ embeddings });
       if (embeddings.status === "success") {
         yield {
           status: "SUCCESS",
@@ -149,14 +161,10 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
           message: "Embeddings generated successfully",
         };
       }
-      const embeddingsDocuments = embeddings.documents as VectorDocument[];
 
       const newKnowledgeAsset: KnowledgeAsset = {
         name: name,
-        id: crypto.randomUUID(),
-        sourcesIds: [sourceFile.id],
-        cleanedTextIds: [text.id as string],
-        embeddingsIds: embeddingsDocuments.map((embedding) => embedding.id),
+        id: knowledgeAssetId,
         metadata: {},
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -176,10 +184,19 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     }
   }
 
-  async retrieveKnowledge(knowledgeAssetId: string, query: string): Promise<string[]> {
+  async retrieveKnowledge(
+    knowledgeAssetId: string,
+    query: string
+  ): Promise<string[]> {
     try {
-      const knowledgeAsset = await this.repository.getKnowledgeAssetById(knowledgeAssetId);
-      const searchResult = await this.embeddingApi.search(query, 5, knowledgeAsset.name);
+      const knowledgeAsset = await this.repository.getKnowledgeAssetById(
+        knowledgeAssetId
+      );
+      const searchResult = await this.embeddingApi.search({
+        text: query,
+        topK: 5,
+        collectionId: knowledgeAsset.name,
+      });
       const similarQuery = searchResult.map((query) => query.document.content);
       return similarQuery;
     } catch (error) {
@@ -188,7 +205,9 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
   }
 
   async getAllKnowledgeAssets(): Promise<KnowledgeAsset[]> {
-    return this.repository.getAllKnowledgeAssets();
+    const allKnowledgeAssets = await this.repository.getAllKnowledgeAssets();
+    console.log({ allKnowledgeAssets });
+    return allKnowledgeAssets;
   }
 
   async getKnowledgeAssetById(id: string): Promise<KnowledgeAsset> {

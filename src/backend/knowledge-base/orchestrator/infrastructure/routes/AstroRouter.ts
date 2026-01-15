@@ -1,7 +1,6 @@
 import type { APIContext } from "astro";
 import type { KnowledgeAssetsAPI } from "../../@core-contracts/api";
 import type { KnowledgeAssetsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
-import type { GenerateNewKnowledgeDTO } from "../../@core-contracts/dtos";
 import type { ChunkingStrategyType } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
 import type { NewKnowledgeDTO } from "@/backend/knowledge-base/knowledge-asset";
 
@@ -13,7 +12,7 @@ export class AstroRouter {
     this.knowledgeAssetsApi = knowledgeAssetsApiFactory({
       filesPolicy: {
         storage: "node-fs",
-        repository: "csv",
+        repository: "leveldb",
       },
       textExtractionPolicy: {
         extractor: "pdf",
@@ -54,12 +53,10 @@ export class AstroRouter {
         const chunkingStrategy = formData.get(
           "chunkingStrategy"
         ) as ChunkingStrategyType;
-        const embeddingStrategy = formData.get("embeddingStrategy") as string;
         const command: NewKnowledgeDTO = {
           name: file.name,
           sources: [source],
           chunkingStrategy,
-          embeddingStrategy,
           id: crypto.randomUUID(),
           metadata: {},
         };
@@ -83,6 +80,7 @@ export class AstroRouter {
         const formData = await request.formData();
         const file = formData.get("file") as File;
         const fileId = formData.get("id") as string;
+        const assetName = formData.get("assetName") as string;
         const source = {
           id: fileId,
           name: file.name,
@@ -95,12 +93,10 @@ export class AstroRouter {
         const chunkingStrategy = formData.get(
           "chunkingStrategy"
         ) as ChunkingStrategyType;
-        const embeddingStrategy = formData.get("embeddingStrategy") as string;
         const command: NewKnowledgeDTO = {
-          name: file.name,
+          name: assetName,
           sources: [source],
           chunkingStrategy,
-          embeddingStrategy,
           id: crypto.randomUUID(),
           metadata: {},
         };
@@ -136,6 +132,12 @@ export class AstroRouter {
       } catch (error) {}
     }
     return new Response("NOT IMPLEMENTED", { status: 200 });
+  };
+
+  getAllKnowledgeAssets = async ({ params }: APIContext) => {
+    const knowledgeAssetsApi = this.knowledgeAssetsApi;
+    const knowledgeAssets = await (await knowledgeAssetsApi).getAllKnowledgeAssets();
+    return new Response(JSON.stringify(knowledgeAssets), { status: 200 });
   };
   deleteKnowledgeAsset = async ({ params }: APIContext) => {
     const id = params.id;

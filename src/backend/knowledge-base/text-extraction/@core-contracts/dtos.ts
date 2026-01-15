@@ -7,6 +7,7 @@ export interface SourceDTO extends Source {
 export interface TextExtractParams {
   source: SourceDTO;
   id: string;
+  collectionId: string;
 }
 
 export interface TextExtractDTO {

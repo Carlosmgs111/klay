@@ -10,20 +10,20 @@ export class AstroRouter {
   ) {
     this.fileManagerUseCasesPromise = filesApiFactory({
       storage: "node-fs",
-      repository: "csv",
+      repository: "leveldb",
     });
   }
 
   getAllFiles = async ({}: APIContext) => {
     const fileManagerUseCases = await this.fileManagerUseCasesPromise;
-    const files = await fileManagerUseCases.getFiles();
+    const files = await fileManagerUseCases.getFiles("60335cdfd02e:testy_amaranth");
     return new Response(JSON.stringify(files), { status: 200 });
   };
 
   getFileById = async ({ params }: APIContext) => {
     const { id } = params;
     const fileManagerUseCases = await this.fileManagerUseCasesPromise;
-    const file = await fileManagerUseCases.getFileById(id as string);
+    const file = await fileManagerUseCases.getFileById("leveldb", id as string);
     return new Response(JSON.stringify(file), { status: 200 });
   };
 
@@ -48,7 +48,10 @@ export class AstroRouter {
       url: "",
     };
     const fileManagerUseCases = await this.fileManagerUseCasesPromise;
-    const fileUrl = await fileManagerUseCases.uploadFile(fileParams);
+    const fileUrl = await fileManagerUseCases.uploadFile({
+      file: fileParams,
+      collectionId: "leveldb",
+    });
     return new Response(fileUrl.url, { status: 200 });
   };
 
@@ -59,7 +62,7 @@ export class AstroRouter {
       return new Response("No file id provided", { status: 400 });
     }
     const fileManagerUseCases = await this.fileManagerUseCasesPromise;
-    await fileManagerUseCases.deleteFile(id);
+    await fileManagerUseCases.deleteFile("leveldb", id as string);
     return new Response("File deleted", { status: 200 });
   };
 }

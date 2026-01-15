@@ -45,17 +45,17 @@ export class FilesInfrastructureResolver {
     type: FilesInfrastructurePolicy["repository"]
   ): Promise<Repository> {
     const resolverTypes = {
-      csv: async () => {
-        const { CsvRepository } = await import(
-          "../repository/CsvRepository"
-        );
-        return new CsvRepository();
-      },
       idb: async () => {
         const { IDBRepository } = await import(
           "../repository/IDBRepository"
         );
         return new IDBRepository();
+      },
+      leveldb: async () => {
+        const { LevelDBRepository } = await import(
+          "../repository/LevelDBRepository"
+        );
+        return new LevelDBRepository();
       },
     };
 

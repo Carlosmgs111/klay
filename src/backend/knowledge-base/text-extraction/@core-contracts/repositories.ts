@@ -1,10 +1,11 @@
 import type { Text } from "./entities";
 
 export interface Repository {
-  saveTextById(index: string, text: Text): Promise<void>;
-  getTextById(index: string): Promise<Text>;
-  getAllTexts(): Promise<Text[]>;
-  getAllIndexes(): Promise<string[]>;
-  deleteTextById(index: string): Promise<void>;
+  saveTextById(collectionId: string, index: string, text: Text): Promise<void>;
+  getTextById(collectionId: string, index: string): Promise<Text>;
+  getAllTexts(collectionId: string): Promise<Text[]>;
+  getAllIndexes(collectionId: string): Promise<string[]>;
+  deleteTextById(collectionId: string, index: string): Promise<void>;
+  clearCollection(collectionId: string): Promise<void>;
   purge(): Promise<void>;
 }

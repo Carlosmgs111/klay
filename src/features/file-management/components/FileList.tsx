@@ -34,7 +34,8 @@ export default function FileList({ execEnv }: FileListProps) {
           });
           setFilesApi(api);
 
-          const loadedFiles = await api.getFiles();
+          const loadedFiles = await api.getFiles("3903f3451367:stupid_crimson");
+          console.log({ loadedFiles });
           setFilesState(loadedFiles as FileData[]);
 
           // Actualizar el store de nanostores

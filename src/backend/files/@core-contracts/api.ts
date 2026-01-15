@@ -3,8 +3,8 @@ import type { File } from "./entities";
 import type { FileUploadResultDTO } from "./dtos";
 
 export interface FilesApi {
-  uploadFile(file: FileUploadDTO): Promise<FileUploadResultDTO>;
-  getFileById(id: string): Promise<File & { buffer: Buffer }>;
-  getFiles(): Promise<File[]>;
-  deleteFile(id: string): Promise<void>;
+  uploadFile({file, collectionId}: {file: FileUploadDTO, collectionId: string}): Promise<FileUploadResultDTO>;
+  getFileById(collectionId: string, id: string): Promise<File & { buffer: Buffer }>;
+  getFiles(collectionId: string): Promise<File[]>;
+  deleteFile(collectionId: string, id: string): Promise<void>;
 }

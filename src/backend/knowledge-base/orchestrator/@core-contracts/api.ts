@@ -1,8 +1,8 @@
-import type { GenerateNewKnowledgeDTO } from "./dtos";
 import type {
   KnowledgeAssetDTO,
   NewKnowledgeDTO,
 } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/dtos";
+import type { KnowledgeAsset } from "@/modules/knowledge-base/knowledge-asset";
 
 export interface FlowState {
   status: "SUCCESS" | "ERROR";
@@ -20,6 +20,7 @@ export interface KnowledgeAssetsAPI {
   generateNewKnowledgeStreamingState(
     sourceDocument: NewKnowledgeDTO
   ): AsyncGenerator<KnowledgeAssetDTO | FlowState>;
-  deleteKnowledgeAsset(id: string): Promise<void>;
+  getAllKnowledgeAssets(): Promise<KnowledgeAsset[]>;
+  deleteKnowledgeAsset(id: string): Promise<boolean>;
   retrieveKnowledge(knowledgeAssetId: string, query: string): Promise<string[]>;
 }

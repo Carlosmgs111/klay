@@ -11,7 +11,7 @@ export class UseCases {
   async *streamCompletionWithContext(command: AICompletionDTO) {
     console.log("streamCompletionWithContext", command);
     const similarQuery = await this.knowledgeAssetsApi.retrieveKnowledge(
-      "2e2d621b-1531-464e-b143-5b5c360a9938",
+      "21100502-63db-4a3e-8853-ee8bd6b2be0e",
       command.userPrompt
     );
     console.log({ similarQuery });

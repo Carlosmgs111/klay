@@ -6,15 +6,12 @@ export interface NewKnowledgeDTO {
   name: string;
   sources: [FileUploadDTO | string];
   chunkingStrategy: ChunkingStrategyType;
-  embeddingStrategy: string;
   metadata: Record<string, any>;
 }
 
 export interface KnowledgeAssetDTO {
   id: string;
-  sourcesIds: string[];
-  cleanedTextIds: string[];
-  embeddingsIds: string[];
+  metadata: Record<string, any>;
 }
 
 export interface FlowState {

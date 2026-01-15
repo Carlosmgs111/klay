@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
+import type { KnowledgeAssetsAPI } from "@/modules/knowledge-base/orchestrator/@core-contracts/api";
 import { AssetIndex } from "./AssetIndex";
 import { assetsStore } from "./assetsStores";
 import { useStore } from "@nanostores/react";
@@ -10,12 +10,29 @@ export const AssetsList = () => {
   const assets = useStore(assetsStore);
   useEffect(() => {
     if (execEnv === "browser") {
-      import("@/modules/knowledge-base/knowledge-asset").then(
-        async ({ knowledgeAssetApiFactory }) => {
-          const knowledgeAssetApi: KnowledgeAssetApi =
-            await knowledgeAssetApiFactory({
-              repository: "idb",
-              aiProvider: "web-llm",
+      import("@/modules/knowledge-base/orchestrator").then(
+        async ({ knowledgeAssetsApiFactory }) => {
+          const knowledgeAssetApi: KnowledgeAssetsAPI =
+            await knowledgeAssetsApiFactory({
+              filesPolicy: {
+                storage: "browser-fs",
+                repository: "idb",
+              },
+              textExtractionPolicy: {
+                extractor: "browser-pdf",
+                repository: "idb",
+              },
+              chunkingPolicy: {
+                strategy: "fixed",
+              },
+              embeddingsPolicy: {
+                provider: "browser-hf",
+                repository: "idb",
+              },
+              knowledgeAssetPolicy: {
+                repository: "idb",
+                aiProvider: "web-llm",
+              },
             });
           knowledgeAssetApi.getAllKnowledgeAssets().then((assets) => {
             assetsStore.set(assets);
@@ -26,7 +43,7 @@ export const AssetsList = () => {
     }
     fetch("/api/knowledge").then((res) => {
       res.json().then((data) => {
-        assetsStore.set(data);  
+        assetsStore.set(data);
       });
     });
   }, []);

@@ -1,19 +1,22 @@
 import type { KnowledgeAssetApi } from "../@core-contracts/api";
+import { Result } from "@/modules/shared/@core-contracts/result";
 import type {
   FullKnowledgeAssetDTO,
   KnowledgeAssetDTO,
   NewKnowledgeDTO,
 } from "../@core-contracts/dtos";
 import type { KnowledgeAssetsRepository } from "../@core-contracts/repositories";
-import type { KnowledgeAsset } from "../@core-contracts/entities";
+import { KnowledgeAsset } from "../domain/aggregate/KnowledgeAsset";
 import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
 import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
 import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
 import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";
 import type { Chunk } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
-import type { VectorDocument } from "@/modules/knowledge-base/embeddings/@core-contracts/entities";
 import type { FlowState } from "../@core-contracts/dtos";
+import { KnowledgeAssetNotFoundError } from "../domain/errors/KnowledgeAssetNotFoundError";
+import { NoKnowledgeAssetsCreatedError } from "../domain/errors/NoKnowledgeAssetsCreatedError";
+import { KnowledgeAssetCouldNotBeSavedError } from "../domain/errors/KnowledgeAssetCouldNotBeSavedError";
 
 export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
   private repository: KnowledgeAssetsRepository;
@@ -37,7 +40,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
 
   async generateKnowledgeAsset(
     command: NewKnowledgeDTO
-  ): Promise<KnowledgeAsset> {
+  ): Promise<Result<KnowledgeAssetCouldNotBeSavedError, KnowledgeAssetDTO>> {
     // Create a new knowledge asset
 
     try {
@@ -78,22 +81,20 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         collectionId: embeddingsCollectionId,
       });
 
-      const knowledgeAsset: KnowledgeAsset = {
+      const knowledgeAsset: KnowledgeAsset = new KnowledgeAsset({
         name: command.name,
         id: knowledgeAssetId,
         filesIds: [sourceFile.id],
         textsIds: [textId],
         embeddingsCollectionsIds: [embeddingsCollectionId],
         metadata: command.metadata,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         version: "1",
-      };
+      });
 
       await this.repository.saveKnowledgeAsset(knowledgeAsset);
-      return knowledgeAsset;
+      return Result.success(knowledgeAsset);
     } catch (error) {
-      throw error;
+      return Result.failure(error as KnowledgeAssetCouldNotBeSavedError);
     }
   }
 
@@ -159,7 +160,6 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         texts: chunksContent,
         collectionId: embeddingsCollectionId,
       });
-      console.log({ embeddings });
       if (embeddings.status === "success") {
         yield {
           status: "SUCCESS",
@@ -168,17 +168,15 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         };
       }
 
-      const newKnowledgeAsset: KnowledgeAsset = {
+      const newKnowledgeAsset: KnowledgeAsset = new KnowledgeAsset({
         name: name,
         id: knowledgeAssetId,
         filesIds: [sourceFile.id],
         textsIds: [textId],
         embeddingsCollectionsIds: [embeddingsCollectionId],
         metadata: {},
-        createdAt: new Date(),
-        updatedAt: new Date(),
         version: "1",
-      };
+      });
       this.repository.saveKnowledgeAsset(newKnowledgeAsset);
       yield {
         status: "SUCCESS",
@@ -194,50 +192,94 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     }
   }
 
+  async addSourceToKnowledgeAsset(
+    knowledgeAssetId: string,
+    source: FileUploadDTO
+  ): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAsset>> {
+    const knowledgeAsset = await this.repository.getKnowledgeAssetById(
+      knowledgeAssetId
+    );
+    if (!knowledgeAsset.isSuccess) {
+      return Result.failure(knowledgeAsset.getError());
+    }
+    const newKnowledgeAsset: KnowledgeAsset = new KnowledgeAsset(
+      knowledgeAsset.getValue()
+    );
+    await this.repository.saveKnowledgeAsset(newKnowledgeAsset);
+    return Result.success(newKnowledgeAsset);
+  }
+
   async retrieveKnowledge(
     knowledgeAssetId: string,
     query: string
-  ): Promise<string[]> {
+  ): Promise<Result<KnowledgeAssetNotFoundError, string[]>> {
     try {
       const knowledgeAsset = await this.repository.getKnowledgeAssetById(
         knowledgeAssetId
       );
+      if (!knowledgeAsset.isSuccess) {
+        throw Result.failure(knowledgeAsset.getError());
+      }
       const searchResult = await this.embeddingApi.search({
         text: query,
         topK: 5,
-        collectionId: knowledgeAsset.embeddingsCollectionsIds[0],
+        collectionId: knowledgeAsset.getValue().embeddingsCollectionsIds[0],
       });
       const similarQuery = searchResult.map((query) => query.document.content);
-      return similarQuery;
+      return Result.success(similarQuery);
     } catch (error) {
       throw error;
     }
   }
 
-  async getFullKnowledgeAssetById(id: string): Promise<FullKnowledgeAssetDTO> {
+  async getFullKnowledgeAssetById(id: string): Promise<Result<KnowledgeAssetNotFoundError, FullKnowledgeAssetDTO>> {
     const knowledgeAsset = await this.repository.getKnowledgeAssetById(id);
-    const file = await this.filesApi.getFileById(knowledgeAsset.filesIds[0]);
-    const text = await this.textExtractorApi.getOneText(knowledgeAsset.textsIds[0]);
-    const embeddings = await this.embeddingApi.getAllDocuments({collectionId: knowledgeAsset.embeddingsCollectionsIds[0]});
-    return {
-      ...knowledgeAsset,
+    const file = await this.filesApi.getFileById(
+      knowledgeAsset.getValue().filesIds[0]
+    );
+    const text = await this.textExtractorApi.getOneText(
+      knowledgeAsset.getValue().textsIds[0]
+    );
+    const embeddings = await this.embeddingApi.getAllDocuments({
+      collectionId: knowledgeAsset.getValue().embeddingsCollectionsIds[0],
+    });
+    return Result.success({
+      ...knowledgeAsset.getValue(),
       files: [file],
       texts: [text],
       embeddings,
-    };
+    });
   }
 
-  async getAllKnowledgeAssets(): Promise<KnowledgeAsset[]> {
+  async getAllKnowledgeAssets(): Promise<
+    Result<NoKnowledgeAssetsCreatedError, KnowledgeAsset[]>
+  > {
     const allKnowledgeAssets = await this.repository.getAllKnowledgeAssets();
     console.log({ allKnowledgeAssets });
-    return allKnowledgeAssets;
+    return Result.success(
+      allKnowledgeAssets
+        .getValue()
+        .map((knowledgeAsset) => new KnowledgeAsset(knowledgeAsset))
+    );
   }
 
-  async getKnowledgeAssetById(id: string): Promise<KnowledgeAsset> {
-    return this.repository.getKnowledgeAssetById(id);
+  async getKnowledgeAssetById(
+    id: string
+  ): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAsset>> {
+    const knowledgeAsset = await this.repository.getKnowledgeAssetById(id);
+    if (!knowledgeAsset.isSuccess) {
+      return Result.failure(knowledgeAsset.getError());
+    }
+    return Result.success(new KnowledgeAsset(knowledgeAsset.getValue()));
   }
 
-  async deleteKnowledgeAsset(id: string): Promise<boolean> {
-    return this.repository.deleteKnowledgeAsset(id);
+  async deleteKnowledgeAsset(
+    id: string
+  ): Promise<Result<KnowledgeAssetNotFoundError, boolean>> {
+    const knowledgeAsset = await this.repository.deleteKnowledgeAsset(id);
+    if (!knowledgeAsset.isSuccess) {
+      return Result.failure(knowledgeAsset.getError());
+    }
+    return Result.success(knowledgeAsset.getValue());
   }
 }

@@ -3,6 +3,10 @@ import type { KnowledgeAssetDTO } from "@/modules/knowledge-base/knowledge-asset
 import type { FlowState } from "../@core-contracts/api";
 import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
 import type { KnowledgeAsset } from "../../knowledge-asset";
+import { Result } from "@/backend/shared/@core-contracts/result";
+import type { NoKnowledgeAssetsCreatedError } from "../../knowledge-asset/domain/errors/NoKnowledgeAssetsCreatedError";
+import type { KnowledgeAssetNotFoundError } from "../../knowledge-asset/domain/errors/KnowledgeAssetNotFoundError";
+import type { KnowledgeAssetCouldNotBeSavedError } from "../../knowledge-asset/domain/errors/KnowledgeAssetCouldNotBeSavedError";
 
 export class UseCases {
   constructor(private knowledgeAssetApi: KnowledgeAssetApi) {}
@@ -13,7 +17,7 @@ export class UseCases {
    */
   async generateNewKnowledge(
     command: NewKnowledgeDTO
-  ): Promise<KnowledgeAssetDTO> {
+  ): Promise<Result<KnowledgeAssetCouldNotBeSavedError, KnowledgeAssetDTO>> {
     try {
       const { sources, chunkingStrategy, name } = command;
       const knowledgeAsset: NewKnowledgeDTO = {
@@ -27,9 +31,12 @@ export class UseCases {
       const result = await this.knowledgeAssetApi.generateKnowledgeAsset(
         knowledgeAsset
       );
-      return result;
+      if (!result.isSuccess) {
+        return Result.failure(result.getError());
+      }
+      return Result.success(result.getValue());
     } catch (error) {
-      throw error;
+      return Result.failure(error as KnowledgeAssetCouldNotBeSavedError);
     }
   }
 
@@ -52,22 +59,21 @@ export class UseCases {
       };
     }
   }
-  getAllKnowledgeAssets(): Promise<KnowledgeAsset[]> {
+  getAllKnowledgeAssets(): Promise<Result<NoKnowledgeAssetsCreatedError, KnowledgeAsset[]>> {
     return this.knowledgeAssetApi.getAllKnowledgeAssets();
   }
 
-  async getFullKnowledgeAssetById(id: string): Promise<FullKnowledgeAssetDTO> {
+  async getFullKnowledgeAssetById(id: string): Promise<Result<KnowledgeAssetNotFoundError, FullKnowledgeAssetDTO>> {
     return this.knowledgeAssetApi.getFullKnowledgeAssetById(id);
   }
 
-  async deleteKnowledgeAsset(id: string): Promise<boolean> {
-    await this.knowledgeAssetApi.deleteKnowledgeAsset(id);
-    return true;
+  async deleteKnowledgeAsset(id: string): Promise<Result<KnowledgeAssetNotFoundError, boolean>> {
+    return this.knowledgeAssetApi.deleteKnowledgeAsset(id);
   }
   async retrieveKnowledge(
     knowledgeAssetId: string,
     query: string
-  ): Promise<string[]> {
+  ): Promise<Result<KnowledgeAssetNotFoundError, string[]>> {
     console.log("retrieveKnowledge", knowledgeAssetId, query);
     try {
       const result = await this.knowledgeAssetApi.retrieveKnowledge(

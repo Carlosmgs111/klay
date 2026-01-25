@@ -1,4 +1,3 @@
-import type { KnowledgeAssetsRepository } from "../../../knowledge-asset/@core-contracts/repositories";
 import type { KnowledgeAssetsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
 import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";

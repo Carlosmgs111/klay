@@ -1,7 +1,7 @@
-import type { KnowledgeAsset } from "./entities";
-import { KnowledgeAssetCouldNotBeSavedError } from "../domain/errors/KnowledgeAssetCouldNotBeSavedError";
-import { KnowledgeAssetNotFoundError } from "../domain/errors/KnowledgeAssetNotFoundError";
-import { NoKnowledgeAssetsCreatedError } from "../domain/errors/NoKnowledgeAssetsCreatedError";
+import { KnowledgeAsset } from "../aggregate/KnowledgeAsset";
+import { KnowledgeAssetCouldNotBeSavedError } from "../errors/KnowledgeAssetCouldNotBeSavedError";
+import { KnowledgeAssetNotFoundError } from "../errors/KnowledgeAssetNotFoundError";
+import { NoKnowledgeAssetsCreatedError } from "../errors/NoKnowledgeAssetsCreatedError";
 import { Result } from "@/modules/shared/@core-contracts/result";
 
 export interface KnowledgeAssetsRepository {

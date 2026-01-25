@@ -1,6 +1,11 @@
 import type { KnowledgeAssetsRepository } from "../../@core-contracts/repositories";
 import type { KnowledgeAssetDTO } from "../../@core-contracts/dtos";
 import type { KnowledgeAsset } from "../../@core-contracts/entities";
+import { Result } from "@/modules/shared/@core-contracts/result";
+import { KnowledgeAssetCouldNotBeSavedError } from "../../domain/errors/KnowledgeAssetCouldNotBeSavedError";
+import { KnowledgeAssetNotFoundError } from "../../domain/errors/KnowledgeAssetNotFoundError";
+import { NoKnowledgeAssetsCreatedError } from "../../domain/errors/NoKnowledgeAssetsCreatedError";
+
 
 interface IDBKnowledgeConfig {
   dbName: string;
@@ -44,7 +49,7 @@ export class IDBRepository implements KnowledgeAssetsRepository {
     });
   }
 
-  async saveKnowledgeAsset(knowledgeAsset: KnowledgeAssetDTO): Promise<void> {
+  async saveKnowledgeAsset(knowledgeAsset: KnowledgeAssetDTO): Promise<Result<KnowledgeAssetCouldNotBeSavedError, void>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -52,12 +57,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.put(knowledgeAsset);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
+      request.onerror = () => reject(Result.failure(new KnowledgeAssetCouldNotBeSavedError(knowledgeAsset.id)));
+      request.onsuccess = () => resolve(Result.success(undefined));
     });
   }
 
-  async getAllKnowledgeAssets(): Promise<KnowledgeAsset[]> {
+  async getAllKnowledgeAssets(): Promise<Result<NoKnowledgeAssetsCreatedError, KnowledgeAsset[]>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -65,12 +70,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.getAll();
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.success(request.result));
     });
   }
 
-  async getKnowledgeAssetById(id: string): Promise<KnowledgeAsset> {
+  async getKnowledgeAssetById(id: string): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAsset>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -78,18 +83,18 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.get(id);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
       request.onsuccess = () => {
         if (request.result) {
-          resolve(request.result);
+          resolve(Result.success(request.result));
         } else {
-          reject(new Error(`Knowledge asset with id ${id} not found`));
+          reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
         }
       };
     });
   }
 
-  async deleteKnowledgeAsset(id: string): Promise<boolean> {
+  async deleteKnowledgeAsset(id: string): Promise<Result<KnowledgeAssetNotFoundError, boolean>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -97,14 +102,14 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.delete(id);
       console.log(request);
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
+      request.onsuccess = () => resolve(Result.success(true));
     });
   }
 
   // Additional helper methods for browser-specific functionality
   
-  async getKnowledgeAssetsBySourceId(sourceId: string): Promise<KnowledgeAssetDTO[]> {
+  async getKnowledgeAssetsBySourceId(sourceId: string): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAssetDTO[]>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -113,12 +118,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const index = store.index("sourceId");
       const request = index.getAll(sourceId);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(sourceId)));
+      request.onsuccess = () => resolve(Result.success(request.result));
     });
   }
 
-  async getKnowledgeAssetsByTextId(cleanedTextId: string): Promise<KnowledgeAssetDTO[]> {
+  async getKnowledgeAssetsByTextId(cleanedTextId: string): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAssetDTO[]>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -127,12 +132,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const index = store.index("cleanedTextId");
       const request = index.getAll(cleanedTextId);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(cleanedTextId)));
+      request.onsuccess = () => resolve(Result.success(request.result));
     });
   }
 
-  async countKnowledgeAssets(): Promise<number> {
+  async countKnowledgeAssets(): Promise<Result<NoKnowledgeAssetsCreatedError, number>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -140,12 +145,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.count();
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.success(request.result));
     });
   }
 
-  async clearAllKnowledgeAssets(): Promise<void> {
+  async clearAllKnowledgeAssets(): Promise<Result<NoKnowledgeAssetsCreatedError, void>> {
     const db = await this.openDB();
     
     return new Promise((resolve, reject) => {
@@ -153,8 +158,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.clear();
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
+      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.success(undefined));
     });
   }
 }

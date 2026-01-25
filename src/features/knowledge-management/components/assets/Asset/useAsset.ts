@@ -15,7 +15,7 @@ export const useAsset = (id: string) => {
         async ({ clientKnowledgeBaseApiFactory }) => {
           const knowledgeAssetsApi = await clientKnowledgeBaseApiFactory();
           knowledgeAssetsApi.getFullKnowledgeAssetById(id).then((asset) => {
-            setAsset(asset);
+            setAsset(asset.getValue());
           });
         }
       );

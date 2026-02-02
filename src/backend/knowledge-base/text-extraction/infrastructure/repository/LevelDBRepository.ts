@@ -54,14 +54,14 @@ export class LevelDBRepository implements Repository {
     }
   };
 
-  getTextById = async (id: string): Promise<Text | undefined> => {
+  getTextById = async (id: string): Promise<Text> => {
     try {
       await this.ensureDB();
       const text = await this.db.get(id);
       return JSON.parse(text);
     } catch (error: any) {
       if (error?.notFound || error?.code === 'LEVEL_NOT_FOUND') {
-        return undefined;
+        throw new Error(`Text with id ${id} not found`);
       }
       console.log({ error });
       throw error;

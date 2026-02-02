@@ -1,6 +1,6 @@
 import type { KnowledgeAssetsInfrastructurePolicy } from "../../@core-contracts/infrastructurePolicies";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
-import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
+import { UseCases as TextExtractorUseCases } from "@/modules/klay/ingestion/text/application/UseCases";
 import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
 import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
 import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
@@ -46,9 +46,9 @@ export class KnowledgeAssetsInfrastructureResolver {
 
   private static async resolveTextExtractorApi(
     policy: any
-  ): Promise<TextExtractorApi> {
+  ): Promise<TextExtractorUseCases> {
     const { textExtractorApiFactory } = await import(
-      "@/modules/knowledge-base/text-extraction"
+      "@/modules/klay/ingestion/text"
     );
     return await textExtractorApiFactory(policy);
   }
@@ -70,7 +70,7 @@ export class KnowledgeAssetsInfrastructureResolver {
   private static async resolveKnowledgeAssetApi(
     policy: any,
     filesApi: FilesApi,
-    textExtractorApi: TextExtractorApi,
+    textExtractorApi: TextExtractorUseCases,
     chunkingApi: ChunkingApi,
     embeddingApi: EmbeddingAPI
   ): Promise<KnowledgeAssetApi> {

@@ -1,12 +1,12 @@
-import type { Repository } from "../../@core-contracts/repositories";
-import type { Text } from "../../@core-contracts/entities";
+import type { TextRepository } from "../../domain/TextRepository";
+import type { Text } from "../../domain/Text";
 
 interface IDBConfig {
   dbName: string;
   version: number;
 }
 
-export class IDBRepository implements Repository {
+export class IDBRepository implements TextRepository {
   private config: IDBConfig;
   private currentVersion?: number;
 

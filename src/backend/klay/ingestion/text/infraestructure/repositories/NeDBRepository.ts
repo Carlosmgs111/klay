@@ -1,9 +1,9 @@
 import Datastore from "nedb-promises";
-import type { Repository } from "../../@core-contracts/repositories";
-import type { Text } from "../../@core-contracts/entities";
+import type { TextRepository } from "../../domain/TextRepository";
+import type { Text } from "../../domain/Text";
 import path from "path";
 
-export class NeDBRepository implements Repository {
+export class NeDBRepository implements TextRepository {
   private db: Datastore<any>;
 
   constructor(dbPath?: string) {

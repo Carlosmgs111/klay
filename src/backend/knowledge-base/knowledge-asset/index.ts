@@ -9,14 +9,14 @@ import type { KnowledgeAssetInfrastructurePolicy } from "./@core-contracts/infra
 import { KnowledgeAssetUseCases } from "./application/UseCases";
 import { KnowledgeAssetInfrastructureResolver } from "./infrastructure/composition/Resolver";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
-import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
+import { UseCases as TextExtractorUseCases } from "@/modules/klay/ingestion/text/application/UseCases";
 import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
 import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
 
 export async function knowledgeAssetApiFactory(
   policy: KnowledgeAssetInfrastructurePolicy,
   filesApi: FilesApi,
-  textExtractorApi: TextExtractorApi,
+  textExtractorApi: TextExtractorUseCases,
   chunkingApi: ChunkingApi,
   embeddingApi: EmbeddingAPI
 ): Promise<KnowledgeAssetApi> {

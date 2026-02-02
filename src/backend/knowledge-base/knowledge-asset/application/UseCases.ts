@@ -9,7 +9,7 @@ import type { KnowledgeAssetsRepository } from "../@core-contracts/repositories"
 import { KnowledgeAsset } from "../domain/aggregate/KnowledgeAsset";
 import type { EmbeddingAPI } from "@/modules/knowledge-base/embeddings/@core-contracts/api";
 import type { ChunkingApi } from "@/modules/knowledge-base/chunking/@core-contracts/api";
-import type { TextExtractorApi } from "@/modules/knowledge-base/text-extraction/@core-contracts/api";
+import { UseCases as TextExtractorUseCases } from "@/modules/klay/ingestion/text/application/UseCases";
 import type { FilesApi } from "@/modules/files/@core-contracts/api";
 import type { FileUploadDTO } from "@/modules/files/@core-contracts/dtos";
 import type { Chunk } from "@/modules/knowledge-base/chunking/@core-contracts/entities";
@@ -22,13 +22,13 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
   private repository: KnowledgeAssetsRepository;
   private embeddingApi: EmbeddingAPI;
   private chunkingApi: ChunkingApi;
-  private textExtractorApi: TextExtractorApi;
+  private textExtractorApi: TextExtractorUseCases;
   private filesApi: FilesApi;
   constructor(
     repository: KnowledgeAssetsRepository,
     embeddingApi: EmbeddingAPI,
     chunkingApi: ChunkingApi,
-    textExtractorApi: TextExtractorApi,
+    textExtractorApi: TextExtractorUseCases,
     filesApi: FilesApi
   ) {
     this.repository = repository;
@@ -57,7 +57,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       }
 
       const textId = crypto.randomUUID();
-      const text = await this.textExtractorApi.extractTextFromPDF({
+      const text = await this.textExtractorApi.extractTextFromPDF.execute({
         id: textId,
         source: sourceFile,
       });
@@ -65,7 +65,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         throw new Error(text.message);
       }
 
-      const chunks = await this.chunkingApi.chunkOne(text.content as string, {
+      const chunks = await this.chunkingApi.chunkOne(text.content?.content as string, {
         strategy: chunkingStrategy,
       });
       const chunkBatch = chunks.chunks as Chunk[];
@@ -121,7 +121,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       };
 
       const textId = crypto.randomUUID();
-      const text = await this.textExtractorApi.extractTextFromPDF({
+      const text = await this.textExtractorApi.extractTextFromPDF.execute({
         id: textId,
         source: sourceFile,
       });
@@ -135,7 +135,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         message: "Text extracted successfully",
       };
 
-      const chunks = await this.chunkingApi.chunkOne(text.content as string, {
+      const chunks = await this.chunkingApi.chunkOne(text.content?.content as string, {
         strategy: chunkingStrategy,
       });
       console.log({ chunks });
@@ -237,7 +237,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     const file = await this.filesApi.getFileById(
       knowledgeAsset.getValue().filesIds[0]
     );
-    const text = await this.textExtractorApi.getOneText(
+    const text = await this.textExtractorApi.getOneText.execute(
       knowledgeAsset.getValue().textsIds[0]
     );
     const embeddings = await this.embeddingApi.getAllDocuments({

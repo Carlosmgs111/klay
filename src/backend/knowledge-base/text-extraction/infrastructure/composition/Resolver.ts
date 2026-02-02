@@ -43,7 +43,7 @@ export class TextExtractionInfrastructureResolver {
   }
 
   private static async resolveRepository(
-    type: TextExtractionInfrastructurePolicy["repository"]
+    type: TextExtractionInfrastructurePolicy["repository"] 
   ): Promise<Repository> {
     const resolverTypes = {
       leveldb: async () => {

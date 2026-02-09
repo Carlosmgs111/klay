@@ -24,7 +24,7 @@ export const AssetsIndexesList = () => {
           return knowledgeAssetApi.getAllKnowledgeAssets();
         })
         .then((assets) => {
-          assetsStore.set(assets.getValue());
+          assetsStore.set(assets.value);
           setIsLoading(false);
         })
         .catch((err) => {

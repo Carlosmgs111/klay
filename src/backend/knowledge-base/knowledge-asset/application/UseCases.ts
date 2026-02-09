@@ -1,5 +1,5 @@
 import type { KnowledgeAssetApi } from "../@core-contracts/api";
-import { Result } from "@/modules/shared/@core-contracts/result";
+import { Result } from "@/backend/klay+/shared/domain/Result";
 import type {
   FullKnowledgeAssetDTO,
   KnowledgeAssetDTO,
@@ -65,9 +65,12 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         throw new Error(text.message);
       }
 
-      const chunks = await this.chunkingApi.chunkOne(text.content?.content as string, {
-        strategy: chunkingStrategy,
-      });
+      const chunks = await this.chunkingApi.chunkOne(
+        text.content?.content as string,
+        {
+          strategy: chunkingStrategy,
+        }
+      );
       const chunkBatch = chunks.chunks as Chunk[];
       const chunksContent = chunkBatch?.map((chunk) => ({
         id: crypto.randomUUID(),
@@ -92,9 +95,9 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
       });
 
       await this.repository.saveKnowledgeAsset(knowledgeAsset);
-      return Result.success(knowledgeAsset);
+      return Result.ok(knowledgeAsset);
     } catch (error) {
-      return Result.failure(error as KnowledgeAssetCouldNotBeSavedError);
+      return Result.fail(error as KnowledgeAssetCouldNotBeSavedError);
     }
   }
 
@@ -135,9 +138,12 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         message: "Text extracted successfully",
       };
 
-      const chunks = await this.chunkingApi.chunkOne(text.content?.content as string, {
-        strategy: chunkingStrategy,
-      });
+      const chunks = await this.chunkingApi.chunkOne(
+        text.content?.content as string,
+        {
+          strategy: chunkingStrategy,
+        }
+      );
       console.log({ chunks });
       if (chunks.status === "success") {
         yield {
@@ -196,17 +202,16 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     knowledgeAssetId: string,
     source: FileUploadDTO
   ): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAsset>> {
-    const knowledgeAsset = await this.repository.getKnowledgeAssetById(
-      knowledgeAssetId
-    );
-    if (!knowledgeAsset.isSuccess) {
-      return Result.failure(knowledgeAsset.getError());
+    const knowledgeAsset =
+      await this.repository.getKnowledgeAssetById(knowledgeAssetId);
+    if (!knowledgeAsset.isOk()) {
+      return Result.fail(knowledgeAsset.getError());
     }
     const newKnowledgeAsset: KnowledgeAsset = new KnowledgeAsset(
       knowledgeAsset.getValue()
     );
     await this.repository.saveKnowledgeAsset(newKnowledgeAsset);
-    return Result.success(newKnowledgeAsset);
+    return Result.ok(newKnowledgeAsset);
   }
 
   async retrieveKnowledge(
@@ -214,11 +219,10 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     query: string
   ): Promise<Result<KnowledgeAssetNotFoundError, string[]>> {
     try {
-      const knowledgeAsset = await this.repository.getKnowledgeAssetById(
-        knowledgeAssetId
-      );
-      if (!knowledgeAsset.isSuccess) {
-        throw Result.failure(knowledgeAsset.getError());
+      const knowledgeAsset =
+        await this.repository.getKnowledgeAssetById(knowledgeAssetId);
+      if (!knowledgeAsset.isOk()) {
+        throw Result.fail(knowledgeAsset.getError());
       }
       const searchResult = await this.embeddingApi.search({
         text: query,
@@ -226,13 +230,15 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
         collectionId: knowledgeAsset.getValue().embeddingsCollectionsIds[0],
       });
       const similarQuery = searchResult.map((query) => query.document.content);
-      return Result.success(similarQuery);
+      return Result.ok(similarQuery);
     } catch (error) {
       throw error;
     }
   }
 
-  async getFullKnowledgeAssetById(id: string): Promise<Result<KnowledgeAssetNotFoundError, FullKnowledgeAssetDTO>> {
+  async getFullKnowledgeAssetById(
+    id: string
+  ): Promise<Result<KnowledgeAssetNotFoundError, FullKnowledgeAssetDTO>> {
     const knowledgeAsset = await this.repository.getKnowledgeAssetById(id);
     const file = await this.filesApi.getFileById(
       knowledgeAsset.getValue().filesIds[0]
@@ -243,7 +249,7 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     const embeddings = await this.embeddingApi.getAllDocuments({
       collectionId: knowledgeAsset.getValue().embeddingsCollectionsIds[0],
     });
-    return Result.success({
+    return Result.ok({
       ...knowledgeAsset.getValue(),
       files: [file],
       texts: [text],
@@ -254,11 +260,14 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
   async getAllKnowledgeAssets(): Promise<
     Result<NoKnowledgeAssetsCreatedError, KnowledgeAsset[]>
   > {
-    const allKnowledgeAssets = await this.repository.getAllKnowledgeAssets();
+    const allKnowledgeAssets: Result<
+      NoKnowledgeAssetsCreatedError,
+      KnowledgeAssetDTO[]
+    > = await this.repository.getAllKnowledgeAssets();
     console.log({ allKnowledgeAssets });
-    return Result.success(
+    return Result.ok(
       allKnowledgeAssets
-        .getValue()
+        .value
         .map((knowledgeAsset) => new KnowledgeAsset(knowledgeAsset))
     );
   }
@@ -267,19 +276,19 @@ export class KnowledgeAssetUseCases implements KnowledgeAssetApi {
     id: string
   ): Promise<Result<KnowledgeAssetNotFoundError, KnowledgeAsset>> {
     const knowledgeAsset = await this.repository.getKnowledgeAssetById(id);
-    if (!knowledgeAsset.isSuccess) {
-      return Result.failure(knowledgeAsset.getError());
+    if (!knowledgeAsset.isOk()) {
+      return Result.fail(knowledgeAsset.getError());
     }
-    return Result.success(new KnowledgeAsset(knowledgeAsset.getValue()));
+    return Result.ok(new KnowledgeAsset(knowledgeAsset.getValue()));
   }
 
   async deleteKnowledgeAsset(
     id: string
   ): Promise<Result<KnowledgeAssetNotFoundError, boolean>> {
     const knowledgeAsset = await this.repository.deleteKnowledgeAsset(id);
-    if (!knowledgeAsset.isSuccess) {
-      return Result.failure(knowledgeAsset.getError());
+    if (!knowledgeAsset.isOk()) {
+      return Result.fail(knowledgeAsset.getError());
     }
-    return Result.success(knowledgeAsset.getValue());
+    return Result.ok(knowledgeAsset.value);
   }
 }

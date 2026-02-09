@@ -12,21 +12,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@/features/*": [
-        "src/features/*"
-      ],
-      "@/shared/*": [
-        "src/shared/*"
-      ],
-      "@/layouts/*": [
-        "src/layouts/*"
-      ],
-      "@/modules/*": [
-        "src/backend/*"
-      ]
+      "@/*": ["src/*"],
+      "@/features/*": ["src/features/*"],
+      "@/shared/*": ["src/shared/*"],
+      "@/layouts/*": ["src/layouts/*"],
+      "@/modules/*": ["src/backend/*"],
+      "@klay+/*": ["src/backend/klay+/*"],
+      "@klay+/source-ingestion/*": ["src/backend/klay+/source-ingestion/*"],
+      "@klay+/semantic-knowledge/*": ["src/backend/klay+/semantic-knowledge/*"],
+      "@klay+/semantic-processing/*": ["src/backend/klay+/semantic-processing/*"],
+      "@klay+/knowledge-retrieval/*": ["src/backend/klay+/knowledge-retrieval/*"],
+      "@klay+/shared/*": ["src/backend/klay+/shared/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"

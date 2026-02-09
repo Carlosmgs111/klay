@@ -1,7 +1,7 @@
 import type { KnowledgeAssetsRepository } from "../../@core-contracts/repositories";
 import type { KnowledgeAssetDTO } from "../../@core-contracts/dtos";
 import type { KnowledgeAsset } from "../../@core-contracts/entities";
-import { Result } from "@/modules/shared/@core-contracts/result";
+import { Result } from "@/backend/klay+/shared/domain/Result";
 import { KnowledgeAssetCouldNotBeSavedError } from "../../domain/errors/KnowledgeAssetCouldNotBeSavedError";
 import { KnowledgeAssetNotFoundError } from "../../domain/errors/KnowledgeAssetNotFoundError";
 import { NoKnowledgeAssetsCreatedError } from "../../domain/errors/NoKnowledgeAssetsCreatedError";
@@ -57,8 +57,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.put(knowledgeAsset);
 
-      request.onerror = () => reject(Result.failure(new KnowledgeAssetCouldNotBeSavedError(knowledgeAsset.id)));
-      request.onsuccess = () => resolve(Result.success(undefined));
+      request.onerror = () => reject(Result.fail(new KnowledgeAssetCouldNotBeSavedError(knowledgeAsset.id)));
+      request.onsuccess = () => resolve(Result.ok(undefined));
     });
   }
 
@@ -70,8 +70,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.getAll();
 
-      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
-      request.onsuccess = () => resolve(Result.success(request.result));
+      request.onerror = () => reject(Result.fail(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.ok(request.result));
     });
   }
 
@@ -83,12 +83,12 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.get(id);
 
-      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
+      request.onerror = () => reject(Result.fail(new KnowledgeAssetNotFoundError(id)));
       request.onsuccess = () => {
         if (request.result) {
-          resolve(Result.success(request.result));
+          resolve(Result.ok(request.result));
         } else {
-          reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
+          reject(Result.fail(new KnowledgeAssetNotFoundError(id)));
         }
       };
     });
@@ -102,8 +102,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.delete(id);
       console.log(request);
-      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(id)));
-      request.onsuccess = () => resolve(Result.success(true));
+      request.onerror = () => reject(Result.fail(new KnowledgeAssetNotFoundError(id)));
+      request.onsuccess = () => resolve(Result.ok(true));
     });
   }
 
@@ -118,8 +118,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const index = store.index("sourceId");
       const request = index.getAll(sourceId);
 
-      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(sourceId)));
-      request.onsuccess = () => resolve(Result.success(request.result));
+      request.onerror = () => reject(Result.fail(new KnowledgeAssetNotFoundError(sourceId)));
+      request.onsuccess = () => resolve(Result.ok(request.result));
     });
   }
 
@@ -132,8 +132,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const index = store.index("cleanedTextId");
       const request = index.getAll(cleanedTextId);
 
-      request.onerror = () => reject(Result.failure(new KnowledgeAssetNotFoundError(cleanedTextId)));
-      request.onsuccess = () => resolve(Result.success(request.result));
+      request.onerror = () => reject(Result.fail(new KnowledgeAssetNotFoundError(cleanedTextId)));
+      request.onsuccess = () => resolve(Result.ok(request.result));
     });
   }
 
@@ -145,8 +145,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.count();
 
-      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
-      request.onsuccess = () => resolve(Result.success(request.result));
+      request.onerror = () => reject(Result.fail(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.ok(request.result));
     });
   }
 
@@ -158,8 +158,8 @@ export class IDBRepository implements KnowledgeAssetsRepository {
       const store = transaction.objectStore(this.config.storeName);
       const request = store.clear();
 
-      request.onerror = () => reject(Result.failure(new NoKnowledgeAssetsCreatedError()));
-      request.onsuccess = () => resolve(Result.success(undefined));
+      request.onerror = () => reject(Result.fail(new NoKnowledgeAssetsCreatedError()));
+      request.onsuccess = () => resolve(Result.ok(undefined));
     });
   }
 }

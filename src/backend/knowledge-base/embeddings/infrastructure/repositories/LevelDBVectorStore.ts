@@ -3,7 +3,7 @@
  */
 
 import type { VectorRepository } from "../../@core-contracts/repositories";
-import { getDB } from "../../../../shared/config/repositories";
+import { getDB } from "../../../../klay+/shared/config/repositories";
 import type { VectorDocument } from "../../@core-contracts/entities";
 import type { SearchResult, VectorDBConfig } from "../../@core-contracts/dtos";
 

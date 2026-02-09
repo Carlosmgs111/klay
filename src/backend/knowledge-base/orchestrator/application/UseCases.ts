@@ -3,7 +3,7 @@ import type { KnowledgeAssetDTO } from "@/modules/knowledge-base/knowledge-asset
 import type { FlowState } from "../@core-contracts/api";
 import type { KnowledgeAssetApi } from "@/modules/knowledge-base/knowledge-asset/@core-contracts/api";
 import type { KnowledgeAsset } from "../../knowledge-asset";
-import { Result } from "@/backend/shared/@core-contracts/result";
+import { Result } from "@/backend/klay+/shared/domain/Result";
 import type { NoKnowledgeAssetsCreatedError } from "../../knowledge-asset/domain/errors/NoKnowledgeAssetsCreatedError";
 import type { KnowledgeAssetNotFoundError } from "../../knowledge-asset/domain/errors/KnowledgeAssetNotFoundError";
 import type { KnowledgeAssetCouldNotBeSavedError } from "../../knowledge-asset/domain/errors/KnowledgeAssetCouldNotBeSavedError";
@@ -32,11 +32,11 @@ export class UseCases {
         knowledgeAsset
       );
       if (!result.isSuccess) {
-        return Result.failure(result.getError());
+        return Result.fail(result.error);
       }
-      return Result.success(result.getValue());
+      return Result.ok(result.value);
     } catch (error) {
-      return Result.failure(error as KnowledgeAssetCouldNotBeSavedError);
+      return Result.fail(error as KnowledgeAssetCouldNotBeSavedError);
     }
   }
 

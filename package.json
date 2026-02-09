@@ -6,11 +6,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "astro check",
+    "test:source-ingestion": "tsx src/backend/klay+/source-ingestion/__tests__/e2e.test.ts"
   },
   "dependencies": {
     "@ai-sdk/cohere": "^2.0.21",
     "@ai-sdk/huggingface": "^0.0.12",
+    "@ai-sdk/openai": "^3.0.25",
+    "@astrojs/check": "^0.9.6",
     "@astrojs/react": "^4.4.2",
     "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/state": "^6.5.2",
@@ -45,6 +49,7 @@
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.1.17",
     "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "unique-names-generator": "^4.7.1"
   }
 }

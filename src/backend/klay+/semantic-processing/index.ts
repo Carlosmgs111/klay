@@ -1,3 +1,12 @@
+/**
+ * Semantic Processing Bounded Context
+ *
+ * Responsible for processing extracted content into semantic projections:
+ * - Chunking content into meaningful segments
+ * - Generating embeddings for semantic search
+ * - Storing vectors for retrieval
+ */
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Projection Module
 // ═══════════════════════════════════════════════════════════════════════════
@@ -12,6 +21,22 @@ export {
   ProjectionUseCases,
   ProjectionComposer,
   GenerateProjection,
+  projectionFactory,
+  // Domain Errors
+  ProjectionNotFoundError,
+  ProjectionAlreadyExistsError,
+  ProjectionSemanticUnitIdRequiredError,
+  ProjectionContentRequiredError,
+  ProjectionInvalidTypeError,
+  ProjectionInvalidStateError,
+  ProjectionCannotProcessError,
+  ProjectionCannotCompleteError,
+  ProjectionCannotFailError,
+  ChunkingFailedError,
+  EmbeddingFailedError,
+  VectorStoreFailedError,
+  ProjectionProcessingError,
+  // Infrastructure
   BaseChunker,
   FixedSizeChunker,
   SentenceChunker,
@@ -21,8 +46,7 @@ export {
   WebLLMEmbeddingStrategy,
   AISdkEmbeddingStrategy,
   InMemoryVectorStore,
-  projectionFactory,
-} from "./projection/index.js";
+} from "./projection/index";
 
 export type {
   SemanticProjectionRepository,
@@ -33,10 +57,14 @@ export type {
   VectorStoreAdapter,
   VectorEntry,
   VectorSearchResult,
+  ProjectionInfraPolicy,
   ProjectionInfrastructurePolicy,
   ResolvedProjectionInfra,
+  ProjectionFactoryResult,
   GenerateProjectionCommand,
-} from "./projection/index.js";
+  GenerateProjectionResult,
+  ProjectionError,
+} from "./projection/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Strategy Registry Module
@@ -49,26 +77,37 @@ export {
   StrategyRegistryComposer,
   RegisterStrategy,
   strategyRegistryFactory,
-} from "./strategy-registry/index.js";
+  // Domain Errors
+  StrategyNotFoundError,
+  StrategyAlreadyExistsError,
+  StrategyNameRequiredError,
+  StrategyInvalidTypeError,
+  StrategyInvalidConfigurationError,
+} from "./strategy-registry/index";
 
 export type {
   ProcessingStrategyRepository,
+  StrategyRegistryInfraPolicy,
   StrategyRegistryInfrastructurePolicy,
   ResolvedStrategyRegistryInfra,
+  StrategyRegistryFactoryResult,
   RegisterStrategyCommand,
-} from "./strategy-registry/index.js";
+  StrategyError,
+} from "./strategy-registry/index";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Orchestrator Module
+// Facade (Context-Level)
 // ═══════════════════════════════════════════════════════════════════════════
 export {
-  SemanticProcessingOrchestrator,
-  SemanticProcessingOrchestratorComposer,
-  semanticProcessingOrchestratorFactory,
-} from "./orchestrator/index.js";
+  SemanticProcessingFacade,
+  SemanticProcessingFacadeComposer,
+  createSemanticProcessingFacade,
+} from "./application/facade/index";
 
 export type {
-  SemanticProcessingOrchestratorPolicy,
+  SemanticProcessingFacadePolicy,
   SemanticProcessingInfraPolicy,
   ResolvedSemanticProcessingModules,
-} from "./orchestrator/index.js";
+  ProcessContentSuccess,
+  RegisterStrategySuccess,
+} from "./application/facade/index";

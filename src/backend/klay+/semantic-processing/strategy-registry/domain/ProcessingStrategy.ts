@@ -1,6 +1,6 @@
-import { AggregateRoot } from "../../../shared/domain/index.js";
-import { StrategyId } from "./StrategyId.js";
-import type { StrategyType } from "./StrategyType.js";
+import { AggregateRoot } from "../../../shared/domain/index";
+import { StrategyId } from "./StrategyId";
+import type { StrategyType } from "./StrategyType";
 
 export class ProcessingStrategy extends AggregateRoot<StrategyId> {
   private _name: string;

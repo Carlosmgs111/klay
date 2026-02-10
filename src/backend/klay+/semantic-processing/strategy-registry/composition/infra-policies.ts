@@ -1,5 +1,5 @@
-import type { ProcessingStrategyRepository } from "../domain/ProcessingStrategyRepository.js";
-import type { EventPublisher } from "../../../shared/domain/EventPublisher.js";
+import type { ProcessingStrategyRepository } from "../domain/ProcessingStrategyRepository";
+import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 
 export type StrategyRegistryInfraPolicy = "in-memory" | "browser" | "server";
 

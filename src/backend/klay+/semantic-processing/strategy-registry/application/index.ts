@@ -1,12 +1,12 @@
-import type { ProcessingStrategyRepository } from "../domain/ProcessingStrategyRepository.js";
-import type { EventPublisher } from "../../../shared/domain/EventPublisher.js";
+import type { ProcessingStrategyRepository } from "../domain/ProcessingStrategyRepository";
+import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 
 // ─── Use Cases ─────────────────────────────────────────────────────
-export { RegisterStrategy } from "./RegisterStrategy.js";
-export type { RegisterStrategyCommand } from "./RegisterStrategy.js";
+export { RegisterStrategy } from "./RegisterStrategy";
+export type { RegisterStrategyCommand } from "./RegisterStrategy";
 
 // ─── Use Cases Facade ──────────────────────────────────────────────
-import { RegisterStrategy } from "./RegisterStrategy.js";
+import { RegisterStrategy } from "./RegisterStrategy";
 
 export class StrategyRegistryUseCases {
   readonly registerStrategy: RegisterStrategy;

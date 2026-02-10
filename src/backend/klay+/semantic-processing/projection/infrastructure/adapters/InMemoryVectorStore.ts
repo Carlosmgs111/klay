@@ -2,8 +2,8 @@ import type {
   VectorStoreAdapter,
   VectorEntry,
   VectorSearchResult,
-} from "../../domain/ports/VectorStoreAdapter.js";
-import { cosineSimilarity } from "../../../../shared/infrastructure/hashVector.js";
+} from "../../domain/ports/VectorStoreAdapter";
+import { cosineSimilarity } from "../../../../shared/infrastructure/hashVector";
 
 export class InMemoryVectorStore implements VectorStoreAdapter {
   private entries = new Map<string, VectorEntry>();

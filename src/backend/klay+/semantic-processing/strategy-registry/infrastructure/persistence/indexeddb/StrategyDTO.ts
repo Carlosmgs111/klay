@@ -1,6 +1,6 @@
-import { ProcessingStrategy } from "../../../domain/ProcessingStrategy.js";
-import { StrategyId } from "../../../domain/StrategyId.js";
-import type { StrategyType } from "../../../domain/StrategyType.js";
+import { ProcessingStrategy } from "../../../domain/ProcessingStrategy";
+import { StrategyId } from "../../../domain/StrategyId";
+import type { StrategyType } from "../../../domain/StrategyType";
 
 export interface StrategyDTO {
   id: string;

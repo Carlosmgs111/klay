@@ -1,4 +1,11 @@
-// ─── Domain ────────────────────────────────────────────────────────
+/**
+ * Projection Module - Public API
+ *
+ * This module manages semantic projections (chunking, embedding, vector storage).
+ * It transforms content into searchable vector representations.
+ */
+
+// ─── Domain ─────────────────────────────────────────────────────────────────
 export {
   SemanticProjection,
   ProjectionId,
@@ -7,7 +14,21 @@ export {
   ProjectionResult,
   ProjectionGenerated,
   ProjectionFailed,
-} from "./domain/index.js";
+  // Domain Errors
+  ProjectionNotFoundError,
+  ProjectionAlreadyExistsError,
+  ProjectionSemanticUnitIdRequiredError,
+  ProjectionContentRequiredError,
+  ProjectionInvalidTypeError,
+  ProjectionInvalidStateError,
+  ProjectionCannotProcessError,
+  ProjectionCannotCompleteError,
+  ProjectionCannotFailError,
+  ChunkingFailedError,
+  EmbeddingFailedError,
+  VectorStoreFailedError,
+  ProjectionProcessingError,
+} from "./domain/index";
 
 export type {
   SemanticProjectionRepository,
@@ -18,13 +39,17 @@ export type {
   VectorStoreAdapter,
   VectorEntry,
   VectorSearchResult,
-} from "./domain/index.js";
+  ProjectionError,
+} from "./domain/index";
 
-// ─── Application ───────────────────────────────────────────────────
-export { GenerateProjection, ProjectionUseCases } from "./application/index.js";
-export type { GenerateProjectionCommand } from "./application/index.js";
+// ─── Application ────────────────────────────────────────────────────────────
+export { GenerateProjection, ProjectionUseCases } from "./application/index";
+export type {
+  GenerateProjectionCommand,
+  GenerateProjectionResult,
+} from "./application/index";
 
-// ─── Infrastructure (strategies & adapters) ────────────────────────
+// ─── Infrastructure (strategies & adapters) ─────────────────────────────────
 export {
   BaseChunker,
   FixedSizeChunker,
@@ -34,32 +59,15 @@ export {
   HashEmbeddingStrategy,
   WebLLMEmbeddingStrategy,
   AISdkEmbeddingStrategy,
-} from "./infrastructure/strategies/index.js";
+} from "./infrastructure/strategies/index";
 
-export { InMemoryVectorStore } from "./infrastructure/adapters/InMemoryVectorStore.js";
+export { InMemoryVectorStore } from "./infrastructure/adapters/InMemoryVectorStore";
 
-// ─── Composition ───────────────────────────────────────────────────
-export { ProjectionComposer } from "./composition/ProjectionComposer.js";
+// ─── Composition & Factory ──────────────────────────────────────────────────
+export { ProjectionComposer, projectionFactory } from "./composition/index";
 export type {
+  ProjectionInfraPolicy,
   ProjectionInfrastructurePolicy,
   ResolvedProjectionInfra,
-} from "./composition/infra-policies.js";
-
-// ─── Module Factory ────────────────────────────────────────────────
-import type { ProjectionInfrastructurePolicy } from "./composition/infra-policies.js";
-import type { ProjectionUseCases as _UseCases } from "./application/index.js";
-
-export async function projectionFactory(
-  policy: ProjectionInfrastructurePolicy,
-): Promise<_UseCases> {
-  const { ProjectionComposer } = await import("./composition/ProjectionComposer.js");
-  const { ProjectionUseCases } = await import("./application/index.js");
-  const infra = await ProjectionComposer.resolve(policy);
-  return new ProjectionUseCases(
-    infra.repository,
-    infra.embeddingStrategy,
-    infra.chunkingStrategy,
-    infra.vectorStore,
-    infra.eventPublisher,
-  );
-}
+  ProjectionFactoryResult,
+} from "./composition/index";

@@ -1,7 +1,7 @@
-export type { EmbeddingStrategy, EmbeddingResult } from "./EmbeddingStrategy.js";
-export type { ChunkingStrategy, Chunk } from "./ChunkingStrategy.js";
+export type { EmbeddingStrategy, EmbeddingResult } from "./EmbeddingStrategy";
+export type { ChunkingStrategy, Chunk } from "./ChunkingStrategy";
 export type {
   VectorStoreAdapter,
   VectorEntry,
   VectorSearchResult,
-} from "./VectorStoreAdapter.js";
+} from "./VectorStoreAdapter";

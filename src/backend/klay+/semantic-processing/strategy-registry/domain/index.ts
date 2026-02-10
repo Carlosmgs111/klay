@@ -1,4 +1,14 @@
-export { ProcessingStrategy } from "./ProcessingStrategy.js";
-export { StrategyId } from "./StrategyId.js";
-export { StrategyType } from "./StrategyType.js";
-export type { ProcessingStrategyRepository } from "./ProcessingStrategyRepository.js";
+export { ProcessingStrategy } from "./ProcessingStrategy";
+export { StrategyId } from "./StrategyId";
+export { StrategyType } from "./StrategyType";
+export type { ProcessingStrategyRepository } from "./ProcessingStrategyRepository";
+
+// Domain Errors
+export {
+  StrategyNotFoundError,
+  StrategyAlreadyExistsError,
+  StrategyNameRequiredError,
+  StrategyInvalidTypeError,
+  StrategyInvalidConfigurationError,
+  type StrategyError,
+} from "./errors";

@@ -1,8 +1,8 @@
-import type { SemanticProjectionRepository } from "../../domain/SemanticProjectionRepository.js";
-import type { SemanticProjection } from "../../domain/SemanticProjection.js";
-import type { ProjectionId } from "../../domain/ProjectionId.js";
-import type { ProjectionType } from "../../domain/ProjectionType.js";
-import type { ProjectionStatus } from "../../domain/ProjectionStatus.js";
+import type { SemanticProjectionRepository } from "../../domain/SemanticProjectionRepository";
+import type { SemanticProjection } from "../../domain/SemanticProjection";
+import type { ProjectionId } from "../../domain/ProjectionId";
+import type { ProjectionType } from "../../domain/ProjectionType";
+import type { ProjectionStatus } from "../../domain/ProjectionStatus";
 
 export class InMemorySemanticProjectionRepository implements SemanticProjectionRepository {
   private store = new Map<string, SemanticProjection>();

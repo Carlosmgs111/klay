@@ -1,4 +1,4 @@
-import type { DomainEvent } from "../../../../shared/domain/index.js";
+import type { DomainEvent } from "../../../../shared/domain/index";
 
 export class ProjectionGenerated {
   static readonly EVENT_TYPE = "semantic-processing.projection.generated";

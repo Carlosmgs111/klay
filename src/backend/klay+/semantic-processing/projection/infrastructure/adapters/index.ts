@@ -1,1 +1,1 @@
-export { InMemoryVectorStore } from "./InMemoryVectorStore.js";
+export { InMemoryVectorStore } from "./InMemoryVectorStore";

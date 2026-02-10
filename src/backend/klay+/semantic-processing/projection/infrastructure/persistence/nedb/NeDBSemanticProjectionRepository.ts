@@ -1,10 +1,10 @@
-import type { SemanticProjectionRepository } from "../../../domain/SemanticProjectionRepository.js";
-import type { SemanticProjection } from "../../../domain/SemanticProjection.js";
-import type { ProjectionId } from "../../../domain/ProjectionId.js";
-import type { ProjectionType } from "../../../domain/ProjectionType.js";
-import type { ProjectionStatus } from "../../../domain/ProjectionStatus.js";
-import { NeDBStore } from "../../../../../shared/infrastructure/nedb/NeDBStore.js";
-import { toDTO, fromDTO, type ProjectionDTO } from "../indexeddb/ProjectionDTO.js";
+import type { SemanticProjectionRepository } from "../../../domain/SemanticProjectionRepository";
+import type { SemanticProjection } from "../../../domain/SemanticProjection";
+import type { ProjectionId } from "../../../domain/ProjectionId";
+import type { ProjectionType } from "../../../domain/ProjectionType";
+import type { ProjectionStatus } from "../../../domain/ProjectionStatus";
+import { NeDBStore } from "../../../../../shared/infrastructure/nedb/NeDBStore";
+import { toDTO, fromDTO, type ProjectionDTO } from "../indexeddb/ProjectionDTO";
 
 export class NeDBSemanticProjectionRepository implements SemanticProjectionRepository {
   private store: NeDBStore<ProjectionDTO>;

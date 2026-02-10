@@ -1,15 +1,18 @@
-import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository.js";
-import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy.js";
-import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy.js";
-import type { VectorStoreAdapter } from "../domain/ports/VectorStoreAdapter.js";
-import type { EventPublisher } from "../../../shared/domain/EventPublisher.js";
+import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
+import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
+import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
+import type { VectorStoreAdapter } from "../domain/ports/VectorStoreAdapter";
+import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 
 // ─── Use Cases ─────────────────────────────────────────────────────
-export { GenerateProjection } from "./GenerateProjection.js";
-export type { GenerateProjectionCommand } from "./GenerateProjection.js";
+export { GenerateProjection } from "./GenerateProjection";
+export type {
+  GenerateProjectionCommand,
+  GenerateProjectionResult,
+} from "./GenerateProjection";
 
 // ─── Use Cases Facade ──────────────────────────────────────────────
-import { GenerateProjection } from "./GenerateProjection.js";
+import { GenerateProjection } from "./GenerateProjection";
 
 export class ProjectionUseCases {
   readonly generateProjection: GenerateProjection;

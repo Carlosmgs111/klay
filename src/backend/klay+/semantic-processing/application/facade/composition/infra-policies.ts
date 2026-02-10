@@ -1,14 +1,14 @@
-import type { ProjectionInfrastructurePolicy } from "../../projection/composition/infra-policies.js";
-import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/infra-policies.js";
-import type { ProjectionUseCases } from "../../projection/application/index.js";
-import type { StrategyRegistryUseCases } from "../../strategy-registry/application/index.js";
-import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter.js";
+import type { ProjectionInfrastructurePolicy } from "../../../projection/composition/index";
+import type { StrategyRegistryInfrastructurePolicy } from "../../../strategy-registry/composition/index";
+import type { ProjectionUseCases } from "../../../projection/application/index";
+import type { StrategyRegistryUseCases } from "../../../strategy-registry/application/index";
+import type { VectorStoreAdapter } from "../../../projection/domain/ports/VectorStoreAdapter";
 
-// ─── Orchestrator Policy ──────────────────────────────────────────────────────
+// ─── Facade Policy ──────────────────────────────────────────────────────────
 
 export type SemanticProcessingInfraPolicy = "in-memory" | "browser" | "server";
 
-export interface SemanticProcessingOrchestratorPolicy {
+export interface SemanticProcessingFacadePolicy {
   type: SemanticProcessingInfraPolicy;
   /**
    * Database path for server-side persistence (NeDB).
@@ -37,7 +37,7 @@ export interface SemanticProcessingOrchestratorPolicy {
   defaultChunkingStrategy?: "fixed-size" | "sentence" | "recursive";
   /**
    * Override policies for individual modules.
-   * If not provided, modules inherit from the orchestrator's type.
+   * If not provided, modules inherit from the facade's type.
    */
   overrides?: {
     projection?: Partial<ProjectionInfrastructurePolicy>;
@@ -45,7 +45,7 @@ export interface SemanticProcessingOrchestratorPolicy {
   };
 }
 
-// ─── Resolved Modules ─────────────────────────────────────────────────────────
+// ─── Resolved Modules ───────────────────────────────────────────────────────
 
 export interface ResolvedSemanticProcessingModules {
   projection: ProjectionUseCases;

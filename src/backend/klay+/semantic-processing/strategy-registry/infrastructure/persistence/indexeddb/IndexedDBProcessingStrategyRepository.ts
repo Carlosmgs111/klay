@@ -1,9 +1,9 @@
-import type { ProcessingStrategyRepository } from "../../../domain/ProcessingStrategyRepository.js";
-import type { ProcessingStrategy } from "../../../domain/ProcessingStrategy.js";
-import type { StrategyId } from "../../../domain/StrategyId.js";
-import type { StrategyType } from "../../../domain/StrategyType.js";
-import { IndexedDBStore } from "../../../../../shared/infrastructure/indexeddb/IndexedDBStore.js";
-import { toDTO, fromDTO, type StrategyDTO } from "./StrategyDTO.js";
+import type { ProcessingStrategyRepository } from "../../../domain/ProcessingStrategyRepository";
+import type { ProcessingStrategy } from "../../../domain/ProcessingStrategy";
+import type { StrategyId } from "../../../domain/StrategyId";
+import type { StrategyType } from "../../../domain/StrategyType";
+import { IndexedDBStore } from "../../../../../shared/infrastructure/indexeddb/IndexedDBStore";
+import { toDTO, fromDTO, type StrategyDTO } from "./StrategyDTO";
 
 export class IndexedDBProcessingStrategyRepository implements ProcessingStrategyRepository {
   private store: IndexedDBStore<StrategyDTO>;

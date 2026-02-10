@@ -1,32 +1,37 @@
-// ─── Domain ────────────────────────────────────────────────────────
+/**
+ * Strategy Registry Module - Public API
+ *
+ * This module manages processing strategies (chunking, embedding, ranking).
+ * It provides a registry for configuring and selecting different processing approaches.
+ */
+
+// ─── Domain ─────────────────────────────────────────────────────────────────
 export {
   ProcessingStrategy,
   StrategyId,
   StrategyType,
-} from "./domain/index.js";
+  // Domain Errors
+  StrategyNotFoundError,
+  StrategyAlreadyExistsError,
+  StrategyNameRequiredError,
+  StrategyInvalidTypeError,
+  StrategyInvalidConfigurationError,
+} from "./domain/index";
 
-export type { ProcessingStrategyRepository } from "./domain/index.js";
-
-// ─── Application ───────────────────────────────────────────────────
-export { RegisterStrategy, StrategyRegistryUseCases } from "./application/index.js";
-export type { RegisterStrategyCommand } from "./application/index.js";
-
-// ─── Composition ───────────────────────────────────────────────────
-export { StrategyRegistryComposer } from "./composition/StrategyRegistryComposer.js";
 export type {
+  ProcessingStrategyRepository,
+  StrategyError,
+} from "./domain/index";
+
+// ─── Application ────────────────────────────────────────────────────────────
+export { RegisterStrategy, StrategyRegistryUseCases } from "./application/index";
+export type { RegisterStrategyCommand } from "./application/index";
+
+// ─── Composition & Factory ──────────────────────────────────────────────────
+export { StrategyRegistryComposer, strategyRegistryFactory } from "./composition/index";
+export type {
+  StrategyRegistryInfraPolicy,
   StrategyRegistryInfrastructurePolicy,
   ResolvedStrategyRegistryInfra,
-} from "./composition/infra-policies.js";
-
-// ─── Module Factory ────────────────────────────────────────────────
-import type { StrategyRegistryInfrastructurePolicy } from "./composition/infra-policies.js";
-import type { StrategyRegistryUseCases as _UseCases } from "./application/index.js";
-
-export async function strategyRegistryFactory(
-  policy: StrategyRegistryInfrastructurePolicy,
-): Promise<_UseCases> {
-  const { StrategyRegistryComposer } = await import("./composition/StrategyRegistryComposer.js");
-  const { StrategyRegistryUseCases } = await import("./application/index.js");
-  const infra = await StrategyRegistryComposer.resolve(policy);
-  return new StrategyRegistryUseCases(infra.repository, infra.eventPublisher);
-}
+  StrategyRegistryFactoryResult,
+} from "./composition/index";

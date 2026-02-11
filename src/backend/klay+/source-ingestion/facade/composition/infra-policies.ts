@@ -1,8 +1,8 @@
-import type { SourceInfrastructurePolicy } from "../../../source/composition/index";
-import type { ExtractionInfrastructurePolicy } from "../../../extraction/composition/index";
-import type { SourceUseCases } from "../../../source/application/index";
-import type { ExtractionUseCases } from "../../../extraction/application/index";
-import type { SourceRepository } from "../../../source/domain/SourceRepository";
+import type { SourceInfrastructurePolicy } from "../../source/composition/index";
+import type { ExtractionInfrastructurePolicy } from "../../extraction/composition/index";
+import type { SourceUseCases } from "../../source/application/index";
+import type { ExtractionUseCases } from "../../extraction/application/index";
+import type { SourceRepository } from "../../source/domain/SourceRepository";
 
 // ─── Facade Policy ───────────────────────────────────────────────────────────
 

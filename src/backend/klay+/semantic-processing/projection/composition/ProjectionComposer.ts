@@ -56,6 +56,7 @@ export class ProjectionComposer {
   private static async resolveEmbeddingStrategy(
     policy: ProjectionInfrastructurePolicy,
   ): Promise<EmbeddingStrategy> {
+    console.log({ policy });
     switch (policy.type) {
       case "in-memory": {
         const { HashEmbeddingStrategy } = await import(
@@ -74,13 +75,19 @@ export class ProjectionComposer {
       }
 
       case "server": {
-        if (!policy.aiSdkEmbeddingModel) {
-          throw new Error("Projection server policy requires 'aiSdkEmbeddingModel'");
+        // If aiSdkEmbeddingModel is provided, use AI SDK embeddings
+        // Otherwise, fallback to hash embeddings for testing without API keys
+        if (policy.aiSdkEmbeddingModel) {
+          const { AISdkEmbeddingStrategy } = await import(
+            "../infrastructure/strategies/AISdkEmbeddingStrategy"
+          );
+          return new AISdkEmbeddingStrategy(policy.aiSdkEmbeddingModel);
         }
-        const { AISdkEmbeddingStrategy } = await import(
-          "../infrastructure/strategies/AISdkEmbeddingStrategy"
+        // Fallback to hash embeddings for server mode without AI SDK model
+        const { HashEmbeddingStrategy } = await import(
+          "../infrastructure/strategies/HashEmbeddingStrategy"
         );
-        return new AISdkEmbeddingStrategy(policy.aiSdkEmbeddingModel);
+        return new HashEmbeddingStrategy(policy.embeddingDimensions ?? 128);
       }
 
       default:

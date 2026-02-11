@@ -8,6 +8,7 @@ export class InMemorySemanticProjectionRepository implements SemanticProjectionR
   private store = new Map<string, SemanticProjection>();
 
   async save(entity: SemanticProjection): Promise<void> {
+    console.log("Saving semantic projection:", entity);
     this.store.set(entity.id.value, entity);
   }
 

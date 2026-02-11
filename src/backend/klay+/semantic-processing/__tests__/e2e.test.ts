@@ -11,7 +11,7 @@
  * Run with: npm run test:semantic-processing
  */
 
-import { createSemanticProcessingFacade } from "../application/facade/index";
+import { createSemanticProcessingFacade } from "../facade/index";
 import { ProjectionType } from "../projection/domain/ProjectionType";
 import { StrategyType } from "../strategy-registry/domain/StrategyType";
 

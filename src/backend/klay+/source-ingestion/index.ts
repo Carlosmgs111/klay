@@ -14,7 +14,7 @@ export {
   RegisterSource,
   UpdateSource,
   sourceFactory,
-} from "./source/index";
+} from "./source";
 
 export type {
   SourceRepository,
@@ -24,7 +24,7 @@ export type {
   RegisterSourceCommand,
   UpdateSourceCommand,
   SourceFactoryResult,
-} from "./source/index";
+} from "./source";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Extraction Module
@@ -44,7 +44,7 @@ export {
   TextContentExtractor,
   BrowserPdfContentExtractor,
   ServerPdfContentExtractor,
-} from "./extraction/index";
+} from "./extraction";
 
 export type {
   ExtractionJobRepository,
@@ -57,7 +57,7 @@ export type {
   ExecuteExtractionResult,
   ExtractionFactoryResult,
   ExtractorMap,
-} from "./extraction/index";
+} from "./extraction";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Context Facade (Application Layer Entry Point)
@@ -66,10 +66,10 @@ export {
   SourceIngestionFacade,
   SourceIngestionFacadeComposer,
   createSourceIngestionFacade,
-} from "./application/facade/index";
+} from "./facade";
 
 export type {
   SourceIngestionFacadePolicy,
   SourceIngestionInfraPolicy,
   ResolvedSourceIngestionModules,
-} from "./application/facade/index";
+} from "./facade";

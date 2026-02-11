@@ -11,7 +11,7 @@
  * Run with: npm run test:source-ingestion [optional-pdf-path]
  */
 
-import { createSourceIngestionFacade } from "../application/facade/index";
+import { createSourceIngestionFacade } from "../facade/index";
 import { SourceType } from "../source/domain/SourceType";
 import * as path from "path";
 import * as fs from "fs";

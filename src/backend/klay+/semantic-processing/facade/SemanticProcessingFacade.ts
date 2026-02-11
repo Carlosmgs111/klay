@@ -1,11 +1,11 @@
-import type { ProjectionUseCases } from "../../projection/application/index";
-import type { StrategyRegistryUseCases } from "../../strategy-registry/application/index";
-import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter";
-import type { ProjectionType } from "../../projection/domain/ProjectionType";
-import type { StrategyType } from "../../strategy-registry/domain/StrategyType";
+import type { ProjectionUseCases } from "../projection/application/index";
+import type { StrategyRegistryUseCases } from "../strategy-registry/application/index";
+import type { VectorStoreAdapter } from "../projection/domain/ports/VectorStoreAdapter";
+import type { ProjectionType } from "../projection/domain/ProjectionType";
+import type { StrategyType } from "../strategy-registry/domain/StrategyType";
 import type { ResolvedSemanticProcessingModules } from "./composition/infra-policies";
-import { Result } from "../../../shared/domain/Result";
-import type { DomainError } from "../../../shared/domain/errors";
+import { Result } from "../../shared/domain/Result";
+import type { DomainError } from "../../shared/domain/errors";
 
 // ─── Facade Result Types ────────────────────────────────────────────────────
 

@@ -2,8 +2,8 @@ import type {
   SourceIngestionFacadePolicy,
   ResolvedSourceIngestionModules,
 } from "./infra-policies";
-import type { SourceInfrastructurePolicy } from "../../../source/composition/index";
-import type { ExtractionInfrastructurePolicy } from "../../../extraction/composition/index";
+import type { SourceInfrastructurePolicy } from "../../source/composition/index";
+import type { ExtractionInfrastructurePolicy } from "../../extraction/composition/index";
 
 /**
  * Composer for the Source Ingestion Facade.
@@ -41,10 +41,10 @@ export class SourceIngestionFacadeComposer {
 
     // Resolve modules in parallel using their factories (from composition/)
     const [sourceResult, extractionResult] = await Promise.all([
-      import("../../../source/composition/source.factory").then((m) =>
+      import("../../source/composition/source.factory").then((m) =>
         m.sourceFactory(sourcePolicy),
       ),
-      import("../../../extraction/composition/extraction.factory").then((m) =>
+      import("../../extraction/composition/extraction.factory").then((m) =>
         m.extractionFactory(extractionPolicy),
       ),
     ]);

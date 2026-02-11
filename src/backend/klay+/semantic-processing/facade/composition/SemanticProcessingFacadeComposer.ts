@@ -2,9 +2,9 @@ import type {
   SemanticProcessingFacadePolicy,
   ResolvedSemanticProcessingModules,
 } from "./infra-policies";
-import type { ProjectionInfrastructurePolicy } from "../../../projection/composition/index";
-import type { StrategyRegistryInfrastructurePolicy } from "../../../strategy-registry/composition/index";
-import type { VectorStoreAdapter } from "../../../projection/domain/ports/VectorStoreAdapter";
+import type { ProjectionInfrastructurePolicy } from "../../projection/composition/index";
+import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
+import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter";
 
 /**
  * Composer for the Semantic Processing Facade.
@@ -28,7 +28,7 @@ export class SemanticProcessingFacadeComposer {
     // For all environments, we use InMemoryVectorStore
     // In production, this could be replaced with Pinecone, Weaviate, etc.
     const { InMemoryVectorStore } = await import(
-      "../../../projection/infrastructure/adapters/InMemoryVectorStore"
+      "../../projection/infrastructure/adapters/InMemoryVectorStore"
     );
     return new InMemoryVectorStore();
   }
@@ -56,6 +56,7 @@ export class SemanticProcessingFacadeComposer {
       chunkingStrategyId: policy.overrides?.projection?.chunkingStrategyId ??
                           policy.defaultChunkingStrategy,
       sharedVectorStore: vectorStore, // Wire shared store for cross-context queries
+      aiSdkEmbeddingModel: policy.aiSdkModelId, // Map facade's aiSdkModelId to projection's aiSdkEmbeddingModel
     };
 
     const strategyRegistryPolicy: StrategyRegistryInfrastructurePolicy = {
@@ -67,10 +68,10 @@ export class SemanticProcessingFacadeComposer {
     // Resolve modules in parallel using their factories (from composition/)
     // Factories return { useCases, infra } - we extract useCases for the facade
     const [projectionResult, strategyRegistryResult] = await Promise.all([
-      import("../../../projection/composition/projection.factory").then((m) =>
+      import("../../projection/composition/projection.factory").then((m) =>
         m.projectionFactory(projectionPolicy),
       ),
-      import("../../../strategy-registry/composition/strategy-registry.factory").then((m) =>
+      import("../../strategy-registry/composition/strategy-registry.factory").then((m) =>
         m.strategyRegistryFactory(strategyRegistryPolicy),
       ),
     ]);

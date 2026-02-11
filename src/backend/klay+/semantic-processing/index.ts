@@ -46,7 +46,7 @@ export {
   WebLLMEmbeddingStrategy,
   AISdkEmbeddingStrategy,
   InMemoryVectorStore,
-} from "./projection/index";
+} from "./projection";
 
 export type {
   SemanticProjectionRepository,
@@ -64,7 +64,7 @@ export type {
   GenerateProjectionCommand,
   GenerateProjectionResult,
   ProjectionError,
-} from "./projection/index";
+} from "./projection";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Strategy Registry Module
@@ -83,7 +83,7 @@ export {
   StrategyNameRequiredError,
   StrategyInvalidTypeError,
   StrategyInvalidConfigurationError,
-} from "./strategy-registry/index";
+} from "./strategy-registry";
 
 export type {
   ProcessingStrategyRepository,
@@ -93,7 +93,7 @@ export type {
   StrategyRegistryFactoryResult,
   RegisterStrategyCommand,
   StrategyError,
-} from "./strategy-registry/index";
+} from "./strategy-registry";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Facade (Context-Level)
@@ -102,7 +102,7 @@ export {
   SemanticProcessingFacade,
   SemanticProcessingFacadeComposer,
   createSemanticProcessingFacade,
-} from "./application/facade/index";
+} from "./facade";
 
 export type {
   SemanticProcessingFacadePolicy,
@@ -110,4 +110,4 @@ export type {
   ResolvedSemanticProcessingModules,
   ProcessContentSuccess,
   RegisterStrategySuccess,
-} from "./application/facade/index";
+} from "./facade";

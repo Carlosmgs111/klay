@@ -1,13 +1,13 @@
-import type { SourceUseCases } from "../../source/application/index";
-import type { ExtractionUseCases } from "../../extraction/application/index";
-import type { SourceRepository } from "../../source/domain/SourceRepository";
-import type { SourceType } from "../../source/domain/SourceType";
-import { SourceType as SourceTypeEnum } from "../../source/domain/SourceType";
-import { SourceId } from "../../source/domain/SourceId";
-import { SourceNotFoundError } from "../../source/domain/errors";
+import type { SourceUseCases } from "../source/application/index";
+import type { ExtractionUseCases } from "../extraction/application/index";
+import type { SourceRepository } from "../source/domain/SourceRepository";
+import type { SourceType } from "../source/domain/SourceType";
+import { SourceType as SourceTypeEnum } from "../source/domain/SourceType";
+import { SourceId } from "../source/domain/SourceId";
+import { SourceNotFoundError } from "../source/domain/errors";
 import type { ResolvedSourceIngestionModules } from "./composition/infra-policies";
-import { Result } from "../../../shared/domain/Result";
-import type { DomainError } from "../../../shared/domain/errors";
+import { Result } from "../../shared/domain/Result";
+import type { DomainError } from "../../shared/domain/errors";
 
 // ─── SourceType to MIME Type Mapping ─────────────────────────────────────────
 

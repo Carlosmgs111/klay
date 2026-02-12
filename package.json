@@ -10,7 +10,8 @@
     "check": "astro check",
     "test:source-ingestion": "tsx src/backend/klay+/source-ingestion/__tests__/e2e.test.ts",
     "test:semantic-processing": "tsx src/backend/klay+/semantic-processing/__tests__/e2e.test.ts",
-    "test:integration": "tsx src/backend/klay+/__tests__/integration/source-to-semantic.e2e.ts"
+    "test:integration": "tsx src/backend/klay+/__tests__/integration/source-to-semantic.e2e.ts",
+    "test:config": "tsx src/backend/klay+/shared/config/__tests__/config.test.ts"
   },
   "dependencies": {
     "@ai-sdk/cohere": "^2.0.21",

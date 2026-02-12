@@ -21,6 +21,7 @@ export type {
   ProjectionInfraPolicy,
   ProjectionInfrastructurePolicy,
   ResolvedProjectionInfra,
+  EmbeddingProvider,
 } from "./infra-policies";
 
 // ─── Factory (module entry point) ───────────────────────────────────────────

@@ -5,59 +5,48 @@ import type {
 
 /**
  * Server-side embedding strategy using Vercel AI SDK.
- * Delegates to any provider supported by ai-sdk (OpenAI, Cohere, etc.).
+ * Receives a pre-configured embedding model from any supported provider.
  *
- * Usage:
- *   import { openai } from "@ai-sdk/openai";
- *   const strategy = new AISdkEmbeddingStrategy(openai.embedding("text-embedding-3-small"));
+ * The model is created by ProjectionComposer with API key from ConfigProvider.
+ * This strategy is provider-agnostic and delegates to the AI SDK model.
+ *
+ * Supported providers:
+ * - OpenAI: openai.embedding("text-embedding-3-small")
+ * - Cohere: cohere.textEmbeddingModel("embed-multilingual-v3.0")
+ * - HuggingFace: hf.textEmbeddingModel("sentence-transformers/all-MiniLM-L6-v2")
+ *
+ * @example
+ * // Model is created by ProjectionComposer
+ * const strategy = new AISdkEmbeddingStrategy(model, "openai-text-embedding-3-small");
  */
 export class AISdkEmbeddingStrategy implements EmbeddingStrategy {
   readonly strategyId: string;
   readonly version = 1;
-  model: any | null = null;
 
   constructor(
     private readonly embeddingModel: any,
     strategyId: string = "ai-sdk-embedding"
   ) {
-    this.embeddingModel = embeddingModel;
     this.strategyId = strategyId;
-    import("@ai-sdk/cohere").then(({ createCohere }) => {
-      this.model = createCohere({
-        apiKey: process.env.AISDK_COHERE_API_KEY,
-      }).textEmbeddingModel(this.embeddingModel);
-    });
-  }
-
- private async resolveModel() {
-    if (!this.model) {
-      const { createCohere } = await import("@ai-sdk/cohere");
-      this.model = createCohere({
-        apiKey: "ob7sJLm1mSr4diGSHf4dW8nUxC2BgcUPTZbb62jU",
-      }).textEmbeddingModel(this.embeddingModel);
-      return this.model;
-    }
-    return this.model;
   }
 
   async embed(content: string): Promise<EmbeddingResult> {
-    const model = await this.resolveModel();
-    const { embedding } = await model.doEmbed({
+    const result = await this.embeddingModel.doEmbed({
       values: [content],
     });
+    const vector = result.embeddings[0];
     return {
-      vector: embedding,
+      vector,
       model: this.strategyId,
-      dimensions: embedding.length,
+      dimensions: vector.length,
     };
   }
 
   async embedBatch(contents: string[]): Promise<EmbeddingResult[]> {
-    const model = await this.resolveModel();
-    const { embeddings } = await model.doEmbed({
+    const result = await this.embeddingModel.doEmbed({
       values: contents,
     });
-    return embeddings.map((vector: any) => ({
+    return result.embeddings.map((vector: number[]) => ({
       vector,
       model: this.strategyId,
       dimensions: vector.length,

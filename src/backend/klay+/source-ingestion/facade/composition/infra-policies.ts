@@ -28,6 +28,19 @@ export interface SourceIngestionFacadePolicy {
     source?: Partial<SourceInfrastructurePolicy>;
     extraction?: Partial<ExtractionInfrastructurePolicy>;
   };
+  /**
+   * Configuration overrides for testing or explicit configuration.
+   * When provided, these values take precedence over environment variables.
+   *
+   * @example
+   * ```typescript
+   * configOverrides: {
+   *   KLAY_DB_PATH: "/tmp/test",
+   *   OPENAI_API_KEY: "test-key",
+   * }
+   * ```
+   */
+  configOverrides?: Record<string, string>;
 }
 
 // ─── Resolved Modules ────────────────────────────────────────────────────────

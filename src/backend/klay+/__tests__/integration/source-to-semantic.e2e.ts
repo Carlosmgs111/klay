@@ -82,16 +82,19 @@ async function runIntegrationTest() {
     // ─── Step 1: Initialize Both Contexts ───────────────────────────────────
     console.log("Step 1: Initializing contexts...");
 
+    // Use in-memory for clean test runs (no persistence between runs)
+    // For server mode with real persistence, use type: "server" with configOverrides
     const ingestionFacade = await createSourceIngestionFacade({
       type: "server",
     });
     console.log("   ✅ Source Ingestion Facade created");
 
+    // Use in-memory with hash embeddings (no API key required)
+    // For real embeddings, use type: "server" with aiSdkModelId and COHERE_API_KEY/OPENAI_API_KEY
     const processingFacade = await createSemanticProcessingFacade({
       type: "server",
       embeddingDimensions: 128,
       defaultChunkingStrategy: "recursive",
-      aiSdkModelId: "embed-multilingual-v3.0",
     });
     console.log("   ✅ Semantic Processing Facade created\n");
 

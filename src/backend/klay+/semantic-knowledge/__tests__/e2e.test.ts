@@ -8,27 +8,30 @@
  * 4. Verify lineage history
  * 5. Test batch operations
  * 6. Test error handling
- *
- * Run with: npm run test:semantic-knowledge
  */
 
+import { describe, it, expect, beforeAll } from "vitest";
 import { createSemanticKnowledgeFacade } from "../facade/index";
 import { TransformationType } from "../lineage/domain/Transformation";
+import type { SemanticKnowledgeFacade } from "../facade/SemanticKnowledgeFacade";
 
-async function runE2ETest() {
-  console.log("🧪 Starting End-to-End Test for Semantic Knowledge Context\n");
+describe("Semantic Knowledge Context E2E", () => {
+  let facade: SemanticKnowledgeFacade;
+  let unitId: string;
+  let unitId2: string;
 
-  try {
-    // ─── Step 1: Create Facade ─────────────────────────────────────────────
-    console.log("📦 Step 1: Creating facade with in-memory infrastructure...");
-    const facade = await createSemanticKnowledgeFacade({
+  beforeAll(async () => {
+    console.log("🧪 Starting End-to-End Test for Semantic Knowledge Context\n");
+    console.log("📦 Creating facade with in-memory infrastructure...");
+    facade = await createSemanticKnowledgeFacade({
       type: "in-memory",
     });
     console.log("   ✅ Facade created successfully\n");
+  });
 
-    // ─── Step 2: Create Semantic Unit with Lineage ────────────────────────
-    console.log("📝 Step 2: Creating a semantic unit with lineage tracking...");
-    const unitId = crypto.randomUUID();
+  it("should create semantic unit with lineage tracking", async () => {
+    console.log("📝 Creating a semantic unit with lineage tracking...");
+    unitId = crypto.randomUUID();
 
     const createResult = await facade.createSemanticUnitWithLineage({
       id: unitId,
@@ -43,15 +46,13 @@ async function runE2ETest() {
       attributes: { priority: "high" },
     });
 
-    if (createResult.isFail()) {
-      throw new Error(`Creation failed: ${createResult.error.message}`);
-    }
-
+    expect(createResult.isOk()).toBe(true);
     console.log(`   ✅ Semantic unit created: ${createResult.value.unitId}`);
     console.log(`      Lineage registered with EXTRACTION transformation\n`);
+  });
 
-    // ─── Step 3: Version Semantic Unit with Lineage ───────────────────────
-    console.log("🔄 Step 3: Versioning semantic unit with lineage tracking...");
+  it("should version semantic unit with enrichment transformation", async () => {
+    console.log("🔄 Versioning semantic unit with lineage tracking...");
 
     const versionResult = await facade.versionSemanticUnitWithLineage({
       unitId: unitId,
@@ -68,16 +69,14 @@ async function runE2ETest() {
       },
     });
 
-    if (versionResult.isFail()) {
-      throw new Error(`Versioning failed: ${versionResult.error.message}`);
-    }
-
+    expect(versionResult.isOk()).toBe(true);
     console.log(`   ✅ Semantic unit versioned: ${versionResult.value.unitId}`);
     console.log(`      New version: ${versionResult.value.newVersion}`);
     console.log(`      Lineage registered with ENRICHMENT transformation\n`);
+  });
 
-    // ─── Step 4: Version Again (Chunking) ─────────────────────────────────
-    console.log("🔄 Step 4: Versioning again (chunking transformation)...");
+  it("should version semantic unit with chunking transformation", async () => {
+    console.log("🔄 Versioning again (chunking transformation)...");
 
     const chunkResult = await facade.versionSemanticUnitWithLineage({
       unitId: unitId,
@@ -92,22 +91,18 @@ async function runE2ETest() {
       },
     });
 
-    if (chunkResult.isFail()) {
-      throw new Error(`Chunking version failed: ${chunkResult.error.message}`);
-    }
-
+    expect(chunkResult.isOk()).toBe(true);
     console.log(`   ✅ Semantic unit versioned: ${chunkResult.value.unitId}`);
     console.log(`      New version: ${chunkResult.value.newVersion}`);
     console.log(`      Lineage registered with CHUNKING transformation\n`);
+  });
 
-    // ─── Step 5: Verify Lineage ───────────────────────────────────────────
-    console.log("📊 Step 5: Verifying lineage history...");
+  it("should retrieve lineage history for a unit", async () => {
+    console.log("📊 Verifying lineage history...");
 
     const lineageResult = await facade.getLineageForUnit(unitId);
 
-    if (lineageResult.isFail()) {
-      throw new Error(`Lineage retrieval failed: ${lineageResult.error.message}`);
-    }
+    expect(lineageResult.isOk()).toBe(true);
 
     const lineage = lineageResult.value as any;
     console.log(`   ✅ Lineage found for unit: ${lineage.semanticUnitId}`);
@@ -118,10 +113,11 @@ async function runE2ETest() {
       }
     }
     console.log();
+  });
 
-    // ─── Step 6: Create Another Unit ──────────────────────────────────────
-    console.log("📝 Step 6: Creating another semantic unit...");
-    const unitId2 = crypto.randomUUID();
+  it("should create another semantic unit", async () => {
+    console.log("📝 Creating another semantic unit...");
+    unitId2 = crypto.randomUUID();
 
     const createResult2 = await facade.createSemanticUnitWithLineage({
       id: unitId2,
@@ -132,31 +128,26 @@ async function runE2ETest() {
       createdBy: "api-extractor",
     });
 
-    if (createResult2.isFail()) {
-      throw new Error(`Second creation failed: ${createResult2.error.message}`);
-    }
-
+    expect(createResult2.isOk()).toBe(true);
     console.log(`   ✅ Second semantic unit created: ${createResult2.value.unitId}\n`);
+  });
 
-    // ─── Step 7: Test Deprecation State Machine ──────────────────────────
-    console.log("🔄 Step 7: Testing deprecation state machine...");
+  it("should reject deprecation of DRAFT units (state machine)", async () => {
+    console.log("🔄 Testing deprecation state machine...");
     console.log(`   ℹ️  State transitions: DRAFT → ACTIVE → DEPRECATED`);
 
-    // Try to deprecate a DRAFT unit (should fail)
     const deprecateResult = await facade.deprecateSemanticUnitWithLineage({
       unitId: unitId,
       reason: "Content is outdated",
     });
 
-    if (deprecateResult.isFail()) {
-      console.log(`   ✅ Correctly rejected: DRAFT units cannot be deprecated`);
-      console.log(`      Error: Invalid state transition\n`);
-    } else {
-      throw new Error("Should have failed - DRAFT cannot be deprecated!");
-    }
+    expect(deprecateResult.isFail()).toBe(true);
+    console.log(`   ✅ Correctly rejected: DRAFT units cannot be deprecated`);
+    console.log(`      Error: Invalid state transition\n`);
+  });
 
-    // ─── Step 8: Batch Creation ───────────────────────────────────────────
-    console.log("📚 Step 8: Testing batch creation...");
+  it("should handle batch creation", async () => {
+    console.log("📚 Testing batch creation...");
 
     const batchUnits = [
       {
@@ -188,18 +179,20 @@ async function runE2ETest() {
     const batchResult = await facade.batchCreateSemanticUnitsWithLineage(batchUnits);
     const successCount = batchResult.filter((r) => r.success).length;
 
+    expect(successCount).toBe(3);
     console.log(`   ✅ Batch creation completed: ${successCount}/${batchUnits.length} successful`);
     for (const result of batchResult) {
       const status = result.success ? "✓" : "✗";
       console.log(`      ${status} ${result.unitId.slice(0, 8)}...${result.error ? ` (${result.error})` : ""}`);
     }
     console.log();
+  });
 
-    // ─── Step 9: Test Duplicate Creation Error ───────────────────────────
-    console.log("🚫 Step 9: Testing duplicate creation error handling...");
+  it("should reject duplicate creation", async () => {
+    console.log("🚫 Testing duplicate creation error handling...");
 
     const duplicateResult = await facade.createSemanticUnitWithLineage({
-      id: unitId2, // Same ID as step 6
+      id: unitId2, // Same ID as previous
       sourceId: "different-source",
       sourceType: "document",
       content: "Different content",
@@ -207,14 +200,12 @@ async function runE2ETest() {
       createdBy: "test",
     });
 
-    if (duplicateResult.isFail()) {
-      console.log(`   ✅ Correctly rejected duplicate: ${duplicateResult.error.message}\n`);
-    } else {
-      throw new Error("Should have failed with duplicate ID!");
-    }
+    expect(duplicateResult.isFail()).toBe(true);
+    console.log(`   ✅ Correctly rejected duplicate: ${duplicateResult.error.message}\n`);
+  });
 
-    // ─── Step 10: Test Not Found Error ────────────────────────────────────
-    console.log("🔍 Step 10: Testing not found error handling...");
+  it("should reject versioning non-existent unit", async () => {
+    console.log("🔍 Testing not found error handling...");
 
     const notFoundResult = await facade.versionSemanticUnitWithLineage({
       unitId: "non-existent-id",
@@ -223,40 +214,20 @@ async function runE2ETest() {
       reason: "Testing",
     });
 
-    if (notFoundResult.isFail()) {
-      console.log(`   ✅ Correctly rejected not found: ${notFoundResult.error.message}\n`);
-    } else {
-      throw new Error("Should have failed with not found!");
-    }
+    expect(notFoundResult.isFail()).toBe(true);
+    console.log(`   ✅ Correctly rejected not found: ${notFoundResult.error.message}\n`);
+  });
 
-    // ─── Step 11: Direct Module Access ────────────────────────────────────
-    console.log("🔧 Step 11: Testing direct module access...");
+  it("should provide direct module access", async () => {
+    console.log("🔧 Testing direct module access...");
 
-    // Access modules directly through facade
+    expect(facade.semanticUnit).toBeDefined();
+    expect(facade.lineage).toBeDefined();
     console.log(`   Semantic Unit module: ${facade.semanticUnit ? "✅ Available" : "❌ Not available"}`);
     console.log(`   Lineage module: ${facade.lineage ? "✅ Available" : "❌ Not available"}\n`);
 
-    // ─── Summary ───────────────────────────────────────────────────────────
     console.log("═══════════════════════════════════════════════════════════════");
     console.log("✅ ALL TESTS PASSED!");
     console.log("═══════════════════════════════════════════════════════════════");
-    console.log("\nSummary:");
-    console.log("  • Facade creation: ✅");
-    console.log("  • Semantic unit creation with lineage: ✅");
-    console.log("  • Semantic unit versioning with lineage: ✅");
-    console.log("  • Multiple transformations (Enrichment, Chunking): ✅");
-    console.log("  • Lineage retrieval: ✅");
-    console.log("  • State machine validation: ✅");
-    console.log("  • Batch creation: ✅");
-    console.log("  • Error handling (duplicate, not found): ✅");
-    console.log("  • Direct module access: ✅");
-    console.log("\nThe semantic-knowledge context is working correctly!");
-  } catch (error) {
-    console.error("\n❌ TEST FAILED!");
-    console.error("Error:", error);
-    process.exit(1);
-  }
-}
-
-// Run the test
-runE2ETest();
+  });
+});

@@ -26,6 +26,7 @@ export type {
   SemanticUnitRepository,
   SemanticUnitInfrastructurePolicy,
   ResolvedSemanticUnitInfra,
+  SemanticUnitFactoryResult,
   CreateSemanticUnitCommand,
   VersionSemanticUnitCommand,
   DeprecateSemanticUnitCommand,
@@ -51,20 +52,29 @@ export type {
   KnowledgeLineageRepository,
   LineageInfrastructurePolicy,
   ResolvedLineageInfra,
+  LineageFactoryResult,
   RegisterTransformationCommand,
 } from "./lineage/index.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Orchestrator Module
+// Facade Module (Recommended Entry Point)
 // ═══════════════════════════════════════════════════════════════════════════
 export {
-  SemanticKnowledgeOrchestrator,
-  SemanticKnowledgeOrchestratorComposer,
-  semanticKnowledgeOrchestratorFactory,
-} from "./orchestrator/index.js";
+  SemanticKnowledgeFacade,
+  SemanticKnowledgeFacadeComposer,
+  createSemanticKnowledgeFacade,
+  SemanticUnitNotFoundError,
+  SemanticUnitAlreadyExistsError,
+  SemanticUnitOperationError,
+  LineageNotFoundError,
+  LineageOperationError,
+} from "./facade/index.js";
 
 export type {
-  SemanticKnowledgeOrchestratorPolicy,
+  SemanticKnowledgeFacadePolicy,
   SemanticKnowledgeInfraPolicy,
   ResolvedSemanticKnowledgeModules,
-} from "./orchestrator/index.js";
+  CreateSemanticUnitWithLineageSuccess,
+  VersionSemanticUnitWithLineageSuccess,
+  DeprecateSemanticUnitWithLineageSuccess,
+} from "./facade/index.js";

@@ -1,38 +1,32 @@
 import type { SemanticQueryUseCases } from "../semantic-query/application/index.js";
 import type { RetrievalResult } from "../semantic-query/domain/RetrievalResult.js";
-
-// ─── Composition ───────────────────────────────────────────────────
-export { KnowledgeRetrievalOrchestratorComposer } from "./composition/KnowledgeRetrievalOrchestratorComposer.js";
-export type {
-  KnowledgeRetrievalOrchestratorPolicy,
-  KnowledgeRetrievalInfraPolicy,
-  ResolvedKnowledgeRetrievalModules,
-} from "./composition/infra-policies.js";
-
 import type { ResolvedKnowledgeRetrievalModules } from "./composition/infra-policies.js";
 
-// ─── Orchestrator ──────────────────────────────────────────────────
+// ─── Facade ──────────────────────────────────────────────────────────────────
 
 /**
- * Orchestrator for the Knowledge Retrieval bounded context.
+ * Application Facade for the Knowledge Retrieval bounded context.
  *
- * Provides a unified facade for semantic search operations,
- * enabling coordinated retrieval of knowledge from the vector store.
+ * Provides a unified entry point for semantic search operations,
+ * coordinating retrieval of knowledge from the vector store.
+ *
+ * This is an Application Layer component - it does NOT contain domain logic.
+ * It only coordinates existing use cases and provides convenience methods.
  */
-export class KnowledgeRetrievalOrchestrator {
+export class KnowledgeRetrievalFacade {
   private readonly _semanticQuery: SemanticQueryUseCases;
 
   constructor(modules: ResolvedKnowledgeRetrievalModules) {
     this._semanticQuery = modules.semanticQuery;
   }
 
-  // ─── Module Accessors ─────────────────────────────────────────────────────
+  // ─── Module Accessors ──────────────────────────────────────────────────────
 
   get semanticQuery(): SemanticQueryUseCases {
     return this._semanticQuery;
   }
 
-  // ─── Orchestrated Operations ──────────────────────────────────────────────
+  // ─── Orchestrated Operations ───────────────────────────────────────────────
 
   /**
    * Performs a semantic search query.
@@ -186,17 +180,4 @@ export class KnowledgeRetrievalOrchestrator {
       results: searchResults[index],
     }));
   }
-}
-
-// ─── Orchestrator Factory ──────────────────────────────────────────
-import type { KnowledgeRetrievalOrchestratorPolicy } from "./composition/infra-policies.js";
-
-export async function knowledgeRetrievalOrchestratorFactory(
-  policy: KnowledgeRetrievalOrchestratorPolicy,
-): Promise<KnowledgeRetrievalOrchestrator> {
-  const { KnowledgeRetrievalOrchestratorComposer } = await import(
-    "./composition/KnowledgeRetrievalOrchestratorComposer.js"
-  );
-  const modules = await KnowledgeRetrievalOrchestratorComposer.resolve(policy);
-  return new KnowledgeRetrievalOrchestrator(modules);
 }

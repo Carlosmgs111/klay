@@ -26,19 +26,20 @@ export type {
   ExecuteSemanticQueryCommand,
   SemanticQueryInfrastructurePolicy,
   ResolvedSemanticQueryInfra,
+  SemanticQueryFactoryResult,
 } from "./semantic-query/index.js";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Orchestrator Module
+// Facade Module (Recommended Entry Point)
 // ═══════════════════════════════════════════════════════════════════════════
 export {
-  KnowledgeRetrievalOrchestrator,
-  KnowledgeRetrievalOrchestratorComposer,
-  knowledgeRetrievalOrchestratorFactory,
-} from "./orchestrator/index.js";
+  KnowledgeRetrievalFacade,
+  KnowledgeRetrievalFacadeComposer,
+  createKnowledgeRetrievalFacade,
+} from "./facade/index.js";
 
 export type {
-  KnowledgeRetrievalOrchestratorPolicy,
+  KnowledgeRetrievalFacadePolicy,
   KnowledgeRetrievalInfraPolicy,
   ResolvedKnowledgeRetrievalModules,
-} from "./orchestrator/index.js";
+} from "./facade/index.js";

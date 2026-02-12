@@ -23,25 +23,14 @@ export {
 } from "./infrastructure/adapters/index.js";
 
 // ─── Composition ───────────────────────────────────────────────────
-export { SemanticQueryComposer } from "./composition/SemanticQueryComposer.js";
+export {
+  SemanticQueryComposer,
+  semanticQueryFactory,
+} from "./composition/index.js";
+
 export type {
+  SemanticQueryInfraPolicy,
   SemanticQueryInfrastructurePolicy,
   ResolvedSemanticQueryInfra,
-} from "./composition/infra-policies.js";
-
-// ─── Module Factory ────────────────────────────────────────────────
-import type { SemanticQueryInfrastructurePolicy } from "./composition/infra-policies.js";
-import type { SemanticQueryUseCases as _UseCases } from "./application/index.js";
-
-export async function semanticQueryFactory(
-  policy: SemanticQueryInfrastructurePolicy,
-): Promise<_UseCases> {
-  const { SemanticQueryComposer } = await import("./composition/SemanticQueryComposer.js");
-  const { SemanticQueryUseCases } = await import("./application/index.js");
-  const infra = await SemanticQueryComposer.resolve(policy);
-  return new SemanticQueryUseCases(
-    infra.queryEmbedder,
-    infra.vectorSearch,
-    infra.rankingStrategy,
-  );
-}
+  SemanticQueryFactoryResult,
+} from "./composition/index.js";

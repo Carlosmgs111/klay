@@ -8,9 +8,13 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
+    "test": "vitest run src/backend/klay+",
+    "test:watch": "vitest src/backend/klay+",
     "test:source-ingestion": "tsx src/backend/klay+/source-ingestion/__tests__/e2e.test.ts",
     "test:semantic-processing": "tsx src/backend/klay+/semantic-processing/__tests__/e2e.test.ts",
-    "test:integration": "tsx src/backend/klay+/__tests__/integration/source-to-semantic.e2e.ts",
+    "test:semantic-knowledge": "vitest run src/backend/klay+/semantic-knowledge/__tests__/e2e.test.ts",
+    "test:knowledge-retrieval": "vitest run src/backend/klay+/knowledge-retrieval/__tests__/e2e.test.ts",
+    "test:integration": "vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts",
     "test:config": "tsx src/backend/klay+/shared/config/__tests__/config.test.ts"
   },
   "dependencies": {
@@ -54,5 +58,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "unique-names-generator": "^4.7.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

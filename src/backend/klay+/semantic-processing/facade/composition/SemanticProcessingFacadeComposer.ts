@@ -4,7 +4,6 @@ import type {
 } from "./infra-policies";
 import type { ProjectionInfrastructurePolicy } from "../../projection/composition/index";
 import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
-import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter";
 import type { ConfigProvider } from "../../../shared/config/index";
 
 /**
@@ -58,23 +57,16 @@ export class SemanticProcessingFacadeComposer {
     }
   }
 
-  // ─── Vector Store Resolution ──────────────────────────────────────────────
-
-  private static async resolveVectorStore(
-    _policy: SemanticProcessingFacadePolicy
-  ): Promise<VectorStoreAdapter> {
-    // For all environments, we use InMemoryVectorStore
-    // In production, this could be replaced with Pinecone, Weaviate, etc.
-    const { InMemoryVectorStore } =
-      await import("../../projection/infrastructure/adapters/InMemoryVectorStore");
-    return new InMemoryVectorStore();
-  }
-
   // ─── Main Resolution ──────────────────────────────────────────────────────
 
   /**
    * Resolves all modules for the Semantic Processing context.
    * Uses dynamic imports for tree-shaking and environment-specific loading.
+   *
+   * Vector store resolution is fully delegated to ProjectionComposer,
+   * which selects the correct implementation (InMemory, NeDB, IndexedDB)
+   * based on the policy type. The resolved store is then exposed for
+   * cross-context wiring (e.g., knowledge-retrieval needs it for queries).
    */
   static async resolve(
     policy: SemanticProcessingFacadePolicy
@@ -82,12 +74,8 @@ export class SemanticProcessingFacadeComposer {
     // Resolve configuration provider first
     const config = await this.resolveConfig(policy);
 
-    // Create a shared vector store that will be exposed to other contexts
-    const vectorStore = await this.resolveVectorStore(policy);
-
     // Build module-specific policies inheriting from facade defaults
     // ConfigProvider can influence policy values when not explicitly set
-    // Pass the shared vector store so projection module uses the same instance
     const projectionPolicy: ProjectionInfrastructurePolicy = {
       type: policy.overrides?.projection?.type ?? policy.type,
       dbPath:
@@ -104,10 +92,8 @@ export class SemanticProcessingFacadeComposer {
       chunkingStrategyId:
         policy.overrides?.projection?.chunkingStrategyId ??
         policy.defaultChunkingStrategy,
-      sharedVectorStore: vectorStore, // Wire shared store for cross-context queries
 
       // ─── Embedding Provider Configuration ─────────────────────────────────────
-      // New fields for provider selection (preferred over deprecated aiSdkEmbeddingModel)
       embeddingProvider:
         policy.overrides?.projection?.embeddingProvider ??
         policy.embeddingProvider,
@@ -119,7 +105,6 @@ export class SemanticProcessingFacadeComposer {
       aiSdkEmbeddingModel: policy.aiSdkModelId,
 
       // ─── Environment Configuration ─────────────────────────────────────────────
-      // Pass configOverrides to ProjectionComposer for API key resolution
       configOverrides: policy.configOverrides,
     };
 
@@ -149,7 +134,9 @@ export class SemanticProcessingFacadeComposer {
     return {
       projection: projectionResult.useCases,
       strategyRegistry: strategyRegistryResult.useCases,
-      vectorStore,
+      // Expose the vector store resolved by ProjectionComposer
+      // for cross-context wiring (knowledge-retrieval needs this)
+      vectorStore: projectionResult.infra.vectorStore,
     };
   }
 }

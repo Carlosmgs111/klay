@@ -3,7 +3,6 @@ import type {
   ResolvedKnowledgeRetrievalModules,
 } from "./infra-policies.js";
 import type { SemanticQueryInfrastructurePolicy } from "../../semantic-query/composition/infra-policies.js";
-import type { ConfigProvider } from "../../../shared/config/index.js";
 
 /**
  * Composer for the Knowledge Retrieval Facade.
@@ -20,54 +19,18 @@ import type { ConfigProvider } from "../../../shared/config/index.js";
  * - Application flows
  */
 export class KnowledgeRetrievalFacadeComposer {
-  // ─── Config Resolution ──────────────────────────────────────────────────────
-
-  /**
-   * Resolves the appropriate ConfigProvider based on policy.
-   * Priority: configOverrides > environment detection
-   */
-  private static async resolveConfig(
-    policy: KnowledgeRetrievalFacadePolicy,
-  ): Promise<ConfigProvider> {
-    // 1. If configOverrides provided, use InMemoryConfigProvider
-    if (policy.configOverrides) {
-      const { InMemoryConfigProvider } = await import(
-        "../../../shared/config/InMemoryConfigProvider.js"
-      );
-      return new InMemoryConfigProvider(policy.configOverrides);
-    }
-
-    // 2. Environment-based resolution
-    switch (policy.type) {
-      case "browser": {
-        const { InMemoryConfigProvider } = await import(
-          "../../../shared/config/InMemoryConfigProvider.js"
-        );
-        return new InMemoryConfigProvider({});
-      }
-
-      case "server":
-      case "in-memory":
-      default: {
-        const { NodeConfigProvider } = await import(
-          "../../../shared/config/NodeConfigProvider.js"
-        );
-        return new NodeConfigProvider();
-      }
-    }
-  }
-
   // ─── Main Resolution ────────────────────────────────────────────────────────
 
   /**
    * Resolves all modules for the Knowledge Retrieval context.
    * Uses dynamic imports for tree-shaking and environment-specific loading.
+   *
+   * ConfigProvider resolution is delegated to SemanticQueryComposer via
+   * the configOverrides field, following the same pattern as ProjectionComposer.
    */
   static async resolve(
     policy: KnowledgeRetrievalFacadePolicy,
   ): Promise<ResolvedKnowledgeRetrievalModules> {
-    const config = await this.resolveConfig(policy);
-
     // Build module-specific policy inheriting from facade defaults
     const semanticQueryPolicy: SemanticQueryInfrastructurePolicy = {
       type: policy.overrides?.semanticQuery?.type ?? policy.type,
@@ -75,10 +38,20 @@ export class KnowledgeRetrievalFacadeComposer {
       embeddingDimensions:
         policy.overrides?.semanticQuery?.embeddingDimensions ??
         policy.embeddingDimensions,
-      aiSdkModelId:
-        policy.overrides?.semanticQuery?.aiSdkModelId ??
-        policy.aiSdkModelId ??
-        config.getOrDefault("KLAY_AI_SDK_MODEL", undefined),
+      embeddingProvider:
+        policy.overrides?.semanticQuery?.embeddingProvider ??
+        policy.embeddingProvider,
+      embeddingModel:
+        policy.overrides?.semanticQuery?.embeddingModel ??
+        policy.embeddingModel,
+      aiSdkEmbeddingModel:
+        policy.overrides?.semanticQuery?.aiSdkEmbeddingModel ??
+        policy.aiSdkEmbeddingModel,
+      webLLMModelId:
+        policy.overrides?.semanticQuery?.webLLMModelId,
+      configOverrides:
+        policy.overrides?.semanticQuery?.configOverrides ??
+        policy.configOverrides,
     };
 
     // Resolve module via factory (returns { useCases, infra })

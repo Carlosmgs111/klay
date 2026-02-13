@@ -1,14 +1,14 @@
 import type {
   ProjectionInfrastructurePolicy,
   EmbeddingProvider,
-} from "../../../projection/composition/index";
-import type { StrategyRegistryInfrastructurePolicy } from "../../../strategy-registry/composition/index";
-import type { ProjectionUseCases } from "../../../projection/application/index";
-import type { StrategyRegistryUseCases } from "../../../strategy-registry/application/index";
-import type { VectorStoreAdapter } from "../../../projection/domain/ports/VectorStoreAdapter";
+} from "../../projection/composition/index";
+import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
+import type { ProjectionUseCases } from "../../projection/application/index";
+import type { StrategyRegistryUseCases } from "../../strategy-registry/application/index";
+import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter";
 
 // Re-export for convenience
-export type { EmbeddingProvider } from "../../../projection/composition/index";
+export type { EmbeddingProvider } from "../../projection/composition/index";
 
 // ─── Facade Policy ──────────────────────────────────────────────────────────
 

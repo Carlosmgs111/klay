@@ -183,12 +183,35 @@ export class ProjectionComposer {
       return policy.sharedVectorStore;
     }
 
-    // Otherwise create a new in-memory store
-    // In production, this could be Pinecone, Weaviate, etc.
-    const { InMemoryVectorStore } = await import(
-      "../infrastructure/adapters/InMemoryVectorStore"
-    );
-    return new InMemoryVectorStore();
+    switch (policy.type) {
+      case "in-memory": {
+        const { InMemoryVectorStore } = await import(
+          "../infrastructure/adapters/InMemoryVectorStore"
+        );
+        return new InMemoryVectorStore();
+      }
+
+      case "browser": {
+        const { IndexedDBVectorStore } = await import(
+          "../infrastructure/adapters/IndexedDBVectorStore"
+        );
+        const dbName = policy.dbName ?? "knowledge-platform";
+        return new IndexedDBVectorStore(dbName);
+      }
+
+      case "server": {
+        const { NeDBVectorStore } = await import(
+          "../infrastructure/adapters/NeDBVectorStore"
+        );
+        const filename = policy.dbPath
+          ? `${policy.dbPath}/vector-entries.db`
+          : undefined;
+        return new NeDBVectorStore(filename);
+      }
+
+      default:
+        throw new Error(`Unknown policy type: ${(policy as any).type}`);
+    }
   }
 
   // ─── Event Publisher Resolution ───────────────────────────────────────────

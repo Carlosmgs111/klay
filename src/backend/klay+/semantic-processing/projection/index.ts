@@ -36,9 +36,8 @@ export type {
   EmbeddingResult,
   ChunkingStrategy,
   Chunk,
-  VectorStoreAdapter,
+  VectorWriteStore,
   VectorEntry,
-  VectorSearchResult,
   ProjectionError,
 } from "./domain/index";
 
@@ -61,7 +60,7 @@ export {
   AISdkEmbeddingStrategy,
 } from "./infrastructure/strategies/index";
 
-export { InMemoryVectorStore } from "./infrastructure/adapters/InMemoryVectorStore";
+export { InMemoryVectorWriteStore } from "./infrastructure/adapters/InMemoryVectorWriteStore";
 
 // ─── Composition & Factory ──────────────────────────────────────────────────
 export { ProjectionComposer, projectionFactory } from "./composition/index";

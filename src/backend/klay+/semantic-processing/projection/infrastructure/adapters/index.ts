@@ -1,3 +1,3 @@
-export { InMemoryVectorStore } from "./InMemoryVectorStore";
-export { NeDBVectorStore } from "./NeDBVectorStore";
-export { IndexedDBVectorStore } from "./IndexedDBVectorStore";
+export { InMemoryVectorWriteStore } from "./InMemoryVectorWriteStore";
+export { NeDBVectorWriteStore } from "./NeDBVectorWriteStore";
+export { IndexedDBVectorWriteStore } from "./IndexedDBVectorWriteStore";

@@ -1,6 +1,7 @@
 import type {
   SemanticProcessingFacadePolicy,
   ResolvedSemanticProcessingModules,
+  VectorStoreConfig,
 } from "./infra-policies";
 import type { ProjectionInfrastructurePolicy } from "../../projection/composition/index";
 import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
@@ -64,9 +65,9 @@ export class SemanticProcessingFacadeComposer {
    * Uses dynamic imports for tree-shaking and environment-specific loading.
    *
    * Vector store resolution is fully delegated to ProjectionComposer,
-   * which selects the correct implementation (InMemory, NeDB, IndexedDB)
-   * based on the policy type. The resolved store is then exposed for
-   * cross-context wiring (e.g., knowledge-retrieval needs it for queries).
+   * which creates a VectorWriteStore. The resolved vectorStoreConfig
+   * is exposed for cross-context wiring (knowledge-retrieval creates
+   * its own VectorReadStore from this config).
    */
   static async resolve(
     policy: SemanticProcessingFacadePolicy
@@ -74,18 +75,20 @@ export class SemanticProcessingFacadeComposer {
     // Resolve configuration provider first
     const config = await this.resolveConfig(policy);
 
+    // Resolve dbPath and dbName from config
+    const resolvedDbPath =
+      policy.dbPath ?? config.getOrDefault("KLAY_DB_PATH", "./data");
+    const resolvedDbName =
+      policy.dbName ?? config.getOrDefault("KLAY_DB_NAME", "semantic-processing");
+
     // Build module-specific policies inheriting from facade defaults
     // ConfigProvider can influence policy values when not explicitly set
     const projectionPolicy: ProjectionInfrastructurePolicy = {
       type: policy.overrides?.projection?.type ?? policy.type,
       dbPath:
-        policy.overrides?.projection?.dbPath ??
-        policy.dbPath ??
-        config.getOrDefault("KLAY_DB_PATH", "./data"),
+        policy.overrides?.projection?.dbPath ?? resolvedDbPath,
       dbName:
-        policy.overrides?.projection?.dbName ??
-        policy.dbName ??
-        config.getOrDefault("KLAY_DB_NAME", "semantic-processing"),
+        policy.overrides?.projection?.dbName ?? resolvedDbName,
       embeddingDimensions:
         policy.overrides?.projection?.embeddingDimensions ??
         policy.embeddingDimensions,
@@ -101,9 +104,6 @@ export class SemanticProcessingFacadeComposer {
         policy.overrides?.projection?.embeddingModel ??
         policy.embeddingModel,
 
-      // @deprecated - kept for backwards compatibility
-      aiSdkEmbeddingModel: policy.aiSdkModelId,
-
       // ─── Environment Configuration ─────────────────────────────────────────────
       configOverrides: policy.configOverrides,
     };
@@ -111,13 +111,9 @@ export class SemanticProcessingFacadeComposer {
     const strategyRegistryPolicy: StrategyRegistryInfrastructurePolicy = {
       type: policy.overrides?.strategyRegistry?.type ?? policy.type,
       dbPath:
-        policy.overrides?.strategyRegistry?.dbPath ??
-        policy.dbPath ??
-        config.getOrDefault("KLAY_DB_PATH", "./data"),
+        policy.overrides?.strategyRegistry?.dbPath ?? resolvedDbPath,
       dbName:
-        policy.overrides?.strategyRegistry?.dbName ??
-        policy.dbName ??
-        config.getOrDefault("KLAY_DB_NAME", "semantic-processing"),
+        policy.overrides?.strategyRegistry?.dbName ?? resolvedDbName,
     };
 
     // Resolve modules in parallel using their factories (from composition/)
@@ -131,12 +127,26 @@ export class SemanticProcessingFacadeComposer {
       ),
     ]);
 
+    // Build vectorStoreConfig for cross-context wiring
+    const vectorStoreConfig: VectorStoreConfig = {
+      dbPath: projectionPolicy.dbPath
+        ? `${projectionPolicy.dbPath}/vector-entries.db`
+        : undefined,
+      dbName: projectionPolicy.dbName,
+    };
+
+    // For in-memory, expose the sharedEntries Map from the write store
+    if (policy.type === "in-memory") {
+      const writeStore = projectionResult.infra.vectorWriteStore as any;
+      if (writeStore.sharedEntries) {
+        vectorStoreConfig.sharedEntries = writeStore.sharedEntries;
+      }
+    }
+
     return {
       projection: projectionResult.useCases,
       strategyRegistry: strategyRegistryResult.useCases,
-      // Expose the vector store resolved by ProjectionComposer
-      // for cross-context wiring (knowledge-retrieval needs this)
-      vectorStore: projectionResult.infra.vectorStore,
+      vectorStoreConfig,
     };
   }
 }

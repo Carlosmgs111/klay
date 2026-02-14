@@ -3,7 +3,7 @@ export { QueryId } from "./QueryId.js";
 export { RetrievalResult, RetrievalItem } from "./RetrievalResult.js";
 
 export type {
-  VectorSearchAdapter,
+  VectorReadStore,
   SearchHit,
   RankingStrategy,
   RankedHit,

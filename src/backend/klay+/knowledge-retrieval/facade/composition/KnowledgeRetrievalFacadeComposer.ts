@@ -34,7 +34,7 @@ export class KnowledgeRetrievalFacadeComposer {
     // Build module-specific policy inheriting from facade defaults
     const semanticQueryPolicy: SemanticQueryInfrastructurePolicy = {
       type: policy.overrides?.semanticQuery?.type ?? policy.type,
-      vectorStoreRef: policy.vectorStoreRef,
+      vectorStoreConfig: policy.vectorStoreConfig,
       embeddingDimensions:
         policy.overrides?.semanticQuery?.embeddingDimensions ??
         policy.embeddingDimensions,
@@ -44,9 +44,6 @@ export class KnowledgeRetrievalFacadeComposer {
       embeddingModel:
         policy.overrides?.semanticQuery?.embeddingModel ??
         policy.embeddingModel,
-      aiSdkEmbeddingModel:
-        policy.overrides?.semanticQuery?.aiSdkEmbeddingModel ??
-        policy.aiSdkEmbeddingModel,
       webLLMModelId:
         policy.overrides?.semanticQuery?.webLLMModelId,
       configOverrides:

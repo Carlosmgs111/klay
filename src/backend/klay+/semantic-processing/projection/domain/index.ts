@@ -10,9 +10,8 @@ export type {
   EmbeddingResult,
   ChunkingStrategy,
   Chunk,
-  VectorStoreAdapter,
+  VectorWriteStore,
   VectorEntry,
-  VectorSearchResult,
 } from "./ports/index";
 
 export { ProjectionGenerated } from "./events/ProjectionGenerated";

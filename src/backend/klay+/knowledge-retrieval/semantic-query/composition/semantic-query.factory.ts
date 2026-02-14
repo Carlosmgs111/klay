@@ -8,7 +8,7 @@
  * ```typescript
  * const { useCases, infra } = await semanticQueryFactory({
  *   type: "in-memory",
- *   vectorStoreRef: myVectorStore,
+ *   vectorStoreConfig: { sharedEntries: myEntriesMap },
  * });
  * await useCases.executeSemanticQuery.execute({ text: "query" });
  * ```

@@ -3,6 +3,7 @@ import type {
   ResolvedSemanticQueryInfra,
 } from "./infra-policies.js";
 import type { QueryEmbedder } from "../domain/ports/QueryEmbedder.js";
+import type { VectorReadStore } from "../domain/ports/VectorReadStore.js";
 import type { ConfigProvider } from "../../../shared/config/index.js";
 
 /**
@@ -43,9 +44,8 @@ export class SemanticQueryComposer {
    *
    * Priority:
    * 1. If embeddingProvider is set (not "hash") → resolveAIQueryEmbedder()
-   * 2. If aiSdkEmbeddingModel provided (deprecated) → use it directly
-   * 3. If browser policy → WebLLMQueryEmbedder
-   * 4. Default → HashQueryEmbedder
+   * 2. If browser policy → WebLLMQueryEmbedder
+   * 3. Default → HashQueryEmbedder
    */
   private static async resolveQueryEmbedder(
     policy: SemanticQueryInfrastructurePolicy,
@@ -57,27 +57,19 @@ export class SemanticQueryComposer {
       return this.resolveAIQueryEmbedder(policy);
     }
 
-    // 2. Fallback legacy: aiSdkEmbeddingModel pre-configured (deprecated)
-    if (policy.aiSdkEmbeddingModel) {
-      const { AISdkQueryEmbedder } = await import(
-        "../infrastructure/adapters/AISdkQueryEmbedder.js"
-      );
-      return new AISdkQueryEmbedder(policy.aiSdkEmbeddingModel);
-    }
-
-    // 3. Browser uses WebLLM
+    // 2. Browser uses WebLLM
     if (policy.type === "browser") {
       const { WebLLMQueryEmbedder } = await import(
-        "../infrastructure/adapters/WebLLMQueryEmbedder.js"
+        "../infrastructure/adapters/WebLLMQueryEmbedder"
       );
       const embedder = new WebLLMQueryEmbedder(policy.webLLMModelId);
       await embedder.initialize();
       return embedder;
     }
 
-    // 4. Default: hash embeddings (in-memory, server without provider)
+    // 3. Default: hash embeddings (in-memory, server without provider)
     const { HashQueryEmbedder } = await import(
-      "../infrastructure/adapters/HashQueryEmbedder.js"
+      "../infrastructure/adapters/HashQueryEmbedder"
     );
     return new HashQueryEmbedder(dimensions);
   }
@@ -135,23 +127,66 @@ export class SemanticQueryComposer {
     }
   }
 
+  // ─── Vector Read Store Resolution ───────────────────────────────────────────
+
+  /**
+   * Resolves the VectorReadStore based on policy type.
+   * Each environment creates its own independent read store
+   * pointing to the same physical resource as the write side.
+   */
+  private static async resolveVectorReadStore(
+    policy: SemanticQueryInfrastructurePolicy,
+  ): Promise<VectorReadStore> {
+    switch (policy.type) {
+      case "in-memory": {
+        const { InMemoryVectorReadStore } = await import(
+          "../infrastructure/adapters/InMemoryVectorReadStore.js"
+        );
+        if (!policy.vectorStoreConfig.sharedEntries) {
+          throw new Error(
+            "InMemoryVectorReadStore requires vectorStoreConfig.sharedEntries",
+          );
+        }
+        return new InMemoryVectorReadStore(policy.vectorStoreConfig.sharedEntries);
+      }
+
+      case "browser": {
+        const { IndexedDBVectorReadStore } = await import(
+          "../infrastructure/adapters/IndexedDBVectorReadStore.js"
+        );
+        const dbName = policy.vectorStoreConfig.dbName ?? "knowledge-platform";
+        return new IndexedDBVectorReadStore(dbName);
+      }
+
+      case "server": {
+        const { NeDBVectorReadStore } = await import(
+          "../infrastructure/adapters/NeDBVectorReadStore.js"
+        );
+        return new NeDBVectorReadStore(policy.vectorStoreConfig.dbPath);
+      }
+
+      default:
+        throw new Error(`Unknown policy type: ${(policy as any).type}`);
+    }
+  }
+
   // ─── Main Resolution ────────────────────────────────────────────────────────
 
   static async resolve(
     policy: SemanticQueryInfrastructurePolicy,
   ): Promise<ResolvedSemanticQueryInfra> {
-    const { InMemoryVectorSearchAdapter } = await import(
-      "../infrastructure/adapters/InMemoryVectorSearchAdapter.js"
-    );
     const { PassthroughRankingStrategy } = await import(
       "../infrastructure/adapters/PassthroughRankingStrategy.js"
     );
 
-    const queryEmbedder = await this.resolveQueryEmbedder(policy);
+    const [queryEmbedder, vectorSearch] = await Promise.all([
+      this.resolveQueryEmbedder(policy),
+      this.resolveVectorReadStore(policy),
+    ]);
 
     return {
       queryEmbedder,
-      vectorSearch: new InMemoryVectorSearchAdapter(policy.vectorStoreRef),
+      vectorSearch,
       rankingStrategy: new PassthroughRankingStrategy(),
     };
   }

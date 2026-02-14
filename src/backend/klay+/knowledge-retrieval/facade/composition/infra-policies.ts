@@ -1,10 +1,10 @@
 import type {
   SemanticQueryInfrastructurePolicy,
   QueryEmbeddingProvider,
+  VectorStoreConfig,
 } from "../../semantic-query/composition/infra-policies.js";
 import type { SemanticQueryUseCases } from "../../semantic-query/application/index.js";
 import type { ResolvedSemanticQueryInfra } from "../../semantic-query/composition/infra-policies.js";
-import type { VectorStoreAdapter } from "../../../semantic-processing/projection/domain/ports/VectorStoreAdapter.js";
 
 // ─── Facade Policy ───────────────────────────────────────────────────────────
 
@@ -13,10 +13,10 @@ export type KnowledgeRetrievalInfraPolicy = "in-memory" | "browser" | "server";
 export interface KnowledgeRetrievalFacadePolicy {
   type: KnowledgeRetrievalInfraPolicy;
   /**
-   * Reference to the vector store from the semantic-processing context.
-   * Required for cross-context wiring - retrieval reads from processing's vectors.
+   * Configuration for connecting to the vector store resource.
+   * Replaces direct vectorStoreRef to eliminate cross-context coupling.
    */
-  vectorStoreRef: VectorStoreAdapter;
+  vectorStoreConfig: VectorStoreConfig;
   /**
    * Embedding dimensions - must match the embedding strategy used in processing.
    * @default 128
@@ -40,17 +40,11 @@ export interface KnowledgeRetrievalFacadePolicy {
   embeddingModel?: string;
 
   /**
-   * @deprecated Use `embeddingProvider` and `embeddingModel` instead.
-   * Pre-configured AI SDK embedding model object (server only).
-   */
-  aiSdkEmbeddingModel?: any;
-
-  /**
    * Override policies for individual modules.
    * If not provided, modules inherit from the facade's type.
    */
   overrides?: {
-    semanticQuery?: Partial<Omit<SemanticQueryInfrastructurePolicy, "vectorStoreRef">>;
+    semanticQuery?: Partial<Omit<SemanticQueryInfrastructurePolicy, "vectorStoreConfig">>;
   };
   /**
    * Configuration overrides for testing or explicit configuration.

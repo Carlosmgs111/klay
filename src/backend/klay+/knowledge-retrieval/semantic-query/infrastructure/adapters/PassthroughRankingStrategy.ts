@@ -2,7 +2,7 @@ import type {
   RankingStrategy,
   RankedHit,
 } from "../../domain/ports/RankingStrategy.js";
-import type { SearchHit } from "../../domain/ports/VectorSearchAdapter.js";
+import type { SearchHit } from "../../domain/ports/VectorReadStore.js";
 
 /**
  * No-op ranking strategy that preserves the original vector similarity score.

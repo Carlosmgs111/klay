@@ -1,4 +1,14 @@
-import type { VectorEntry } from "../../domain/ports/VectorStoreAdapter";
+// ─── VectorEntry (Shared Kernel) ─────────────────────────────────────────────
+
+export interface VectorEntry {
+  id: string;
+  semanticUnitId: string;
+  vector: number[];
+  content: string;
+  metadata: Record<string, unknown>;
+}
+
+// ─── VectorEntryDTO (Serialization) ─────────────────────────────────────────
 
 export interface VectorEntryDTO {
   id: string;

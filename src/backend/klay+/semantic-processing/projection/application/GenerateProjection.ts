@@ -7,7 +7,8 @@ import type { ProjectionType } from "../domain/ProjectionType";
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
 import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
 import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
-import type { VectorStoreAdapter, VectorEntry } from "../domain/ports/VectorStoreAdapter";
+import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
+import type { VectorEntry } from "../../../shared/domain/VectorEntry";
 import {
   ProjectionSemanticUnitIdRequiredError,
   ProjectionContentRequiredError,
@@ -35,7 +36,7 @@ export class GenerateProjection {
     private readonly repository: SemanticProjectionRepository,
     private readonly embeddingStrategy: EmbeddingStrategy,
     private readonly chunkingStrategy: ChunkingStrategy,
-    private readonly vectorStore: VectorStoreAdapter,
+    private readonly vectorStore: VectorWriteStore,
     private readonly eventPublisher: EventPublisher,
   ) {}
 

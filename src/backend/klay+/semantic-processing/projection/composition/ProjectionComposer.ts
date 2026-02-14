@@ -5,7 +5,7 @@ import type {
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
 import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
 import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
-import type { VectorStoreAdapter } from "../domain/ports/VectorStoreAdapter";
+import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 import type { ConfigProvider } from "../../../shared/config/index";
 
@@ -78,22 +78,11 @@ export class ProjectionComposer {
   private static async resolveEmbeddingStrategy(
     policy: ProjectionInfrastructurePolicy,
   ): Promise<EmbeddingStrategy> {
-    console.log({ policy });
-
     // 1. If explicit embeddingProvider is set (and not "hash"), use AI SDK
     if (policy.embeddingProvider && policy.embeddingProvider !== "hash") {
       return this.resolveAIEmbeddingStrategy(policy);
     }
-
-    // 2. Fallback legacy: aiSdkEmbeddingModel pre-configured (deprecated)
-    if (policy.aiSdkEmbeddingModel) {
-      const { AISdkEmbeddingStrategy } = await import(
-        "../infrastructure/strategies/AISdkEmbeddingStrategy"
-      );
-      return new AISdkEmbeddingStrategy(policy.aiSdkEmbeddingModel);
-    }
-
-    // 3. Browser uses WebLLM
+    // 2. Browser uses WebLLM
     if (policy.type === "browser") {
       const { WebLLMEmbeddingStrategy } = await import(
         "../infrastructure/strategies/WebLLMEmbeddingStrategy"
@@ -103,7 +92,7 @@ export class ProjectionComposer {
       return strategy;
     }
 
-    // 4. Default: hash embeddings (in-memory, server without provider)
+    // 3. Default: hash embeddings (in-memory, server without provider)
     const { HashEmbeddingStrategy } = await import(
       "../infrastructure/strategies/HashEmbeddingStrategy"
     );
@@ -173,40 +162,35 @@ export class ProjectionComposer {
     return ChunkerFactory.create(policy.chunkingStrategyId ?? "recursive");
   }
 
-  // ─── Vector Store Resolution ──────────────────────────────────────────────
+  // ─── Vector Write Store Resolution ─────────────────────────────────────────
 
-  private static async resolveVectorStore(
+  private static async resolveVectorWriteStore(
     policy: ProjectionInfrastructurePolicy,
-  ): Promise<VectorStoreAdapter> {
-    // Use shared vector store if provided (for cross-context wiring)
-    if (policy.sharedVectorStore) {
-      return policy.sharedVectorStore;
-    }
-
+  ): Promise<VectorWriteStore> {
     switch (policy.type) {
       case "in-memory": {
-        const { InMemoryVectorStore } = await import(
-          "../infrastructure/adapters/InMemoryVectorStore"
+        const { InMemoryVectorWriteStore } = await import(
+          "../infrastructure/adapters/InMemoryVectorWriteStore"
         );
-        return new InMemoryVectorStore();
+        return new InMemoryVectorWriteStore();
       }
 
       case "browser": {
-        const { IndexedDBVectorStore } = await import(
-          "../infrastructure/adapters/IndexedDBVectorStore"
+        const { IndexedDBVectorWriteStore } = await import(
+          "../infrastructure/adapters/IndexedDBVectorWriteStore"
         );
         const dbName = policy.dbName ?? "knowledge-platform";
-        return new IndexedDBVectorStore(dbName);
+        return new IndexedDBVectorWriteStore(dbName);
       }
 
       case "server": {
-        const { NeDBVectorStore } = await import(
-          "../infrastructure/adapters/NeDBVectorStore"
+        const { NeDBVectorWriteStore } = await import(
+          "../infrastructure/adapters/NeDBVectorWriteStore"
         );
         const filename = policy.dbPath
           ? `${policy.dbPath}/vector-entries.db`
           : undefined;
-        return new NeDBVectorStore(filename);
+        return new NeDBVectorWriteStore(filename);
       }
 
       default:
@@ -236,13 +220,13 @@ export class ProjectionComposer {
       repository,
       embeddingStrategy,
       chunkingStrategy,
-      vectorStore,
+      vectorWriteStore,
       eventPublisher,
     ] = await Promise.all([
       this.resolveRepository(policy),
       this.resolveEmbeddingStrategy(policy),
       this.resolveChunkingStrategy(policy),
-      this.resolveVectorStore(policy),
+      this.resolveVectorWriteStore(policy),
       this.resolveEventPublisher(policy),
     ]);
 
@@ -250,7 +234,7 @@ export class ProjectionComposer {
       repository,
       embeddingStrategy,
       chunkingStrategy,
-      vectorStore,
+      vectorWriteStore,
       eventPublisher,
     };
   }

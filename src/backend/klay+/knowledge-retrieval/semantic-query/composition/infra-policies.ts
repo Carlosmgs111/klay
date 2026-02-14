@@ -1,7 +1,7 @@
 import type { QueryEmbedder } from "../domain/ports/QueryEmbedder.js";
-import type { VectorSearchAdapter } from "../domain/ports/VectorSearchAdapter.js";
+import type { VectorReadStore } from "../domain/ports/VectorReadStore.js";
 import type { RankingStrategy } from "../domain/ports/RankingStrategy.js";
-import type { VectorStoreAdapter } from "../../../semantic-processing/projection/domain/ports/VectorStoreAdapter.js";
+import type { VectorEntry } from "../../../shared/domain/VectorEntry.js";
 
 // ─── Policy Types ─────────────────────────────────────────────────────────────
 
@@ -17,13 +17,26 @@ export type SemanticQueryInfraPolicy = "in-memory" | "browser" | "server";
  */
 export type QueryEmbeddingProvider = "hash" | "openai" | "cohere" | "huggingface";
 
+/**
+ * Configuration for connecting to the shared vector storage resource.
+ * Each environment provides the appropriate config:
+ * - in-memory: sharedEntries (Map reference)
+ * - browser: dbName (IndexedDB database name)
+ * - server: dbPath (NeDB file path)
+ */
+export interface VectorStoreConfig {
+  dbPath?: string;
+  dbName?: string;
+  sharedEntries?: Map<string, VectorEntry>;
+}
+
 export interface SemanticQueryInfrastructurePolicy {
   type: SemanticQueryInfraPolicy;
   /**
-   * Reference to the vector store from the semantic-processing context.
-   * Required for cross-context wiring - retrieval reads from processing's vectors.
+   * Configuration for connecting to the vector store resource.
+   * Replaces direct vectorStoreRef to eliminate cross-context coupling.
    */
-  vectorStoreRef: VectorStoreAdapter;
+  vectorStoreConfig: VectorStoreConfig;
   /**
    * Embedding dimensions - must match the embedding strategy used in processing.
    * @default 128
@@ -31,12 +44,6 @@ export interface SemanticQueryInfrastructurePolicy {
   embeddingDimensions?: number;
 
   // ─── Embedding Configuration ──────────────────────────────────────────────
-
-  /**
-   * @deprecated Use `embeddingProvider` and `embeddingModel` instead.
-   * Pre-configured AI SDK embedding model object (server only).
-   */
-  aiSdkEmbeddingModel?: any;
 
   /**
    * Embedding provider to use. Defaults based on policy type:
@@ -79,6 +86,6 @@ export interface SemanticQueryInfrastructurePolicy {
 
 export interface ResolvedSemanticQueryInfra {
   queryEmbedder: QueryEmbedder;
-  vectorSearch: VectorSearchAdapter;
+  vectorSearch: VectorReadStore;
   rankingStrategy: RankingStrategy;
 }

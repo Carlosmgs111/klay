@@ -1,7 +1,7 @@
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
 import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
 import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
-import type { VectorStoreAdapter } from "../domain/ports/VectorStoreAdapter";
+import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 
 // ─── Policy Types ────────────────────────────────────────────────────────────
@@ -38,12 +38,6 @@ export interface ProjectionInfrastructurePolicy {
   webLLMModelId?: string;
 
   /**
-   * @deprecated Use `embeddingProvider` and `embeddingModel` instead.
-   * Pre-configured AI SDK embedding model (server only).
-   */
-  aiSdkEmbeddingModel?: any;
-
-  /**
    * Embedding provider to use. Defaults based on policy type:
    * - "in-memory" → "hash"
    * - "browser" → uses WebLLM
@@ -58,15 +52,6 @@ export interface ProjectionInfrastructurePolicy {
    * @example "sentence-transformers/all-MiniLM-L6-v2" (HuggingFace)
    */
   embeddingModel?: string;
-
-  // ─── Vector Store Configuration ────────────────────────────────────────────
-
-  /**
-   * Shared vector store for cross-context wiring.
-   * If provided, this store is used instead of creating a new one.
-   * This enables the orchestrator to expose a single store for retrieval queries.
-   */
-  sharedVectorStore?: VectorStoreAdapter;
 
   // ─── Environment Configuration ────────────────────────────────────────────
 
@@ -86,6 +71,6 @@ export interface ResolvedProjectionInfra {
   repository: SemanticProjectionRepository;
   embeddingStrategy: EmbeddingStrategy;
   chunkingStrategy: ChunkingStrategy;
-  vectorStore: VectorStoreAdapter;
+  vectorWriteStore: VectorWriteStore;
   eventPublisher: EventPublisher;
 }

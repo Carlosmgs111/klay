@@ -1,7 +1,7 @@
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
 import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
 import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
-import type { VectorStoreAdapter } from "../domain/ports/VectorStoreAdapter";
+import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { EventPublisher } from "../../../shared/domain/EventPublisher";
 
 // ─── Use Cases ─────────────────────────────────────────────────────
@@ -21,7 +21,7 @@ export class ProjectionUseCases {
     repository: SemanticProjectionRepository,
     embeddingStrategy: EmbeddingStrategy,
     chunkingStrategy: ChunkingStrategy,
-    vectorStore: VectorStoreAdapter,
+    vectorStore: VectorWriteStore,
     eventPublisher: EventPublisher,
   ) {
     this.generateProjection = new GenerateProjection(

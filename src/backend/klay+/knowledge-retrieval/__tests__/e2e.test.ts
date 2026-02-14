@@ -12,14 +12,14 @@
 
 import { describe, it, expect, beforeAll } from "vitest";
 import { createKnowledgeRetrievalFacade } from "../facade/index";
-import { InMemoryVectorStore } from "../../semantic-processing/projection/infrastructure/adapters/InMemoryVectorStore";
+import { InMemoryVectorWriteStore } from "../../semantic-processing/projection/infrastructure/adapters/InMemoryVectorWriteStore";
 import { hashToVector } from "../../shared/infrastructure/hashVector";
 import type { KnowledgeRetrievalFacade } from "../facade/KnowledgeRetrievalFacade";
-import type { VectorEntry } from "../../semantic-processing/projection/domain/ports/VectorStoreAdapter";
+import type { VectorEntry } from "../../shared/domain/VectorEntry";
 
 describe("Knowledge Retrieval Context E2E", () => {
   let facade: KnowledgeRetrievalFacade;
-  let vectorStore: InMemoryVectorStore;
+  let vectorWriteStore: InMemoryVectorWriteStore;
 
   const DIMENSIONS = 128;
 
@@ -68,17 +68,17 @@ describe("Knowledge Retrieval Context E2E", () => {
   beforeAll(async () => {
     console.log("🧪 Starting End-to-End Test for Knowledge Retrieval Context\n");
 
-    // 1. Create and seed vector store
-    console.log("📦 Creating and seeding vector store...");
-    vectorStore = new InMemoryVectorStore();
-    await vectorStore.upsert(testEntries);
-    console.log(`   ✅ Vector store seeded with ${vectorStore.getEntryCount()} entries\n`);
+    // 1. Create and seed vector write store (simulates semantic-processing side)
+    console.log("📦 Creating and seeding vector write store...");
+    vectorWriteStore = new InMemoryVectorWriteStore();
+    await vectorWriteStore.upsert(testEntries);
+    console.log(`   ✅ Vector write store seeded with ${vectorWriteStore.getEntryCount()} entries\n`);
 
-    // 2. Create facade with in-memory infrastructure
+    // 2. Create facade with in-memory infrastructure using shared entries
     console.log("📦 Creating facade with in-memory infrastructure...");
     facade = await createKnowledgeRetrievalFacade({
       type: "in-memory",
-      vectorStoreRef: vectorStore,
+      vectorStoreConfig: { sharedEntries: vectorWriteStore.sharedEntries },
       embeddingDimensions: DIMENSIONS,
     });
     console.log("   ✅ Facade created successfully\n");

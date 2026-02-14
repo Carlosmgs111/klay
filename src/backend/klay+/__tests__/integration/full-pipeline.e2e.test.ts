@@ -150,14 +150,14 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     });
     console.log("   ✅ Semantic Knowledge Facade created");
 
-    // Cross-context wiring: retrieval reads from processing's vector store
+    // Cross-context wiring: retrieval reads from processing's vector store config
     retrieval = await createKnowledgeRetrievalFacade({
       type: "server",
-      vectorStoreRef: processing.vectorStore,
+      vectorStoreConfig: processing.vectorStoreConfig,
       embeddingDimensions: DIMENSIONS,
     });
     console.log("   ✅ Knowledge Retrieval Facade created");
-    console.log("   🔗 Cross-context wiring: Retrieval → Processing vector store\n");
+    console.log("   🔗 Cross-context wiring: Retrieval → Processing vector store config\n");
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -683,9 +683,9 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
       const lineageResult = await knowledge.getLineageForUnit(ids.ddd.unitId);
       expect(lineageResult.isOk()).toBe(true);
 
-      // 3. Vectors exist in processing context (via vector store)
-      const vectorStore = processing.vectorStore;
-      expect(vectorStore).toBeDefined();
+      // 3. Vector store config exists in processing context (for cross-context wiring)
+      const vectorStoreConfig = processing.vectorStoreConfig;
+      expect(vectorStoreConfig).toBeDefined();
 
       // 4. Content is retrievable via retrieval context
       const searchResult = await retrieval.search("Domain-Driven Design", {
@@ -711,8 +711,8 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
       // Semantic Processing modules
       expect(processing.projection).toBeDefined();
       expect(processing.strategyRegistry).toBeDefined();
-      expect(processing.vectorStore).toBeDefined();
-      console.log("   ✅ Semantic Processing: projection, strategyRegistry, vectorStore");
+      expect(processing.vectorStoreConfig).toBeDefined();
+      console.log("   ✅ Semantic Processing: projection, strategyRegistry, vectorStoreConfig");
 
       // Semantic Knowledge modules
       expect(knowledge.semanticUnit).toBeDefined();

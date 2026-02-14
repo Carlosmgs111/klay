@@ -1,5 +1,5 @@
 import type { QueryEmbedder } from "../domain/ports/QueryEmbedder.js";
-import type { VectorSearchAdapter } from "../domain/ports/VectorSearchAdapter.js";
+import type { VectorReadStore } from "../domain/ports/VectorReadStore.js";
 import type { RankingStrategy } from "../domain/ports/RankingStrategy.js";
 
 // ─── Use Cases ─────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ export class SemanticQueryUseCases {
 
   constructor(
     queryEmbedder: QueryEmbedder,
-    vectorSearch: VectorSearchAdapter,
+    vectorSearch: VectorReadStore,
     rankingStrategy: RankingStrategy,
   ) {
     this.executeSemanticQuery = new ExecuteSemanticQuery(

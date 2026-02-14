@@ -5,10 +5,23 @@ import type {
 import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
 import type { ProjectionUseCases } from "../../projection/application/index";
 import type { StrategyRegistryUseCases } from "../../strategy-registry/application/index";
-import type { VectorStoreAdapter } from "../../projection/domain/ports/VectorStoreAdapter";
+import type { VectorEntry } from "../../../shared/domain/VectorEntry";
 
 // Re-export for convenience
 export type { EmbeddingProvider } from "../../projection/composition/index";
+
+// ─── Vector Store Config ────────────────────────────────────────────────────
+
+/**
+ * Configuration exposed for cross-context wiring.
+ * Instead of sharing a VectorStore instance, we share the config
+ * so each context can create its own store pointing to the same resource.
+ */
+export interface VectorStoreConfig {
+  dbPath?: string;
+  dbName?: string;
+  sharedEntries?: Map<string, VectorEntry>;
+}
 
 // ─── Facade Policy ──────────────────────────────────────────────────────────
 
@@ -105,8 +118,9 @@ export interface ResolvedSemanticProcessingModules {
   projection: ProjectionUseCases;
   strategyRegistry: StrategyRegistryUseCases;
   /**
-   * Exposed vector store for cross-context wiring.
-   * The knowledge-retrieval context needs this to query vectors.
+   * Configuration for cross-context vector store wiring.
+   * Each context creates its own VectorReadStore/VectorWriteStore
+   * pointing to the same physical resource via this config.
    */
-  vectorStore: VectorStoreAdapter;
+  vectorStoreConfig: VectorStoreConfig;
 }

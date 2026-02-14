@@ -49,7 +49,7 @@ export async function projectionFactory(
     infra.repository,
     infra.embeddingStrategy,
     infra.chunkingStrategy,
-    infra.vectorStore,
+    infra.vectorWriteStore,
     infra.eventPublisher,
   );
 

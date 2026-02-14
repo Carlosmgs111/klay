@@ -21,6 +21,7 @@ export type {
   SemanticQueryInfraPolicy,
   SemanticQueryInfrastructurePolicy,
   ResolvedSemanticQueryInfra,
+  VectorStoreConfig,
 } from "./infra-policies.js";
 
 // ─── Factory (module entry point) ───────────────────────────────────────────

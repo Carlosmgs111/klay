@@ -2,7 +2,7 @@
 export { Query, QueryId, RetrievalResult, RetrievalItem } from "./domain/index.js";
 
 export type {
-  VectorSearchAdapter,
+  VectorReadStore,
   SearchHit,
   RankingStrategy,
   RankedHit,
@@ -18,7 +18,9 @@ export {
   HashQueryEmbedder,
   WebLLMQueryEmbedder,
   AISdkQueryEmbedder,
-  InMemoryVectorSearchAdapter,
+  InMemoryVectorReadStore,
+  NeDBVectorReadStore,
+  IndexedDBVectorReadStore,
   PassthroughRankingStrategy,
 } from "./infrastructure/adapters/index.js";
 

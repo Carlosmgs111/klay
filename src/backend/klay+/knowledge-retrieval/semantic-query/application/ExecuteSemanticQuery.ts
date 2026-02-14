@@ -1,7 +1,7 @@
 import { Query } from "../domain/Query.js";
 import { RetrievalResult, RetrievalItem } from "../domain/RetrievalResult.js";
 import type { QueryEmbedder } from "../domain/ports/QueryEmbedder.js";
-import type { VectorSearchAdapter } from "../domain/ports/VectorSearchAdapter.js";
+import type { VectorReadStore } from "../domain/ports/VectorReadStore.js";
 import type { RankingStrategy } from "../domain/ports/RankingStrategy.js";
 
 export interface ExecuteSemanticQueryCommand {
@@ -14,7 +14,7 @@ export interface ExecuteSemanticQueryCommand {
 export class ExecuteSemanticQuery {
   constructor(
     private readonly embedder: QueryEmbedder,
-    private readonly vectorSearch: VectorSearchAdapter,
+    private readonly vectorSearch: VectorReadStore,
     private readonly rankingStrategy: RankingStrategy,
   ) {}
 

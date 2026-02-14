@@ -1,4 +1,4 @@
-import type { SearchHit } from "./VectorSearchAdapter.js";
+import type { SearchHit } from "./VectorReadStore.js";
 
 export interface RankedHit extends SearchHit {
   rerankedScore: number;

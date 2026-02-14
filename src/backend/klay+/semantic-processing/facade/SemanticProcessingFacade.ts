@@ -1,9 +1,8 @@
 import type { ProjectionUseCases } from "../projection/application/index";
 import type { StrategyRegistryUseCases } from "../strategy-registry/application/index";
-import type { VectorStoreAdapter } from "../projection/domain/ports/VectorStoreAdapter";
 import type { ProjectionType } from "../projection/domain/ProjectionType";
 import type { StrategyType } from "../strategy-registry/domain/StrategyType";
-import type { ResolvedSemanticProcessingModules } from "./composition/infra-policies";
+import type { ResolvedSemanticProcessingModules, VectorStoreConfig } from "./composition/infra-policies";
 import { Result } from "../../shared/domain/Result";
 import type { DomainError } from "../../shared/domain/errors";
 
@@ -36,12 +35,12 @@ export interface RegisterStrategySuccess {
 export class SemanticProcessingFacade {
   private readonly _projection: ProjectionUseCases;
   private readonly _strategyRegistry: StrategyRegistryUseCases;
-  private readonly _vectorStore: VectorStoreAdapter;
+  private readonly _vectorStoreConfig: VectorStoreConfig;
 
   constructor(modules: ResolvedSemanticProcessingModules) {
     this._projection = modules.projection;
     this._strategyRegistry = modules.strategyRegistry;
-    this._vectorStore = modules.vectorStore;
+    this._vectorStoreConfig = modules.vectorStoreConfig;
   }
 
   // ─── Module Accessors ─────────────────────────────────────────────────────
@@ -55,11 +54,12 @@ export class SemanticProcessingFacade {
   }
 
   /**
-   * Exposes the vector store for cross-context wiring.
-   * The knowledge-retrieval context needs this to perform semantic queries.
+   * Exposes the vector store configuration for cross-context wiring.
+   * The knowledge-retrieval context uses this config to create its own
+   * VectorReadStore pointing to the same physical resource.
    */
-  get vectorStore(): VectorStoreAdapter {
-    return this._vectorStore;
+  get vectorStoreConfig(): VectorStoreConfig {
+    return this._vectorStoreConfig;
   }
 
   // ─── Workflow Operations ──────────────────────────────────────────────────

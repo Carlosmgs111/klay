@@ -45,7 +45,7 @@ export {
   HashEmbeddingStrategy,
   WebLLMEmbeddingStrategy,
   AISdkEmbeddingStrategy,
-  InMemoryVectorStore,
+  InMemoryVectorWriteStore,
 } from "./projection";
 
 export type {
@@ -54,9 +54,8 @@ export type {
   EmbeddingResult,
   ChunkingStrategy,
   Chunk,
-  VectorStoreAdapter,
+  VectorWriteStore,
   VectorEntry,
-  VectorSearchResult,
   ProjectionInfraPolicy,
   ProjectionInfrastructurePolicy,
   ResolvedProjectionInfra,

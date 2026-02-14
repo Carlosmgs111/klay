@@ -6,7 +6,7 @@ export interface SearchHit {
   metadata: Record<string, unknown>;
 }
 
-export interface VectorSearchAdapter {
+export interface VectorReadStore {
   search(
     queryVector: number[],
     topK: number,

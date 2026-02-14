@@ -5,6 +5,9 @@
  *
  *   Source Ingestion → Semantic Processing → Semantic Knowledge → Knowledge Retrieval
  *
+ * Documents are loaded from real files in __tests__/integration/fixtures/
+ * All contexts use in-memory infrastructure for test isolation.
+ *
  * Flows tested:
  * 1. Document ingestion: Register sources and extract content
  * 2. Semantic processing: Chunk content, generate embeddings, store vectors
@@ -15,10 +18,13 @@
  * 7. Cross-context integrity: Verify traceability across all boundaries
  * 8. Deduplication: Detect similar content across the knowledge base
  *
- * Run with: npx vitest run src/backend/klay+/__tests__/integration/source-to-semantic.e2e.ts
+ * Run with: npx vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts
  */
 
 import { describe, it, expect, beforeAll } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 
 // ─── Context Facades ─────────────────────────────────────────────────────────
 import { createSourceIngestionFacade } from "../../source-ingestion/facade/index";
@@ -41,68 +47,21 @@ import type { KnowledgeRetrievalFacade } from "../../knowledge-retrieval/facade/
 // ─── Constants ───────────────────────────────────────────────────────────────
 const DIMENSIONS = 128;
 
-// ─── Test Content ────────────────────────────────────────────────────────────
+// ─── Load Test Documents from Fixtures ───────────────────────────────────────
 
-const DOCUMENT_DDD = `
-Domain-Driven Design (DDD) is a software development approach that focuses on
-modeling software to match a domain according to input from domain experts.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const FIXTURES_DIR = path.resolve(__dirname, "fixtures");
 
-Key Concepts:
-1. Bounded Context: A boundary within which a particular domain model is defined.
-2. Aggregate: A cluster of domain objects treated as a single unit.
-3. Entity: An object defined by its identity rather than its attributes.
-4. Value Object: An object defined by its attributes, immutable and shareable.
-5. Repository: Encapsulates storage, retrieval, and search for aggregate roots.
+function loadFixture(filename: string): string {
+  const filePath = path.join(FIXTURES_DIR, filename);
+  return fs.readFileSync(filePath, "utf-8").trim();
+}
 
-Benefits: Better alignment between software and business requirements,
-improved communication through ubiquitous language, clear boundaries.
-`.trim();
-
-const DOCUMENT_CLEAN_ARCH = `
-Clean Architecture separates concerns into concentric layers.
-The innermost layer contains enterprise business rules (Entities),
-followed by application business rules (Use Cases),
-interface adapters, and frameworks/drivers on the outermost layer.
-
-The Dependency Rule states that source code dependencies can only point inward.
-Nothing in an inner circle can know anything about something in an outer circle.
-This includes functions, classes, variables, or any software entity.
-
-Benefits: Independent of frameworks, testable business rules,
-independent of UI, database, and external agencies.
-`.trim();
-
-const DOCUMENT_EVENT_SOURCING = `
-Event Sourcing stores all changes to application state as a sequence of events.
-Instead of storing the current state, it records every state change as an event.
-The current state is reconstructed by replaying all events from the beginning.
-
-CQRS (Command Query Responsibility Segregation) separates read and write models.
-Commands change state. Queries return data without side effects.
-Combined with Event Sourcing, CQRS provides a powerful architecture pattern
-for complex domains with high audit requirements.
-
-Benefits: Complete audit trail, temporal queries, event-driven integration,
-and the ability to rebuild projections from the event store.
-`.trim();
-
-const DOCUMENT_DDD_UPDATED = `
-Domain-Driven Design (DDD) is a software development approach that focuses on
-modeling software to match a domain according to input from domain experts.
-
-Key Concepts (Updated with Strategic Patterns):
-1. Bounded Context: A boundary within which a particular domain model is defined.
-2. Aggregate: A cluster of domain objects treated as a single unit.
-3. Entity: An object defined by its identity rather than its attributes.
-4. Value Object: An object defined by its attributes, immutable and shareable.
-5. Repository: Encapsulates storage, retrieval, and search for aggregate roots.
-6. Context Map: Shows relationships between bounded contexts.
-7. Anti-Corruption Layer: Protects domain from external model corruption.
-8. Shared Kernel: A shared model subset agreed upon by multiple teams.
-
-Strategic DDD emphasizes the importance of context boundaries and team topology.
-Tactical DDD focuses on patterns within a single bounded context.
-`.trim();
+const DOCUMENT_DDD = loadFixture("ddd-overview.txt");
+const DOCUMENT_CLEAN_ARCH = loadFixture("clean-architecture.txt");
+const DOCUMENT_EVENT_SOURCING = loadFixture("event-sourcing.txt");
+const DOCUMENT_DDD_UPDATED = loadFixture("ddd-overview-updated.txt");
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // INTEGRATION TEST SUITE
@@ -123,7 +82,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SETUP: Initialize all 4 bounded contexts
+  // SETUP: Initialize all 4 bounded contexts (in-memory for test isolation)
   // ═══════════════════════════════════════════════════════════════════════════
 
   beforeAll(async () => {
@@ -131,28 +90,28 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     console.log(" Full-Pipeline Integration Test: All Bounded Contexts");
     console.log("═══════════════════════════════════════════════════════════════\n");
 
-    console.log("🏗️  Initializing all bounded contexts...\n");
+    console.log("🏗️  Initializing all bounded contexts (in-memory)...\n");
 
     ingestion = await createSourceIngestionFacade({
-      type: "server",
+      type: "in-memory",
     });
     console.log("   ✅ Source Ingestion Facade created");
 
     processing = await createSemanticProcessingFacade({
-      type: "server",
+      type: "in-memory",
       embeddingDimensions: DIMENSIONS,
       defaultChunkingStrategy: "recursive",
     });
     console.log("   ✅ Semantic Processing Facade created");
 
     knowledge = await createSemanticKnowledgeFacade({
-      type: "server",
+      type: "in-memory",
     });
     console.log("   ✅ Semantic Knowledge Facade created");
 
     // Cross-context wiring: retrieval reads from processing's vector store config
     retrieval = await createKnowledgeRetrievalFacade({
-      type: "server",
+      type: "in-memory",
       vectorStoreConfig: processing.vectorStoreConfig,
       embeddingDimensions: DIMENSIONS,
     });
@@ -169,6 +128,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     it("should ingest and extract a document (Source Ingestion)", async () => {
       console.log("── Flow 1: Single Document Ingestion ──────────────────────\n");
       console.log("📥 Step 1.1: Ingesting DDD document...");
+      console.log(`   📄 Loaded from: fixtures/ddd-overview.txt (${DOCUMENT_DDD.length} chars)`);
 
       ids.ddd.sourceId = crypto.randomUUID();
       ids.ddd.unitId = crypto.randomUUID();
@@ -240,6 +200,8 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     it("should batch ingest multiple documents (Source Ingestion)", async () => {
       console.log("── Flow 2: Batch Document Ingestion ────────────────────────\n");
       console.log("📥 Step 2.1: Batch ingesting 2 documents...");
+      console.log(`   📄 fixtures/clean-architecture.txt (${DOCUMENT_CLEAN_ARCH.length} chars)`);
+      console.log(`   📄 fixtures/event-sourcing.txt (${DOCUMENT_EVENT_SOURCING.length} chars)`);
 
       ids.cleanArch.sourceId = crypto.randomUUID();
       ids.cleanArch.unitId = crypto.randomUUID();
@@ -436,6 +398,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     it("should version the semantic unit with enrichment (Semantic Knowledge)", async () => {
       console.log("── Flow 4: Content Update & Re-Processing ─────────────────\n");
       console.log("🔄 Step 4.1: Versioning DDD document with enrichment...");
+      console.log(`   📄 Updated from: fixtures/ddd-overview-updated.txt (${DOCUMENT_DDD_UPDATED.length} chars)`);
 
       const result = await knowledge.versionSemanticUnitWithLineage({
         unitId: ids.ddd.unitId,

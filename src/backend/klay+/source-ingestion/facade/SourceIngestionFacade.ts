@@ -39,6 +39,14 @@ export interface IngestAndExtractSuccess {
   contentHash: string;
 }
 
+export interface IngestExtractAndReturnSuccess {
+  sourceId: string;
+  jobId: string;
+  contentHash: string;
+  extractedText: string;
+  metadata: Record<string, unknown>;
+}
+
 // ─── Facade ──────────────────────────────────────────────────────────────────
 
 /**
@@ -187,6 +195,62 @@ export class SourceIngestionFacade {
       sourceId: params.sourceId,
       jobId: params.extractionJobId,
       contentHash: extractionResult.value.contentHash,
+    });
+  }
+
+  /**
+   * Registers a source, executes extraction, and returns the extracted text.
+   * Unlike ingestAndExtract(), this method returns the full extraction result
+   * including extractedText and metadata — useful for downstream processing.
+   */
+  async ingestExtractAndReturn(params: {
+    sourceId: string;
+    sourceName: string;
+    uri: string;
+    type: SourceType;
+    extractionJobId: string;
+  }): Promise<Result<DomainError, IngestExtractAndReturnSuccess>> {
+    // 1. Register source
+    const registerResult = await this.registerSource({
+      id: params.sourceId,
+      name: params.sourceName,
+      uri: params.uri,
+      type: params.type,
+    });
+
+    if (registerResult.isFail()) {
+      return Result.fail(registerResult.error);
+    }
+
+    // 2. Execute extraction (directly to preserve extractedText)
+    const mimeType = SOURCE_TYPE_TO_MIME[params.type];
+    const extractionResult = await this._extraction.executeExtraction.execute({
+      jobId: params.extractionJobId,
+      sourceId: params.sourceId,
+      uri: params.uri,
+      mimeType,
+    });
+
+    if (extractionResult.isFail()) {
+      return Result.fail(extractionResult.error);
+    }
+
+    // 3. Update source with content hash
+    const updateResult = await this._source.updateSource.execute({
+      sourceId: params.sourceId,
+      contentHash: extractionResult.value.contentHash,
+    });
+
+    if (updateResult.isFail()) {
+      return Result.fail(updateResult.error);
+    }
+
+    return Result.ok({
+      sourceId: params.sourceId,
+      jobId: params.extractionJobId,
+      contentHash: extractionResult.value.contentHash,
+      extractedText: extractionResult.value.extractedText,
+      metadata: extractionResult.value.metadata,
     });
   }
 

@@ -1,5 +1,11 @@
 // ─── Facade ──────────────────────────────────────────────────────────────────
 export { SourceIngestionFacade } from "./SourceIngestionFacade";
+export type {
+  RegisterSourceSuccess,
+  ExtractSourceSuccess,
+  IngestAndExtractSuccess,
+  IngestExtractAndReturnSuccess,
+} from "./SourceIngestionFacade";
 
 // ─── Composition ─────────────────────────────────────────────────────────────
 export { SourceIngestionFacadeComposer } from "./composition/SourceIngestionFacadeComposer";

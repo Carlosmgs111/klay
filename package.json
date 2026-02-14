@@ -15,6 +15,7 @@
     "test:semantic-knowledge": "vitest run src/backend/klay+/semantic-knowledge/__tests__/e2e.test.ts",
     "test:knowledge-retrieval": "vitest run src/backend/klay+/knowledge-retrieval/__tests__/e2e.test.ts",
     "test:integration": "vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts",
+    "test:integration:pdf": "node src/backend/klay+/__tests__/integration/run-with-pdf.mjs",
     "test:config": "tsx src/backend/klay+/shared/config/__tests__/config.test.ts"
   },
   "dependencies": {

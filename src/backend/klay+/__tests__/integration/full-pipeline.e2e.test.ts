@@ -6,7 +6,7 @@
  *   Source Ingestion → Semantic Processing → Semantic Knowledge → Knowledge Retrieval
  *
  * Documents are loaded from real files in __tests__/integration/fixtures/
- * All contexts use in-memory infrastructure for test isolation.
+ * All contexts use server infrastructure for test isolation.
  *
  * Flows tested:
  * 1. Document ingestion: Register sources and extract content
@@ -17,12 +17,19 @@
  * 6. Batch operations: Ingest, process, catalog and query multiple documents
  * 7. Cross-context integrity: Verify traceability across all boundaries
  * 8. Deduplication: Detect similar content across the knowledge base
+ * 9. (Optional) Real PDF: Full pipeline with a real PDF file
  *
- * Run with: npx vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts
+ * Run with:
+ *   npx vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts
+ *
+ * Run with a real PDF (full pipeline including PDF extraction → embeddings → retrieval):
+ *   PDF_PATH=/path/to/document.pdf npx vitest run src/backend/klay+/__tests__/integration/full-pipeline.e2e.test.ts
+ *   npm run test:integration -- /path/to/document.pdf
  */
 
 import { describe, it, expect, beforeAll } from "vitest";
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { fileURLToPath } from "url";
 
@@ -63,6 +70,29 @@ const DOCUMENT_CLEAN_ARCH = loadFixture("clean-architecture.txt");
 const DOCUMENT_EVENT_SOURCING = loadFixture("event-sourcing.txt");
 const DOCUMENT_DDD_UPDATED = loadFixture("ddd-overview-updated.txt");
 
+// ─── Optional PDF Path ──────────────────────────────────────────────────────
+// Pass via:
+//   Environment variable: PDF_PATH=/path/to/doc.pdf npm run test:integration
+//   CLI argument:         npm run test:integration -- /path/to/doc.pdf
+
+function resolvePdfPath(): string | undefined {
+  // 1. Environment variable takes precedence
+  if (process.env.PDF_PATH) {
+    return path.resolve(process.env.PDF_PATH);
+  }
+
+  // 2. Check CLI arguments for a .pdf file path
+  const args = process.argv.filter((arg) => arg.endsWith(".pdf"));
+  if (args.length > 0) {
+    return path.resolve(args[0]);
+  }
+
+  return undefined;
+}
+
+const PDF_PATH = resolvePdfPath();
+const PDF_AVAILABLE = PDF_PATH != null && fs.existsSync(PDF_PATH);
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // INTEGRATION TEST SUITE
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -79,10 +109,14 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     ddd: { sourceId: "", unitId: "" },
     cleanArch: { sourceId: "", unitId: "" },
     eventSourcing: { sourceId: "", unitId: "" },
+    pdf: { sourceId: "", unitId: "" },
   };
 
+  // ─── Shared state for PDF flow ───────────────────────────────────────────
+  let pdfExtractedText = "";
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // SETUP: Initialize all 4 bounded contexts (in-memory for test isolation)
+  // SETUP: Initialize all 4 bounded contexts (server with temp DB for isolation)
   // ═══════════════════════════════════════════════════════════════════════════
 
   beforeAll(async () => {
@@ -90,33 +124,50 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     console.log(" Full-Pipeline Integration Test: All Bounded Contexts");
     console.log("═══════════════════════════════════════════════════════════════\n");
 
-    console.log("🏗️  Initializing all bounded contexts (in-memory)...\n");
+    // Use a fresh temporary directory for NeDB to avoid stale data between runs
+    const dbPath = fs.mkdtempSync(path.join(os.tmpdir(), "klay-integration-"));
+    console.log(`🏗️  Initializing all bounded contexts (server, db: ${dbPath})...\n`);
 
     ingestion = await createSourceIngestionFacade({
-      type: "in-memory",
+      type: "server",
+      dbPath,
     });
     console.log("   ✅ Source Ingestion Facade created");
 
     processing = await createSemanticProcessingFacade({
-      type: "in-memory",
+      type: "server",
+      dbPath,
       embeddingDimensions: DIMENSIONS,
       defaultChunkingStrategy: "recursive",
     });
     console.log("   ✅ Semantic Processing Facade created");
 
     knowledge = await createSemanticKnowledgeFacade({
-      type: "in-memory",
+      type: "server",
+      dbPath,
     });
     console.log("   ✅ Semantic Knowledge Facade created");
 
     // Cross-context wiring: retrieval reads from processing's vector store config
+    // Note: knowledge-retrieval gets dbPath via vectorStoreConfig (not top-level dbPath)
     retrieval = await createKnowledgeRetrievalFacade({
-      type: "in-memory",
+      type: "server",
       vectorStoreConfig: processing.vectorStoreConfig,
       embeddingDimensions: DIMENSIONS,
     });
     console.log("   ✅ Knowledge Retrieval Facade created");
-    console.log("   🔗 Cross-context wiring: Retrieval → Processing vector store config\n");
+    console.log("   🔗 Cross-context wiring: Retrieval → Processing vector store config");
+    console.log(`\n   📂 NeDB data directory: ${dbPath}`);
+    console.log(`      Vector store: ${processing.vectorStoreConfig.dbPath ?? "N/A"}`);
+
+    if (PDF_AVAILABLE) {
+      console.log(`   📄 PDF detected: ${path.basename(PDF_PATH!)}`);
+    } else if (process.env.PDF_PATH) {
+      console.log(`   ⚠️  PDF_PATH set but file not found: ${process.env.PDF_PATH}`);
+    } else {
+      console.log("   ℹ️  No PDF_PATH set — Flow 9 (PDF pipeline) will be skipped");
+    }
+    console.log();
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -697,6 +748,136 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
       console.log("   ✅ Cross-context data integrity (sourceId ↔ unitId ↔ vectors)");
       console.log("   ✅ Error handling across all boundaries");
       console.log("   ✅ Strategy registration and management");
+      if (PDF_AVAILABLE) {
+        console.log("   ✅ Real PDF pipeline (ingestion → extraction → embeddings → retrieval)");
+      }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FLOW 9: Real PDF Pipeline (Optional)
+  //   Runs only when PDF_PATH env var points to an existing PDF file.
+  //   Tests the complete pipeline: PDF extraction → processing → cataloging → retrieval
+  //
+  //   Usage: PDF_PATH=./my-doc.pdf npx vitest run ...
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe.skipIf(!PDF_AVAILABLE)("Flow 9: Real PDF Pipeline", () => {
+    it("should ingest and extract a real PDF (Source Ingestion)", async () => {
+      console.log("── Flow 9: Real PDF Pipeline ───────────────────────────────\n");
+      console.log(`📄 Step 9.1: Ingesting PDF from: ${PDF_PATH}`);
+
+      ids.pdf.sourceId = crypto.randomUUID();
+      ids.pdf.unitId = crypto.randomUUID();
+
+      const result = await ingestion.ingestAndExtract({
+        sourceId: ids.pdf.sourceId,
+        sourceName: path.basename(PDF_PATH!),
+        uri: PDF_PATH!,
+        type: SourceType.Pdf,
+        extractionJobId: crypto.randomUUID(),
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(result.value.sourceId).toBe(ids.pdf.sourceId);
+      expect(result.value.contentHash).toBeTruthy();
+
+      console.log(`   ✅ PDF ingested: ${ids.pdf.sourceId.slice(0, 8)}...`);
+      console.log(`      Content hash: ${result.value.contentHash.slice(0, 16)}...\n`);
+    });
+
+    it("should extract text content from the PDF", async () => {
+      console.log("🔍 Step 9.2: Extracting text from PDF...");
+
+      const extractionResult = await ingestion.extraction.executeExtraction.execute({
+        jobId: crypto.randomUUID(),
+        sourceId: ids.pdf.sourceId,
+        uri: PDF_PATH!,
+        mimeType: "application/pdf",
+      });
+
+      expect(extractionResult.isOk()).toBe(true);
+      expect(extractionResult.value.extractedText.length).toBeGreaterThan(0);
+
+      pdfExtractedText = extractionResult.value.extractedText;
+      const metadata = extractionResult.value.metadata;
+
+      console.log(`   ✅ Text extracted: ${pdfExtractedText.length} characters`);
+      console.log(`      Pages: ${(metadata as any).pageCount ?? "unknown"}`);
+      console.log(`      Preview: "${pdfExtractedText.slice(0, 100).replace(/\n/g, " ")}..."\n`);
+    });
+
+    it("should process PDF content into embeddings (Semantic Processing)", async () => {
+      console.log("⚙️  Step 9.3: Processing PDF content into embeddings...");
+
+      const result = await processing.processContent({
+        projectionId: crypto.randomUUID(),
+        semanticUnitId: ids.pdf.unitId,
+        semanticUnitVersion: 1,
+        content: pdfExtractedText,
+        type: ProjectionType.Embedding,
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(result.value.chunksCount).toBeGreaterThan(0);
+      expect(result.value.dimensions).toBe(DIMENSIONS);
+
+      console.log(`   ✅ PDF processed: ${result.value.chunksCount} chunks`);
+      console.log(`      Dimensions: ${result.value.dimensions}`);
+      console.log(`      Model: ${result.value.model}\n`);
+    });
+
+    it("should catalog PDF as semantic unit with lineage (Semantic Knowledge)", async () => {
+      console.log("📚 Step 9.4: Cataloging PDF semantic unit...");
+
+      const result = await knowledge.createSemanticUnitWithLineage({
+        id: ids.pdf.unitId,
+        sourceId: ids.pdf.sourceId,
+        sourceType: "pdf-document",
+        content: pdfExtractedText,
+        language: "en",
+        createdBy: "ingestion-pipeline",
+        topics: ["pdf", "document"],
+        summary: `PDF document: ${path.basename(PDF_PATH!)}`,
+        tags: ["pdf", "uploaded"],
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(result.value.unitId).toBe(ids.pdf.unitId);
+
+      console.log(`   ✅ Semantic unit created: ${ids.pdf.unitId.slice(0, 8)}...`);
+      console.log(`      Lineage: EXTRACTION transformation registered\n`);
+    });
+
+    it("should retrieve PDF content via semantic search (Knowledge Retrieval)", async () => {
+      console.log("🔍 Step 9.5: Searching for PDF content...");
+
+      // Use the first 50 characters of extracted text as search query
+      const queryText = pdfExtractedText
+        .slice(0, 200)
+        .replace(/\n/g, " ")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 8)
+        .join(" ");
+
+      const results = await retrieval.search(queryText, {
+        limit: 5,
+        threshold: 0.0,
+      });
+
+      expect(results.length).toBeGreaterThan(0);
+
+      console.log(`   ✅ Search for "${queryText.slice(0, 40)}..." returned ${results.length} results`);
+      for (const r of results.slice(0, 3)) {
+        console.log(`      [${r.score.toFixed(3)}] ${r.content.slice(0, 60)}...`);
+      }
+      console.log();
+
+      console.log("═══════════════════════════════════════════════════════════════");
+      console.log(` ✅ PDF Pipeline complete: ${path.basename(PDF_PATH!)}`);
+      console.log("   Ingestion → Extraction → Embeddings → Cataloging → Retrieval");
+      console.log("═══════════════════════════════════════════════════════════════\n");
     });
   });
 });

@@ -3,40 +3,20 @@ import type {
   ResolvedProjectionInfra,
 } from "./infra-policies";
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
-import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
-import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
 import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { EventPublisher } from "../../../shared/domain/EventPublisher";
-import type { ConfigProvider } from "../../../shared/config/index";
+import type { ProcessingProfileRepository } from "../../processing-profile/domain/ProcessingProfileRepository";
 
 /**
  * Composer for the Projection Module.
  *
  * Responsible for resolving infrastructure dependencies based on policy.
- * Each aspect (repository, embedding, chunking, etc.) has its own resolver method.
+ *
+ * Strategy resolution (embedding/chunking) is NO LONGER done at composition time —
+ * it's delegated to ProcessingProfileMaterializer at runtime,
+ * driven by the ProcessingProfile domain aggregate.
  */
 export class ProjectionComposer {
-  // ─── Config Resolution ─────────────────────────────────────────────────────
-
-  /**
-   * Resolves the appropriate ConfigProvider based on policy.
-   * Priority: configOverrides > process.env (NodeConfigProvider)
-   */
-  private static async resolveConfigProvider(
-    policy: ProjectionInfrastructurePolicy
-  ): Promise<ConfigProvider> {
-    if (policy.configOverrides) {
-      const { InMemoryConfigProvider } = await import(
-        "../../../shared/config/InMemoryConfigProvider"
-      );
-      return new InMemoryConfigProvider(policy.configOverrides);
-    }
-    const { NodeConfigProvider } = await import(
-      "../../../shared/config/NodeConfigProvider"
-    );
-    return new NodeConfigProvider();
-  }
-
   // ─── Repository Resolution ────────────────────────────────────────────────
 
   private static async resolveRepository(
@@ -71,95 +51,6 @@ export class ProjectionComposer {
       default:
         throw new Error(`Unknown policy type: ${(policy as any).type}`);
     }
-  }
-
-  // ─── Embedding Strategy Resolution ────────────────────────────────────────
-
-  private static async resolveEmbeddingStrategy(
-    policy: ProjectionInfrastructurePolicy,
-  ): Promise<EmbeddingStrategy> {
-    // 1. If explicit embeddingProvider is set (and not "hash"), use AI SDK
-    if (policy.embeddingProvider && policy.embeddingProvider !== "hash") {
-      return this.resolveAIEmbeddingStrategy(policy);
-    }
-    // 2. Browser uses WebLLM
-    if (policy.type === "browser") {
-      const { WebLLMEmbeddingStrategy } = await import(
-        "../infrastructure/strategies/WebLLMEmbeddingStrategy"
-      );
-      const strategy = new WebLLMEmbeddingStrategy(policy.webLLMModelId);
-      await strategy.initialize();
-      return strategy;
-    }
-
-    // 3. Default: hash embeddings (in-memory, server without provider)
-    const { HashEmbeddingStrategy } = await import(
-      "../infrastructure/strategies/HashEmbeddingStrategy"
-    );
-    return new HashEmbeddingStrategy(policy.embeddingDimensions ?? 128);
-  }
-
-  // ─── AI Embedding Strategy Resolution ──────────────────────────────────────
-
-  /**
-   * Resolves an AI SDK embedding strategy based on the configured provider.
-   * Automatically creates the model with API key from ConfigProvider.
-   */
-  private static async resolveAIEmbeddingStrategy(
-    policy: ProjectionInfrastructurePolicy,
-  ): Promise<EmbeddingStrategy> {
-    const config = await this.resolveConfigProvider(policy);
-    const provider = policy.embeddingProvider!;
-
-    const { AISdkEmbeddingStrategy } = await import(
-      "../infrastructure/strategies/AISdkEmbeddingStrategy"
-    );
-
-    switch (provider) {
-      case "openai": {
-        const apiKey = config.require("OPENAI_API_KEY");
-        const modelId = policy.embeddingModel ?? "text-embedding-3-small";
-        const { createOpenAI } = await import("@ai-sdk/openai");
-        const openai = createOpenAI({ apiKey });
-        const model = openai.embedding(modelId);
-        return new AISdkEmbeddingStrategy(model, `openai-${modelId}`);
-      }
-
-      case "cohere": {
-        const apiKey = config.require("COHERE_API_KEY");
-        const modelId = policy.embeddingModel ?? "embed-multilingual-v3.0";
-        const { createCohere } = await import("@ai-sdk/cohere");
-        const cohere = createCohere({ apiKey });
-        const model = cohere.textEmbeddingModel(modelId);
-        return new AISdkEmbeddingStrategy(model, `cohere-${modelId}`);
-      }
-
-      case "huggingface": {
-        const apiKey = config.require("HUGGINGFACE_API_KEY");
-        const modelId =
-          policy.embeddingModel ?? "sentence-transformers/all-MiniLM-L6-v2";
-        const { createHuggingFace } = await import("@ai-sdk/huggingface");
-        const hf = createHuggingFace({ apiKey });
-        const model = hf.textEmbeddingModel(modelId);
-        return new AISdkEmbeddingStrategy(model, `huggingface-${modelId}`);
-      }
-
-      default:
-        throw new Error(`Unknown embedding provider: ${provider}`);
-    }
-  }
-
-  // ─── Chunking Strategy Resolution ─────────────────────────────────────────
-
-  private static async resolveChunkingStrategy(
-    policy: ProjectionInfrastructurePolicy,
-  ): Promise<ChunkingStrategy> {
-    // Side-effect: register default chunking strategies
-    await import("../infrastructure/strategies/index");
-    const { ChunkerFactory } = await import(
-      "../infrastructure/strategies/ChunkerFactory"
-    );
-    return ChunkerFactory.create(policy.chunkingStrategyId ?? "recursive");
   }
 
   // ─── Vector Write Store Resolution ─────────────────────────────────────────
@@ -203,8 +94,6 @@ export class ProjectionComposer {
   private static async resolveEventPublisher(
     _policy: ProjectionInfrastructurePolicy,
   ): Promise<EventPublisher> {
-    // Currently all policies use InMemoryEventPublisher
-    // This can be extended to support distributed publishers (Redis, Kafka, etc.)
     const { InMemoryEventPublisher } = await import(
       "../../../shared/infrastructure/InMemoryEventPublisher"
     );
@@ -213,27 +102,34 @@ export class ProjectionComposer {
 
   // ─── Main Resolution ──────────────────────────────────────────────────────
 
+  /**
+   * Resolves projection infrastructure.
+   *
+   * Requires an externally-provided ProcessingProfileRepository
+   * (from the processing-profile module factory) for cross-module wiring.
+   *
+   * Creates the ProcessingProfileMaterializer internally from the policy.
+   */
   static async resolve(
     policy: ProjectionInfrastructurePolicy,
+    profileRepository: ProcessingProfileRepository,
   ): Promise<ResolvedProjectionInfra> {
-    const [
-      repository,
-      embeddingStrategy,
-      chunkingStrategy,
-      vectorWriteStore,
-      eventPublisher,
-    ] = await Promise.all([
+    const { ProcessingProfileMaterializer } = await import(
+      "./ProcessingProfileMaterializer"
+    );
+
+    const [repository, vectorWriteStore, eventPublisher] = await Promise.all([
       this.resolveRepository(policy),
-      this.resolveEmbeddingStrategy(policy),
-      this.resolveChunkingStrategy(policy),
       this.resolveVectorWriteStore(policy),
       this.resolveEventPublisher(policy),
     ]);
 
+    const materializer = new ProcessingProfileMaterializer(policy);
+
     return {
       repository,
-      embeddingStrategy,
-      chunkingStrategy,
+      profileRepository,
+      materializer,
       vectorWriteStore,
       eventPublisher,
     };

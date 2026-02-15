@@ -4,7 +4,7 @@ import type {
   VectorStoreConfig,
 } from "./infra-policies";
 import type { ProjectionInfrastructurePolicy } from "../../projection/composition/index";
-import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
+import type { ProcessingProfileInfrastructurePolicy } from "../../processing-profile/composition/index";
 import type { ConfigProvider } from "../../../shared/config/index";
 
 /**
@@ -64,10 +64,9 @@ export class SemanticProcessingFacadeComposer {
    * Resolves all modules for the Semantic Processing context.
    * Uses dynamic imports for tree-shaking and environment-specific loading.
    *
-   * Vector store resolution is fully delegated to ProjectionComposer,
-   * which creates a VectorWriteStore. The resolved vectorStoreConfig
-   * is exposed for cross-context wiring (knowledge-retrieval creates
-   * its own VectorReadStore from this config).
+   * ProcessingProfile is resolved first because its repository is needed
+   * for cross-module wiring with Projection (GenerateProjection looks up
+   * profiles at runtime via profileRepository).
    */
   static async resolve(
     policy: SemanticProcessingFacadePolicy
@@ -81,8 +80,21 @@ export class SemanticProcessingFacadeComposer {
     const resolvedDbName =
       policy.dbName ?? config.getOrDefault("KLAY_DB_NAME", "semantic-processing");
 
-    // Build module-specific policies inheriting from facade defaults
-    // ConfigProvider can influence policy values when not explicitly set
+    // ─── Build ProcessingProfile policy ─────────────────────────────────────
+    const profilePolicy: ProcessingProfileInfrastructurePolicy = {
+      type: policy.overrides?.processingProfile?.type ?? policy.type,
+      dbPath:
+        policy.overrides?.processingProfile?.dbPath ?? resolvedDbPath,
+      dbName:
+        policy.overrides?.processingProfile?.dbName ?? resolvedDbName,
+    };
+
+    // ─── Resolve ProcessingProfile first (needed by Projection) ─────────────
+    const processingProfileResult = await import(
+      "../../processing-profile/composition/processing-profile.factory"
+    ).then((m) => m.processingProfileFactory(profilePolicy));
+
+    // ─── Build Projection policy ────────────────────────────────────────────
     const projectionPolicy: ProjectionInfrastructurePolicy = {
       type: policy.overrides?.projection?.type ?? policy.type,
       dbPath:
@@ -92,9 +104,6 @@ export class SemanticProcessingFacadeComposer {
       embeddingDimensions:
         policy.overrides?.projection?.embeddingDimensions ??
         policy.embeddingDimensions,
-      chunkingStrategyId:
-        policy.overrides?.projection?.chunkingStrategyId ??
-        policy.defaultChunkingStrategy,
 
       // ─── Embedding Provider Configuration ─────────────────────────────────────
       embeddingProvider:
@@ -108,26 +117,14 @@ export class SemanticProcessingFacadeComposer {
       configOverrides: policy.configOverrides,
     };
 
-    const strategyRegistryPolicy: StrategyRegistryInfrastructurePolicy = {
-      type: policy.overrides?.strategyRegistry?.type ?? policy.type,
-      dbPath:
-        policy.overrides?.strategyRegistry?.dbPath ?? resolvedDbPath,
-      dbName:
-        policy.overrides?.strategyRegistry?.dbName ?? resolvedDbName,
-    };
+    // ─── Resolve Projection (with profileRepository wiring) ─────────────────
+    const projectionResult = await import(
+      "../../projection/composition/projection.factory"
+    ).then((m) =>
+      m.projectionFactory(projectionPolicy, processingProfileResult.repository)
+    );
 
-    // Resolve modules in parallel using their factories (from composition/)
-    // Factories return { useCases, infra } - we extract useCases for the facade
-    const [projectionResult, strategyRegistryResult] = await Promise.all([
-      import("../../projection/composition/projection.factory").then((m) =>
-        m.projectionFactory(projectionPolicy)
-      ),
-      import("../../strategy-registry/composition/strategy-registry.factory").then(
-        (m) => m.strategyRegistryFactory(strategyRegistryPolicy)
-      ),
-    ]);
-
-    // Build vectorStoreConfig for cross-context wiring
+    // ─── Build vectorStoreConfig for cross-context wiring ───────────────────
     const vectorStoreConfig: VectorStoreConfig = {
       dbPath: projectionPolicy.dbPath
         ? `${projectionPolicy.dbPath}/vector-entries.db`
@@ -145,7 +142,8 @@ export class SemanticProcessingFacadeComposer {
 
     return {
       projection: projectionResult.useCases,
-      strategyRegistry: strategyRegistryResult.useCases,
+      processingProfile: processingProfileResult.useCases,
+      profileRepository: processingProfileResult.repository,
       vectorStoreConfig,
     };
   }

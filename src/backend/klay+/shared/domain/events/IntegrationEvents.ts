@@ -57,7 +57,8 @@ export interface ProjectionGeneratedEvent {
   readonly semanticUnitId: string;
   readonly semanticUnitVersion: number;
   readonly projectionType: string;
-  readonly strategyId: string;
+  readonly processingProfileId: string;
+  readonly processingProfileVersion: number;
 }
 
 // ─── Union type for all integration events ─────────────────────────

@@ -5,6 +5,7 @@
  * - Chunking content into meaningful segments
  * - Generating embeddings for semantic search
  * - Storing vectors for retrieval
+ * - Managing processing profiles (versionable, selectable configurations)
  */
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -22,6 +23,8 @@ export {
   ProjectionComposer,
   GenerateProjection,
   projectionFactory,
+  // Materializer
+  ProcessingProfileMaterializer,
   // Domain Errors
   ProjectionNotFoundError,
   ProjectionAlreadyExistsError,
@@ -63,36 +66,44 @@ export type {
   GenerateProjectionCommand,
   GenerateProjectionResult,
   ProjectionError,
+  MaterializedStrategies,
 } from "./projection";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Strategy Registry Module
+// Processing Profile Module
 // ═══════════════════════════════════════════════════════════════════════════
 export {
-  ProcessingStrategy,
-  StrategyId,
-  StrategyType,
-  StrategyRegistryUseCases,
-  StrategyRegistryComposer,
-  RegisterStrategy,
-  strategyRegistryFactory,
+  ProcessingProfile,
+  ProcessingProfileId,
+  ProfileStatus,
+  ProcessingProfileUseCases,
+  ProcessingProfileComposer,
+  CreateProcessingProfile,
+  UpdateProcessingProfile,
+  DeprecateProcessingProfile,
+  processingProfileFactory,
+  // Domain Events
+  ProfileCreated,
+  ProfileUpdated,
+  ProfileDeprecated,
   // Domain Errors
-  StrategyNotFoundError,
-  StrategyAlreadyExistsError,
-  StrategyNameRequiredError,
-  StrategyInvalidTypeError,
-  StrategyInvalidConfigurationError,
-} from "./strategy-registry";
+  ProfileNameRequiredError,
+  ProfileChunkingStrategyRequiredError,
+  ProfileEmbeddingStrategyRequiredError,
+  ProfileAlreadyExistsError,
+  ProfileNotFoundError,
+  ProfileDeprecatedError,
+  ProfileAlreadyDeprecatedError,
+} from "./processing-profile";
 
 export type {
-  ProcessingStrategyRepository,
-  StrategyRegistryInfraPolicy,
-  StrategyRegistryInfrastructurePolicy,
-  ResolvedStrategyRegistryInfra,
-  StrategyRegistryFactoryResult,
-  RegisterStrategyCommand,
-  StrategyError,
-} from "./strategy-registry";
+  ProcessingProfileRepository,
+  ProfileError,
+  ProcessingProfileInfraPolicy,
+  ProcessingProfileInfrastructurePolicy,
+  ResolvedProcessingProfileInfra,
+  ProcessingProfileFactoryResult,
+} from "./processing-profile";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Facade (Context-Level)
@@ -108,5 +119,7 @@ export type {
   SemanticProcessingInfraPolicy,
   ResolvedSemanticProcessingModules,
   ProcessContentSuccess,
-  RegisterStrategySuccess,
+  CreateProfileSuccess,
+  UpdateProfileSuccess,
+  DeprecateProfileSuccess,
 } from "./facade";

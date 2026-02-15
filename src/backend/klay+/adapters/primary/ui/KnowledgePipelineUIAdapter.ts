@@ -10,6 +10,8 @@ import type {
   CatalogDocumentSuccess,
   SearchKnowledgeInput,
   SearchKnowledgeSuccess,
+  CreateProcessingProfileInput,
+  CreateProcessingProfileSuccess,
 } from "../../../orchestrator/knowledge-pipeline/contracts/dtos";
 
 // ─── UI Result Type ─────────────────────────────────────────────────────────
@@ -68,6 +70,11 @@ export class KnowledgePipelineUIAdapter {
 
   async searchKnowledge(input: SearchKnowledgeInput): Promise<UIResult<SearchKnowledgeSuccess>> {
     const result = await this._pipeline.searchKnowledge(input);
+    return this._unwrap(result);
+  }
+
+  async createProcessingProfile(input: CreateProcessingProfileInput): Promise<UIResult<CreateProcessingProfileSuccess>> {
+    const result = await this._pipeline.createProcessingProfile(input);
     return this._unwrap(result);
   }
 

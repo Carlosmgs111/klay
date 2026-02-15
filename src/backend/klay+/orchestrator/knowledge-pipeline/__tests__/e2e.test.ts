@@ -37,6 +37,7 @@ function loadFixture(filename: string): string {
 
 describe("Knowledge Pipeline Orchestrator — E2E", () => {
   let pipeline: KnowledgePipelinePort;
+  let profileId: string;
 
   // ─── Setup ──────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,17 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
       embeddingDimensions: 128,
       defaultChunkingStrategy: "recursive",
     });
+
+    // Create a processing profile for all tests
+    profileId = "profile-test-001";
+    const profileResult = await pipeline.createProcessingProfile({
+      id: profileId,
+      name: "Test Profile",
+      chunkingStrategyId: "recursive",
+      embeddingStrategyId: "hash-embedding",
+      configuration: { embeddingDimensions: 128 },
+    });
+    expect(profileResult.isOk()).toBe(true);
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -54,9 +66,6 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
 
   describe("Full Pipeline — execute()", () => {
     it("should execute the complete pipeline: ingest → process → catalog", async () => {
-      const content = loadFixture("ddd-overview.txt");
-
-      // Create a temp file for ingestion (source-ingestion reads from URI)
       const tmpFile = path.join(FIXTURES_DIR, "ddd-overview.txt");
 
       const result = await pipeline.execute({
@@ -69,6 +78,7 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         semanticUnitId: "unit-ddd-001",
         language: "en",
         createdBy: "test",
+        processingProfileId: profileId,
       });
 
       expect(result.isOk()).toBe(true);
@@ -87,9 +97,8 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
     it("should fail at ingestion step for duplicate source", async () => {
       const tmpFile = path.join(FIXTURES_DIR, "ddd-overview.txt");
 
-      // Try to re-ingest with the same sourceId
       const result = await pipeline.execute({
-        sourceId: "src-ddd-001", // already exists
+        sourceId: "src-ddd-001",
         sourceName: "DDD Overview Duplicate",
         uri: tmpFile,
         sourceType: "PLAIN_TEXT",
@@ -98,6 +107,7 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         semanticUnitId: "unit-ddd-dup",
         language: "en",
         createdBy: "test",
+        processingProfileId: profileId,
       });
 
       expect(result.isFail()).toBe(true);
@@ -143,6 +153,7 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         semanticUnitId: "unit-clean-001",
         semanticUnitVersion: 1,
         content,
+        processingProfileId: profileId,
       });
 
       expect(result.isOk()).toBe(true);
@@ -223,7 +234,6 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
       const esFile = path.join(FIXTURES_DIR, "event-sourcing.txt");
 
       // Create a temp copy of the same file with a unique path
-      // (source-ingestion enforces URI uniqueness, so we need a distinct URI)
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "klay-pipeline-"));
       const esCopyFile = path.join(tmpDir, "event-sourcing-copy.txt");
       fs.copyFileSync(esFile, esCopyFile);
@@ -239,11 +249,11 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         semanticUnitId: "unit-es-001",
         language: "en",
         createdBy: "test",
+        processingProfileId: profileId,
       });
       expect(first.isOk()).toBe(true);
 
       // Second: DIFFERENT source + URI but SAME semanticUnitId → should fail at cataloging
-      // Uses a copy with different path to avoid source-ingestion's URI uniqueness constraint
       const second = await pipeline.execute({
         sourceId: "src-es-002",
         sourceName: "Event Sourcing v2",
@@ -251,15 +261,15 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         sourceType: "PLAIN_TEXT",
         extractionJobId: "job-es-002",
         projectionId: "proj-es-002",
-        semanticUnitId: "unit-es-001", // duplicate unit ID → cataloging fails
+        semanticUnitId: "unit-es-001",
         language: "en",
         createdBy: "test",
+        processingProfileId: profileId,
       });
 
       expect(second.isFail()).toBe(true);
       if (second.isFail()) {
         expect(second.error.step).toBe(PipelineStep.Cataloging);
-        // Ingestion and Processing succeeded before Cataloging failed
         expect(second.error.completedSteps).toContain(PipelineStep.Ingestion);
         expect(second.error.completedSteps).toContain(PipelineStep.Processing);
         expect(second.error.completedSteps).not.toContain(PipelineStep.Cataloging);
@@ -334,6 +344,7 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         createdBy: "test",
         topics: ["ddd", "architecture"],
         tags: ["updated"],
+        processingProfileId: profileId,
       });
 
       expect(result.isOk()).toBe(true);
@@ -342,6 +353,39 @@ describe("Knowledge Pipeline Orchestrator — E2E", () => {
         expect(result.value.unitId).toBe("unit-ddd-v2-001");
         expect(result.value.chunksCount).toBeGreaterThan(0);
       }
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 6. Processing Profile Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe("Processing Profile Management", () => {
+    it("should create a processing profile via the pipeline", async () => {
+      const result = await pipeline.createProcessingProfile({
+        id: "profile-custom-001",
+        name: "Custom Profile",
+        chunkingStrategyId: "sentence",
+        embeddingStrategyId: "hash-embedding",
+        configuration: { embeddingDimensions: 256 },
+      });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.profileId).toBe("profile-custom-001");
+        expect(result.value.version).toBe(1);
+      }
+    });
+
+    it("should reject duplicate profile creation", async () => {
+      const result = await pipeline.createProcessingProfile({
+        id: profileId,
+        name: "Duplicate",
+        chunkingStrategyId: "recursive",
+        embeddingStrategyId: "hash-embedding",
+      });
+
+      expect(result.isFail()).toBe(true);
     });
   });
 });

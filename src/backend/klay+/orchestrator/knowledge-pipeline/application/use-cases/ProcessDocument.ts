@@ -29,6 +29,7 @@ export class ProcessDocument {
       semanticUnitVersion: input.semanticUnitVersion,
       content: input.content,
       type: (input.projectionType ?? DEFAULT_PROJECTION_TYPE) as ProjectionType,
+      processingProfileId: input.processingProfileId,
     });
 
     if (result.isFail()) {

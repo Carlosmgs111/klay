@@ -5,6 +5,7 @@ import type {
   ProcessDocumentInput,
   CatalogDocumentInput,
   SearchKnowledgeInput,
+  CreateProcessingProfileInput,
 } from "../../../orchestrator/knowledge-pipeline/contracts/dtos";
 
 // ─── REST Types ─────────────────────────────────────────────────────────────
@@ -73,6 +74,12 @@ export class KnowledgePipelineRESTAdapter {
   async searchKnowledge(req: RESTRequest): Promise<RESTResponse> {
     const input = req.body as SearchKnowledgeInput;
     const result = await this._pipeline.searchKnowledge(input);
+    return this._toResponse(result);
+  }
+
+  async createProcessingProfile(req: RESTRequest): Promise<RESTResponse> {
+    const input = req.body as CreateProcessingProfileInput;
+    const result = await this._pipeline.createProcessingProfile(input);
     return this._toResponse(result);
   }
 

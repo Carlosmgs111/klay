@@ -3,7 +3,8 @@
  *
  * This module is ONLY responsible for:
  * - Selecting infrastructure implementations based on policy
- * - Instantiating repositories, strategies, and adapters
+ * - Instantiating repositories and adapters
+ * - Materializing processing profiles into concrete strategies
  * - Wiring dependencies
  * - Factory construction of UseCases
  *
@@ -15,6 +16,10 @@
 
 // ─── Composer (infrastructure wiring only) ──────────────────────────────────
 export { ProjectionComposer } from "./ProjectionComposer";
+
+// ─── Materializer (profile → strategies) ────────────────────────────────────
+export { ProcessingProfileMaterializer } from "./ProcessingProfileMaterializer";
+export type { MaterializedStrategies } from "./ProcessingProfileMaterializer";
 
 // ─── Policies ───────────────────────────────────────────────────────────────
 export type {

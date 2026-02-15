@@ -1,7 +1,6 @@
 import type { ProjectionUseCases } from "../projection/application/index";
-import type { StrategyRegistryUseCases } from "../strategy-registry/application/index";
+import type { ProcessingProfileUseCases } from "../processing-profile/application/index";
 import type { ProjectionType } from "../projection/domain/ProjectionType";
-import type { StrategyType } from "../strategy-registry/domain/StrategyType";
 import type { ResolvedSemanticProcessingModules, VectorStoreConfig } from "./composition/infra-policies";
 import { Result } from "../../shared/domain/Result";
 import type { DomainError } from "../../shared/domain/errors";
@@ -15,8 +14,18 @@ export interface ProcessContentSuccess {
   model: string;
 }
 
-export interface RegisterStrategySuccess {
-  strategyId: string;
+export interface CreateProfileSuccess {
+  profileId: string;
+  version: number;
+}
+
+export interface UpdateProfileSuccess {
+  profileId: string;
+  version: number;
+}
+
+export interface DeprecateProfileSuccess {
+  profileId: string;
 }
 
 // ─── Facade ─────────────────────────────────────────────────────────────────
@@ -25,7 +34,7 @@ export interface RegisterStrategySuccess {
  * Application Facade for the Semantic Processing bounded context.
  *
  * Provides a unified entry point to all modules within the context,
- * coordinating use cases for content projection and strategy management.
+ * coordinating use cases for content projection and processing profile management.
  *
  * This is an Application Layer component - it does NOT contain domain logic.
  * It only coordinates existing use cases and handles cross-module workflows.
@@ -34,12 +43,12 @@ export interface RegisterStrategySuccess {
  */
 export class SemanticProcessingFacade {
   private readonly _projection: ProjectionUseCases;
-  private readonly _strategyRegistry: StrategyRegistryUseCases;
+  private readonly _processingProfile: ProcessingProfileUseCases;
   private readonly _vectorStoreConfig: VectorStoreConfig;
 
   constructor(modules: ResolvedSemanticProcessingModules) {
     this._projection = modules.projection;
-    this._strategyRegistry = modules.strategyRegistry;
+    this._processingProfile = modules.processingProfile;
     this._vectorStoreConfig = modules.vectorStoreConfig;
   }
 
@@ -49,8 +58,8 @@ export class SemanticProcessingFacade {
     return this._projection;
   }
 
-  get strategyRegistry(): StrategyRegistryUseCases {
-    return this._strategyRegistry;
+  get processingProfile(): ProcessingProfileUseCases {
+    return this._processingProfile;
   }
 
   /**
@@ -62,11 +71,91 @@ export class SemanticProcessingFacade {
     return this._vectorStoreConfig;
   }
 
+  // ─── Profile Management Operations ────────────────────────────────────────
+
+  /**
+   * Creates a new processing profile.
+   */
+  async createProcessingProfile(params: {
+    id: string;
+    name: string;
+    chunkingStrategyId: string;
+    embeddingStrategyId: string;
+    configuration?: Record<string, unknown>;
+  }): Promise<Result<DomainError, CreateProfileSuccess>> {
+    const result = await this._processingProfile.createProfile.execute({
+      id: params.id,
+      name: params.name,
+      chunkingStrategyId: params.chunkingStrategyId,
+      embeddingStrategyId: params.embeddingStrategyId,
+      configuration: params.configuration,
+    });
+
+    if (result.isFail()) {
+      return Result.fail(result.error);
+    }
+
+    return Result.ok({
+      profileId: result.value.id.value,
+      version: result.value.version,
+    });
+  }
+
+  /**
+   * Updates an existing processing profile.
+   */
+  async updateProcessingProfile(params: {
+    id: string;
+    name?: string;
+    chunkingStrategyId?: string;
+    embeddingStrategyId?: string;
+    configuration?: Record<string, unknown>;
+  }): Promise<Result<DomainError, UpdateProfileSuccess>> {
+    const result = await this._processingProfile.updateProfile.execute({
+      id: params.id,
+      name: params.name,
+      chunkingStrategyId: params.chunkingStrategyId,
+      embeddingStrategyId: params.embeddingStrategyId,
+      configuration: params.configuration,
+    });
+
+    if (result.isFail()) {
+      return Result.fail(result.error);
+    }
+
+    return Result.ok({
+      profileId: result.value.id.value,
+      version: result.value.version,
+    });
+  }
+
+  /**
+   * Deprecates a processing profile.
+   */
+  async deprecateProcessingProfile(params: {
+    id: string;
+    reason: string;
+  }): Promise<Result<DomainError, DeprecateProfileSuccess>> {
+    const result = await this._processingProfile.deprecateProfile.execute({
+      id: params.id,
+      reason: params.reason,
+    });
+
+    if (result.isFail()) {
+      return Result.fail(result.error);
+    }
+
+    return Result.ok({ profileId: result.value.id.value });
+  }
+
   // ─── Workflow Operations ──────────────────────────────────────────────────
 
   /**
    * Processes content into semantic projections.
    * Chunks the content, generates embeddings, and stores vectors.
+   *
+   * Now requires a processingProfileId — the profile determines
+   * which chunking and embedding strategies are materialized at runtime.
    */
   async processContent(params: {
     projectionId: string;
@@ -74,6 +163,7 @@ export class SemanticProcessingFacade {
     semanticUnitVersion: number;
     content: string;
     type: ProjectionType;
+    processingProfileId: string;
   }): Promise<Result<DomainError, ProcessContentSuccess>> {
     const result = await this._projection.generateProjection.execute({
       projectionId: params.projectionId,
@@ -81,6 +171,7 @@ export class SemanticProcessingFacade {
       semanticUnitVersion: params.semanticUnitVersion,
       content: params.content,
       type: params.type,
+      processingProfileId: params.processingProfileId,
     });
 
     if (result.isFail()) {
@@ -96,29 +187,6 @@ export class SemanticProcessingFacade {
   }
 
   /**
-   * Registers a new processing strategy.
-   */
-  async registerProcessingStrategy(params: {
-    id: string;
-    name: string;
-    type: StrategyType;
-    configuration?: Record<string, unknown>;
-  }): Promise<Result<DomainError, RegisterStrategySuccess>> {
-    const result = await this._strategyRegistry.registerStrategy.execute({
-      id: params.id,
-      name: params.name,
-      type: params.type,
-      configuration: params.configuration,
-    });
-
-    if (result.isFail()) {
-      return Result.fail(result.error);
-    }
-
-    return Result.ok({ strategyId: params.id });
-  }
-
-  /**
    * Batch processes multiple semantic units.
    */
   async batchProcess(
@@ -128,6 +196,7 @@ export class SemanticProcessingFacade {
       semanticUnitVersion: number;
       content: string;
       type: ProjectionType;
+      processingProfileId: string;
     }>,
   ): Promise<
     Array<{

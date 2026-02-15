@@ -60,6 +60,7 @@ export class ExecuteFullPipeline {
       semanticUnitVersion: 1,
       content: ingestionResult.value.extractedText,
       type: (input.projectionType ?? DEFAULT_PROJECTION_TYPE) as ProjectionType,
+      processingProfileId: input.processingProfileId,
     });
 
     if (processingResult.isFail()) {

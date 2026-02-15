@@ -33,6 +33,8 @@ export type {
   CatalogDocumentSuccess,
   SearchKnowledgeInput,
   SearchKnowledgeSuccess,
+  CreateProcessingProfileInput,
+  CreateProcessingProfileSuccess,
 } from "./contracts/dtos";
 
 // ─── Domain ──────────────────────────────────────────────────────────────────

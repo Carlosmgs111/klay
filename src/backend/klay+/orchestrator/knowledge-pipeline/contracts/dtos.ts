@@ -25,6 +25,8 @@ export interface ExecutePipelineInput {
   projectionId: string;
   /** Projection type (e.g., "EMBEDDING") — defaults to "EMBEDDING" if omitted */
   projectionType?: string;
+  /** Processing profile ID — determines chunking and embedding strategies */
+  processingProfileId: string;
   /** Unique ID for the semantic unit */
   semanticUnitId: string;
   /** Content language */
@@ -78,6 +80,8 @@ export interface ProcessDocumentInput {
   semanticUnitVersion: number;
   content: string;
   projectionType?: string;
+  /** Processing profile ID — determines chunking and embedding strategies */
+  processingProfileId: string;
 }
 
 export interface ProcessDocumentSuccess {
@@ -104,6 +108,21 @@ export interface CatalogDocumentInput {
 
 export interface CatalogDocumentSuccess {
   unitId: string;
+}
+
+// ─── Processing Profile Management ──────────────────────────────────────────
+
+export interface CreateProcessingProfileInput {
+  id: string;
+  name: string;
+  chunkingStrategyId: string;
+  embeddingStrategyId: string;
+  configuration?: Record<string, unknown>;
+}
+
+export interface CreateProcessingProfileSuccess {
+  profileId: string;
+  version: number;
 }
 
 // ─── Granular: Search Knowledge ──────────────────────────────────────────────

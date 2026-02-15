@@ -5,10 +5,11 @@ import { ProjectionId } from "../domain/ProjectionId";
 import { ProjectionResult } from "../domain/ProjectionResult";
 import type { ProjectionType } from "../domain/ProjectionType";
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
-import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
-import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
 import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { VectorEntry } from "../../../shared/domain/VectorEntry";
+import type { ProcessingProfileRepository } from "../../processing-profile/domain/ProcessingProfileRepository";
+import type { ProcessingProfileMaterializer } from "../composition/ProcessingProfileMaterializer";
+import { ProcessingProfileId } from "../../processing-profile/domain/ProcessingProfileId";
 import {
   ProjectionSemanticUnitIdRequiredError,
   ProjectionContentRequiredError,
@@ -22,6 +23,7 @@ export interface GenerateProjectionCommand {
   semanticUnitVersion: number;
   content: string;
   type: ProjectionType;
+  processingProfileId: string;
 }
 
 export interface GenerateProjectionResult {
@@ -34,8 +36,8 @@ export interface GenerateProjectionResult {
 export class GenerateProjection {
   constructor(
     private readonly repository: SemanticProjectionRepository,
-    private readonly embeddingStrategy: EmbeddingStrategy,
-    private readonly chunkingStrategy: ChunkingStrategy,
+    private readonly profileRepository: ProcessingProfileRepository,
+    private readonly materializer: ProcessingProfileMaterializer,
     private readonly vectorStore: VectorWriteStore,
     private readonly eventPublisher: EventPublisher,
   ) {}
@@ -52,6 +54,24 @@ export class GenerateProjection {
       return Result.fail(new ProjectionContentRequiredError());
     }
 
+    // ─── Resolve Processing Profile ──────────────────────────────────────
+    const profileId = ProcessingProfileId.create(command.processingProfileId);
+    const profile = await this.profileRepository.findActiveById(profileId);
+
+    if (!profile) {
+      return Result.fail(
+        new ProjectionProcessingError(
+          command.semanticUnitId,
+          `Processing profile '${command.processingProfileId}' not found or not active`,
+          "embedding",
+        ),
+      );
+    }
+
+    // ─── Materialize Strategies ─────────────────────────────────────────
+    const { embeddingStrategy, chunkingStrategy } =
+      await this.materializer.materialize(profile);
+
     // ─── Create Projection ──────────────────────────────────────────────
     const projectionId = ProjectionId.create(command.projectionId);
 
@@ -66,11 +86,11 @@ export class GenerateProjection {
 
     try {
       // ─── Chunking ───────────────────────────────────────────────────────
-      const chunks = this.chunkingStrategy.chunk(command.content);
+      const chunks = chunkingStrategy.chunk(command.content);
       const chunkContents = chunks.map((c) => c.content);
 
       // ─── Embedding ──────────────────────────────────────────────────────
-      const embeddings = await this.embeddingStrategy.embedBatch(chunkContents);
+      const embeddings = await embeddingStrategy.embedBatch(chunkContents);
 
       // ─── Vector Store ───────────────────────────────────────────────────
       const vectorEntries: VectorEntry[] = chunks.map((chunk, i) => ({
@@ -97,8 +117,8 @@ export class GenerateProjection {
           dimensions: embeddings[0]?.dimensions ?? 0,
           model: embeddings[0]?.model ?? "unknown",
         },
-        this.embeddingStrategy.strategyId,
-        this.embeddingStrategy.version,
+        profile.id.value,
+        profile.version,
       );
 
       projection.complete(result);

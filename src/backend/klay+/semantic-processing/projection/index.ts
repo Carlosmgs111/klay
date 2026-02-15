@@ -63,10 +63,15 @@ export {
 export { InMemoryVectorWriteStore } from "./infrastructure/adapters/InMemoryVectorWriteStore";
 
 // ─── Composition & Factory ──────────────────────────────────────────────────
-export { ProjectionComposer, projectionFactory } from "./composition/index";
+export {
+  ProjectionComposer,
+  projectionFactory,
+  ProcessingProfileMaterializer,
+} from "./composition/index";
 export type {
   ProjectionInfraPolicy,
   ProjectionInfrastructurePolicy,
   ResolvedProjectionInfra,
   ProjectionFactoryResult,
+  MaterializedStrategies,
 } from "./composition/index";

@@ -2,7 +2,9 @@
 export { SemanticProcessingFacade } from "./SemanticProcessingFacade";
 export type {
   ProcessContentSuccess,
-  RegisterStrategySuccess,
+  CreateProfileSuccess,
+  UpdateProfileSuccess,
+  DeprecateProfileSuccess,
 } from "./SemanticProcessingFacade";
 
 // ─── Composition ────────────────────────────────────────────────────────────

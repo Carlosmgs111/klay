@@ -11,6 +11,8 @@ import type {
   CatalogDocumentSuccess,
   SearchKnowledgeInput,
   SearchKnowledgeSuccess,
+  CreateProcessingProfileInput,
+  CreateProcessingProfileSuccess,
 } from "./dtos";
 
 /**
@@ -62,4 +64,13 @@ export interface KnowledgePipelinePort {
   searchKnowledge(
     input: SearchKnowledgeInput,
   ): Promise<Result<KnowledgePipelineError, SearchKnowledgeSuccess>>;
+
+  /**
+   * Creates a processing profile for content processing.
+   * A profile determines which chunking and embedding strategies are used.
+   * Must be created before calling execute() or processDocument().
+   */
+  createProcessingProfile(
+    input: CreateProcessingProfileInput,
+  ): Promise<Result<KnowledgePipelineError, CreateProcessingProfileSuccess>>;
 }

@@ -1,8 +1,8 @@
 import type { SemanticProjectionRepository } from "../domain/SemanticProjectionRepository";
-import type { EmbeddingStrategy } from "../domain/ports/EmbeddingStrategy";
-import type { ChunkingStrategy } from "../domain/ports/ChunkingStrategy";
 import type { VectorWriteStore } from "../domain/ports/VectorWriteStore";
 import type { EventPublisher } from "../../../shared/domain/EventPublisher";
+import type { ProcessingProfileRepository } from "../../processing-profile/domain/ProcessingProfileRepository";
+import type { ProcessingProfileMaterializer } from "./ProcessingProfileMaterializer";
 
 // ─── Policy Types ────────────────────────────────────────────────────────────
 
@@ -24,12 +24,7 @@ export interface ProjectionInfrastructurePolicy {
   dbPath?: string;
   dbName?: string;
 
-  // ─── Chunking Configuration ────────────────────────────────────────────────
-
-  /** Chunking strategy ID from ChunkerFactory. Defaults to "recursive". */
-  chunkingStrategyId?: string;
-
-  // ─── Embedding Configuration ───────────────────────────────────────────────
+  // ─── Embedding Configuration (used by Materializer) ────────────────────────
 
   /** Dimensions for hash embeddings (in-memory only). Defaults to 128. */
   embeddingDimensions?: number;
@@ -69,8 +64,8 @@ export interface ProjectionInfrastructurePolicy {
 
 export interface ResolvedProjectionInfra {
   repository: SemanticProjectionRepository;
-  embeddingStrategy: EmbeddingStrategy;
-  chunkingStrategy: ChunkingStrategy;
+  profileRepository: ProcessingProfileRepository;
+  materializer: ProcessingProfileMaterializer;
   vectorWriteStore: VectorWriteStore;
   eventPublisher: EventPublisher;
 }

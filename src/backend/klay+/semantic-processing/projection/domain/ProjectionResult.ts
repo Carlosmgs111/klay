@@ -4,8 +4,8 @@ import type { ProjectionType } from "./ProjectionType";
 interface ProjectionResultProps {
   type: ProjectionType;
   data: unknown;
-  strategyId: string;
-  strategyVersion: number;
+  processingProfileId: string;
+  processingProfileVersion: number;
   generatedAt: Date;
 }
 
@@ -18,12 +18,12 @@ export class ProjectionResult extends ValueObject<ProjectionResultProps> {
     return this.props.data;
   }
 
-  get strategyId(): string {
-    return this.props.strategyId;
+  get processingProfileId(): string {
+    return this.props.processingProfileId;
   }
 
-  get strategyVersion(): number {
-    return this.props.strategyVersion;
+  get processingProfileVersion(): number {
+    return this.props.processingProfileVersion;
   }
 
   get generatedAt(): Date {
@@ -33,15 +33,15 @@ export class ProjectionResult extends ValueObject<ProjectionResultProps> {
   static create(
     type: ProjectionType,
     data: unknown,
-    strategyId: string,
-    strategyVersion: number,
+    processingProfileId: string,
+    processingProfileVersion: number,
   ): ProjectionResult {
-    if (!strategyId) throw new Error("ProjectionResult strategyId is required");
+    if (!processingProfileId) throw new Error("ProjectionResult processingProfileId is required");
     return new ProjectionResult({
       type,
       data,
-      strategyId,
-      strategyVersion,
+      processingProfileId,
+      processingProfileVersion,
       generatedAt: new Date(),
     });
   }

@@ -13,8 +13,8 @@ export interface ProjectionDTO {
   result: {
     type: string;
     data: unknown;
-    strategyId: string;
-    strategyVersion: number;
+    processingProfileId: string;
+    processingProfileVersion: number;
     generatedAt: string;
   } | null;
   error: string | null;
@@ -32,8 +32,8 @@ export function toDTO(projection: SemanticProjection): ProjectionDTO {
       ? {
           type: projection.result.type,
           data: projection.result.data,
-          strategyId: projection.result.strategyId,
-          strategyVersion: projection.result.strategyVersion,
+          processingProfileId: projection.result.processingProfileId,
+          processingProfileVersion: projection.result.processingProfileVersion,
           generatedAt: projection.result.generatedAt.toISOString(),
         }
       : null,
@@ -47,8 +47,8 @@ export function fromDTO(dto: ProjectionDTO): SemanticProjection {
     ? ProjectionResult.create(
         dto.result.type as ProjectionType,
         dto.result.data,
-        dto.result.strategyId,
-        dto.result.strategyVersion,
+        dto.result.processingProfileId,
+        dto.result.processingProfileVersion,
       )
     : null;
 

@@ -120,7 +120,8 @@ export class SemanticProjection extends AggregateRoot<ProjectionId> {
         semanticUnitId: this._semanticUnitId,
         semanticUnitVersion: this._semanticUnitVersion,
         projectionType: this._type,
-        strategyId: result.strategyId,
+        processingProfileId: result.processingProfileId,
+        processingProfileVersion: result.processingProfileVersion,
       },
     });
   }

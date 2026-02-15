@@ -14,14 +14,18 @@ import type {
   CatalogDocumentSuccess,
   SearchKnowledgeInput,
   SearchKnowledgeSuccess,
+  CreateProcessingProfileInput,
+  CreateProcessingProfileSuccess,
 } from "../contracts/dtos";
-import type { Result } from "../../../shared/domain/Result";
+import { Result } from "../../../shared/domain/Result";
 import type { KnowledgePipelineError } from "../domain/KnowledgePipelineError";
 import { ExecuteFullPipeline } from "./use-cases/ExecuteFullPipeline";
 import { IngestDocument } from "./use-cases/IngestDocument";
 import { ProcessDocument } from "./use-cases/ProcessDocument";
 import { CatalogDocument } from "./use-cases/CatalogDocument";
 import { SearchKnowledge } from "./use-cases/SearchKnowledge";
+import { KnowledgePipelineError as PipelineError } from "../domain/KnowledgePipelineError";
+import { PipelineStep } from "../domain/PipelineStep";
 
 /**
  * Resolved dependencies for the KnowledgePipelineOrchestrator.
@@ -50,6 +54,7 @@ export interface ResolvedPipelineDependencies {
  * - No framework dependencies — pure TypeScript
  */
 export class KnowledgePipelineOrchestrator implements KnowledgePipelinePort {
+  private readonly _processing: SemanticProcessingFacade;
   private readonly _executeFullPipeline: ExecuteFullPipeline;
   private readonly _ingestDocument: IngestDocument;
   private readonly _processDocument: ProcessDocument;
@@ -57,6 +62,8 @@ export class KnowledgePipelineOrchestrator implements KnowledgePipelinePort {
   private readonly _searchKnowledge: SearchKnowledge;
 
   constructor(deps: ResolvedPipelineDependencies) {
+    this._processing = deps.processing;
+
     // Create use cases with only the facades they need
     this._executeFullPipeline = new ExecuteFullPipeline(
       deps.ingestion,
@@ -99,5 +106,32 @@ export class KnowledgePipelineOrchestrator implements KnowledgePipelinePort {
     input: SearchKnowledgeInput,
   ): Promise<Result<KnowledgePipelineError, SearchKnowledgeSuccess>> {
     return this._searchKnowledge.execute(input);
+  }
+
+  async createProcessingProfile(
+    input: CreateProcessingProfileInput,
+  ): Promise<Result<KnowledgePipelineError, CreateProcessingProfileSuccess>> {
+    const result = await this._processing.createProcessingProfile({
+      id: input.id,
+      name: input.name,
+      chunkingStrategyId: input.chunkingStrategyId,
+      embeddingStrategyId: input.embeddingStrategyId,
+      configuration: input.configuration,
+    });
+
+    if (result.isFail()) {
+      return Result.fail(
+        PipelineError.fromStep(
+          PipelineStep.Processing,
+          result.error,
+          [],
+        ),
+      );
+    }
+
+    return Result.ok({
+      profileId: result.value.profileId,
+      version: result.value.version,
+    });
   }
 }

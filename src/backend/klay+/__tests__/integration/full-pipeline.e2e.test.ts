@@ -43,7 +43,6 @@ import { createKnowledgeRetrievalFacade } from "../../knowledge-retrieval/facade
 import { SourceType } from "../../source-ingestion/source/domain/SourceType";
 import { ProjectionType } from "../../semantic-processing/projection/domain/ProjectionType";
 import { TransformationType } from "../../semantic-knowledge/lineage/domain/Transformation";
-import { StrategyType } from "../../semantic-processing/strategy-registry/domain/StrategyType";
 
 // ─── Facade Types ────────────────────────────────────────────────────────────
 import type { SourceIngestionFacade } from "../../source-ingestion/facade/SourceIngestionFacade";
@@ -112,6 +111,9 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     pdf: { sourceId: "", unitId: "" },
   };
 
+  // ─── Processing Profile ID (created in beforeAll) ────────────────────────
+  let processingProfileId = "";
+
   // ─── Shared state for PDF flow ───────────────────────────────────────────
   let pdfExtractedText = "";
 
@@ -159,6 +161,20 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
     console.log("   🔗 Cross-context wiring: Retrieval → Processing vector store config");
     console.log(`\n   📂 NeDB data directory: ${dbPath}`);
     console.log(`      Vector store: ${processing.vectorStoreConfig.dbPath ?? "N/A"}`);
+
+    // Create a processing profile for all tests
+    processingProfileId = crypto.randomUUID();
+    const profileResult = await processing.createProcessingProfile({
+      id: processingProfileId,
+      name: "Integration Test Profile",
+      chunkingStrategyId: "recursive",
+      embeddingStrategyId: "hash-embedding",
+      configuration: { embeddingDimensions: DIMENSIONS },
+    });
+    if (profileResult.isFail()) {
+      throw new Error(`Failed to create processing profile: ${profileResult.error.message}`);
+    }
+    console.log(`   ✅ Processing Profile created: ${processingProfileId.slice(0, 8)}...`);
 
     if (PDF_AVAILABLE) {
       console.log(`   📄 PDF detected: ${path.basename(PDF_PATH!)}`);
@@ -209,6 +225,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
         semanticUnitVersion: 1,
         content: DOCUMENT_DDD,
         type: ProjectionType.Embedding,
+        processingProfileId,
       });
 
       expect(result.isOk()).toBe(true);
@@ -297,6 +314,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
           semanticUnitVersion: 1,
           content: DOCUMENT_CLEAN_ARCH,
           type: ProjectionType.Embedding,
+          processingProfileId,
         },
         {
           projectionId: crypto.randomUUID(),
@@ -304,6 +322,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
           semanticUnitVersion: 1,
           content: DOCUMENT_EVENT_SOURCING,
           type: ProjectionType.Embedding,
+          processingProfileId,
         },
       ]);
 
@@ -480,6 +499,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
         semanticUnitVersion: 2,
         content: DOCUMENT_DDD_UPDATED,
         type: ProjectionType.Embedding,
+        processingProfileId,
       });
 
       expect(result.isOk()).toBe(true);
@@ -569,47 +589,72 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // FLOW 6: Strategy Registration (Semantic Processing)
+  // FLOW 6: Processing Profile Management (Semantic Processing)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  describe("Flow 6: Strategy Registration", () => {
-    it("should register a custom chunking strategy", async () => {
-      console.log("── Flow 6: Strategy Registration ───────────────────────────\n");
-      console.log("🔧 Step 6.1: Registering custom chunking strategy...");
+  describe("Flow 6: Processing Profile Management", () => {
+    it("should create a new processing profile", async () => {
+      console.log("── Flow 6: Processing Profile Management ──────────────────\n");
+      console.log("🔧 Step 6.1: Creating a custom processing profile...");
 
-      const result = await processing.registerProcessingStrategy({
-        id: crypto.randomUUID(),
-        name: "semantic-paragraph-chunker",
-        type: StrategyType.Chunking,
-        configuration: {
-          maxChunkSize: 1024,
-          overlap: 100,
-          splitOn: "paragraph",
-        },
+      const customProfileId = crypto.randomUUID();
+      const result = await processing.createProcessingProfile({
+        id: customProfileId,
+        name: "Custom Sentence Chunking Profile",
+        chunkingStrategyId: "sentence",
+        embeddingStrategyId: "hash-embedding",
+        configuration: { embeddingDimensions: 256 },
       });
 
       expect(result.isOk()).toBe(true);
-      expect(result.value.strategyId).toBeTruthy();
+      expect(result.value.profileId).toBe(customProfileId);
+      expect(result.value.version).toBe(1);
 
-      console.log(`   ✅ Strategy registered: ${result.value.strategyId.slice(0, 8)}...\n`);
+      console.log(`   ✅ Profile created: ${customProfileId.slice(0, 8)}... (v${result.value.version})\n`);
     });
 
-    it("should register a custom embedding strategy", async () => {
-      console.log("🔧 Step 6.2: Registering custom embedding strategy...");
+    it("should update a processing profile", async () => {
+      console.log("🔧 Step 6.2: Updating processing profile...");
 
-      const result = await processing.registerProcessingStrategy({
-        id: crypto.randomUUID(),
-        name: "hash-embedding-256",
-        type: StrategyType.Embedding,
-        configuration: {
-          provider: "hash",
-          dimensions: 256,
-        },
+      const updateProfileId = crypto.randomUUID();
+      await processing.createProcessingProfile({
+        id: updateProfileId,
+        name: "Profile to Update",
+        chunkingStrategyId: "fixed-size",
+        embeddingStrategyId: "hash-embedding",
+      });
+
+      const result = await processing.updateProcessingProfile({
+        id: updateProfileId,
+        name: "Updated Profile",
+        chunkingStrategyId: "recursive",
+      });
+
+      expect(result.isOk()).toBe(true);
+      expect(result.value.version).toBe(2);
+
+      console.log(`   ✅ Profile updated: ${updateProfileId.slice(0, 8)}... (v${result.value.version})\n`);
+    });
+
+    it("should deprecate a processing profile", async () => {
+      console.log("🔧 Step 6.3: Deprecating processing profile...");
+
+      const deprecateProfileId = crypto.randomUUID();
+      await processing.createProcessingProfile({
+        id: deprecateProfileId,
+        name: "Profile to Deprecate",
+        chunkingStrategyId: "recursive",
+        embeddingStrategyId: "hash-embedding",
+      });
+
+      const result = await processing.deprecateProcessingProfile({
+        id: deprecateProfileId,
+        reason: "No longer needed",
       });
 
       expect(result.isOk()).toBe(true);
 
-      console.log(`   ✅ Strategy registered: ${result.value.strategyId.slice(0, 8)}...\n`);
+      console.log(`   ✅ Profile deprecated: ${deprecateProfileId.slice(0, 8)}...\n`);
     });
   });
 
@@ -724,9 +769,9 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
 
       // Semantic Processing modules
       expect(processing.projection).toBeDefined();
-      expect(processing.strategyRegistry).toBeDefined();
+      expect(processing.processingProfile).toBeDefined();
       expect(processing.vectorStoreConfig).toBeDefined();
-      console.log("   ✅ Semantic Processing: projection, strategyRegistry, vectorStoreConfig");
+      console.log("   ✅ Semantic Processing: projection, processingProfile, vectorStoreConfig");
 
       // Semantic Knowledge modules
       expect(knowledge.semanticUnit).toBeDefined();
@@ -747,7 +792,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
       console.log("   ✅ Semantic Search → Query → Batch Search → Deduplication");
       console.log("   ✅ Cross-context data integrity (sourceId ↔ unitId ↔ vectors)");
       console.log("   ✅ Error handling across all boundaries");
-      console.log("   ✅ Strategy registration and management");
+      console.log("   ✅ Processing profile management (create, update, deprecate)");
       if (PDF_AVAILABLE) {
         console.log("   ✅ Real PDF pipeline (ingestion → extraction → embeddings → retrieval)");
       }
@@ -816,6 +861,7 @@ describe("Full-Pipeline Integration: All Bounded Contexts", () => {
         semanticUnitVersion: 1,
         content: pdfExtractedText,
         type: ProjectionType.Embedding,
+        processingProfileId,
       });
 
       expect(result.isOk()).toBe(true);

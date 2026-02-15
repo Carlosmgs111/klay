@@ -2,9 +2,10 @@ import type {
   ProjectionInfrastructurePolicy,
   EmbeddingProvider,
 } from "../../projection/composition/index";
-import type { StrategyRegistryInfrastructurePolicy } from "../../strategy-registry/composition/index";
+import type { ProcessingProfileInfrastructurePolicy } from "../../processing-profile/composition/index";
 import type { ProjectionUseCases } from "../../projection/application/index";
-import type { StrategyRegistryUseCases } from "../../strategy-registry/application/index";
+import type { ProcessingProfileUseCases } from "../../processing-profile/application/index";
+import type { ProcessingProfileRepository } from "../../processing-profile/domain/ProcessingProfileRepository";
 import type { VectorEntry } from "../../../shared/domain/VectorEntry";
 
 // Re-export for convenience
@@ -52,12 +53,6 @@ export interface SemanticProcessingFacadePolicy {
   embeddingDimensions?: number;
 
   /**
-   * @deprecated Use `embeddingProvider` and `embeddingModel` instead.
-   * AI SDK model ID for server-side embeddings.
-   */
-  aiSdkModelId?: string;
-
-  /**
    * Embedding provider to use.
    * - "hash": Local deterministic embeddings (no API required)
    * - "openai": OpenAI text-embedding models (requires OPENAI_API_KEY)
@@ -92,7 +87,7 @@ export interface SemanticProcessingFacadePolicy {
    */
   overrides?: {
     projection?: Partial<ProjectionInfrastructurePolicy>;
-    strategyRegistry?: Partial<StrategyRegistryInfrastructurePolicy>;
+    processingProfile?: Partial<ProcessingProfileInfrastructurePolicy>;
   };
 
   // ─── Environment Configuration ─────────────────────────────────────────────
@@ -116,7 +111,12 @@ export interface SemanticProcessingFacadePolicy {
 
 export interface ResolvedSemanticProcessingModules {
   projection: ProjectionUseCases;
-  strategyRegistry: StrategyRegistryUseCases;
+  processingProfile: ProcessingProfileUseCases;
+  /**
+   * Exposed for cross-module wiring — GenerateProjection needs
+   * to look up profiles at runtime.
+   */
+  profileRepository: ProcessingProfileRepository;
   /**
    * Configuration for cross-context vector store wiring.
    * Each context creates its own VectorReadStore/VectorWriteStore

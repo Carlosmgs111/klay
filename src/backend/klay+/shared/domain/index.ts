@@ -18,12 +18,3 @@ export {
   InvalidStateError,
   OperationError,
 } from "./errors";
-
-export type {
-  IntegrationEvent,
-  SourceExtractedEvent,
-  SemanticUnitCreatedEvent,
-  SemanticUnitVersionedEvent,
-  SemanticUnitReprocessRequestedEvent,
-  ProjectionGeneratedEvent,
-} from "./events/index";

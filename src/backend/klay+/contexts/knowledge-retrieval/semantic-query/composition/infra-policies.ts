@@ -1,7 +1,7 @@
 import type { QueryEmbedder } from "../domain/ports/QueryEmbedder.js";
 import type { VectorReadStore } from "../domain/ports/VectorReadStore.js";
 import type { RankingStrategy } from "../domain/ports/RankingStrategy.js";
-import type { VectorEntry } from "../../../../shared/domain/VectorEntry.js";
+import type { VectorEntry } from "../../../../platform/vector/VectorEntry.js";
 
 // ─── Policy Types ─────────────────────────────────────────────────────────────
 

@@ -15,7 +15,7 @@ import { createKnowledgeRetrievalFacade } from "../facade/index";
 import { InMemoryVectorWriteStore } from "../../../platform/vector/InMemoryVectorWriteStore";
 import { hashToVector } from "../../../platform/vector/hashVector";
 import type { KnowledgeRetrievalFacade } from "../facade/KnowledgeRetrievalFacade";
-import type { VectorEntry } from "../../../shared/domain/VectorEntry";
+import type { VectorEntry } from "../../../platform/vector/VectorEntry";
 
 describe("Knowledge Retrieval Context E2E", () => {
   let facade: KnowledgeRetrievalFacade;

@@ -6,7 +6,7 @@ import type { ProcessingProfileInfrastructurePolicy } from "../../processing-pro
 import type { ProjectionUseCases } from "../../projection/application/index";
 import type { ProcessingProfileUseCases } from "../../processing-profile/application/index";
 import type { ProcessingProfileRepository } from "../../processing-profile/domain/ProcessingProfileRepository";
-import type { VectorEntry } from "../../../../shared/domain/VectorEntry";
+import type { VectorEntry } from "../../../../platform/vector/VectorEntry";
 
 // Re-export for convenience
 export type { EmbeddingProvider } from "../../projection/composition/index";

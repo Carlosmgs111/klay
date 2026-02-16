@@ -1,4 +1,4 @@
-import type { VectorEntry } from "../../../../../shared/domain/VectorEntry";
+import type { VectorEntry } from "../../../../../platform/vector/VectorEntry";
 
 export interface VectorWriteStore {
   upsert(entries: VectorEntry[]): Promise<void>;

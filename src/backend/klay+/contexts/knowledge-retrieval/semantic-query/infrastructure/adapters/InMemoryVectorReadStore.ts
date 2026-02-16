@@ -1,5 +1,5 @@
 import type { VectorReadStore, SearchHit } from "../../domain/ports/VectorReadStore.js";
-import type { VectorEntry } from "../../../../../shared/domain/VectorEntry.js";
+import type { VectorEntry } from "../../../../../platform/vector/VectorEntry.js";
 import { cosineSimilarity } from "../../../../../platform/vector/hashVector.js";
 
 /**

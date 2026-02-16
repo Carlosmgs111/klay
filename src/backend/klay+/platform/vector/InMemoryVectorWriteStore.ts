@@ -1,4 +1,4 @@
-import type { VectorEntry } from "../../shared/domain/VectorEntry";
+import type { VectorEntry } from "./VectorEntry";
 
 /**
  * In-memory vector write store for testing and in-memory infrastructure.

@@ -1,7 +1,7 @@
 import type { VectorReadStore, SearchHit } from "../../domain/ports/VectorReadStore.js";
 import { IndexedDBStore } from "../../../../../platform/persistence/indexeddb/IndexedDBStore.js";
 import { cosineSimilarity } from "../../../../../platform/vector/hashVector.js";
-import { fromDTO, type VectorEntryDTO } from "../../../../../shared/domain/VectorEntry.js";
+import { fromDTO, type VectorEntryDTO } from "../../../../../platform/vector/VectorEntrySerialization.js";
 
 /**
  * IndexedDB-backed VectorReadStore implementation.

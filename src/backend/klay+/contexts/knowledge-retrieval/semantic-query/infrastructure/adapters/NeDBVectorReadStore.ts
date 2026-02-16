@@ -1,7 +1,7 @@
 import type { VectorReadStore, SearchHit } from "../../domain/ports/VectorReadStore.js";
 import { NeDBStore } from "../../../../../platform/persistence/nedb/NeDBStore.js";
 import { cosineSimilarity } from "../../../../../platform/vector/hashVector.js";
-import { fromDTO, type VectorEntryDTO } from "../../../../../shared/domain/VectorEntry.js";
+import { fromDTO, type VectorEntryDTO } from "../../../../../platform/vector/VectorEntrySerialization.js";
 
 /**
  * NeDB-backed VectorReadStore implementation.

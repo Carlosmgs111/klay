@@ -18,11 +18,11 @@
       "@/layouts/*": ["src/layouts/*"],
       "@/modules/*": ["src/backend/*"],
       "@klay+/*": ["src/backend/klay+/*"],
-      "@klay+/source-ingestion/*": ["src/backend/klay+/source-ingestion/*"],
-      "@klay+/semantic-knowledge/*": ["src/backend/klay+/semantic-knowledge/*"],
-      "@klay+/semantic-processing/*": ["src/backend/klay+/semantic-processing/*"],
-      "@klay+/knowledge-retrieval/*": ["src/backend/klay+/knowledge-retrieval/*"],
-      "@klay+/shared/*": ["src/backend/klay+/shared/*"]
+      "@klay+/shared/*": ["src/backend/klay+/shared/*"],
+      "@klay+/platform/*": ["src/backend/klay+/platform/*"],
+      "@klay+/contexts/*": ["src/backend/klay+/contexts/*"],
+      "@klay+/application/*": ["src/backend/klay+/application/*"],
+      "@klay+/adapters/*": ["src/backend/klay+/adapters/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
